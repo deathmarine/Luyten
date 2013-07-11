@@ -302,6 +302,8 @@ public class Model extends JFrame implements WindowListener{
 					e.printStackTrace();
 				}
 				OpenFile open = new OpenFile("Legal", sb.toString(), theme);
+				hmap.add(open);
+			    addTab("Legal", open.scrollPane);
 				
 			}
         });

@@ -1,4 +1,5 @@
 /.settings
+/.externalToolBuilders
 /bin
 /dist
 .classpath
