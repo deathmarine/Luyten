@@ -4,13 +4,18 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
-	<property name="launch4j" location="D:/launch4j/" />
+	<property name="launch4j.dir" location="../../launch4j" />
 	
 	<path id="Model.classpath">
 		<pathelement location="bin" />
 		<pathelement location="lib/procyon-decompiler-0.3.5.jar" />
 	</path>
-
+	
+	<taskdef name="launch4j"
+	    classname="net.sf.launch4j.ant.Launch4jTask"
+	    classpath="${launch4j.dir}/launch4j.jar
+	        :${launch4j.dir}/lib/xstream.jar" />
+	
 	<target name="init" description="Initialize directories, etc.">
 		<mkdir dir="bin" />
 		<mkdir dir="dist" />
@@ -85,6 +90,8 @@
 			<zipgroupfileset dir="dist" includes="temp.jar" />
 		</zip>
 		<delete file="dist/temp.jar" />
+		<launch4j configFile="./l4j.xml"/>
+		
 	</target>
 
 
