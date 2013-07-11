@@ -70,6 +70,7 @@ import com.strobel.assembler.metadata.TypeDefinition;
 import com.strobel.assembler.metadata.TypeReference;
 import com.strobel.core.StringUtilities;
 import com.strobel.decompiler.DecompilationOptions;
+import com.strobel.decompiler.DecompilerDriver;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.Languages;
@@ -342,12 +343,20 @@ public class Model extends JFrame implements WindowListener{
 	    decompilationOptions.setSettings(settings);
 	    decompilationOptions.setFullDecompilation(true);
 	}
+	
 	public static void main(final String[] args){
 		SwingUtilities.invokeLater(new Runnable(){
+			@SuppressWarnings("rawtypes")
 			@Override
 			public void run() {
 				if(args.length>0){
-					new Model(args[0]);
+					if(Arrays.asList(args).contains("--nogui")){
+						List<String> list = new LinkedList(Arrays.asList(args));
+						list.remove("--nogui");
+						DecompilerDriver.main(list.toArray(new String[]{}));
+					}else{
+						new Model(args[0]);
+					}
 				}else{
 					new Model();
 				}
