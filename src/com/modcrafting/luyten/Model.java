@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -63,6 +64,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import com.strobel.assembler.InputTypeLoader;
 import com.strobel.assembler.metadata.CompositeTypeLoader;
 import com.strobel.assembler.metadata.JarTypeLoader;
 import com.strobel.assembler.metadata.MetadataSystem;
@@ -79,7 +81,7 @@ public class Model extends JFrame implements WindowListener{
 	private static final long serialVersionUID = 6896857630400910200L;
 	JTree tree;
 	JTabbedPane house;
-	JarFile file;
+	File file;
 	JSplitPane jsp;
 	DecompilerSettings settings;
 	DecompilationOptions decompilationOptions;
@@ -135,7 +137,7 @@ public class Model extends JFrame implements WindowListener{
 	    
 	    house = new JTabbedPane();
 	    house.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-	    //TODO: research
+	    
 	    JPanel panel = new JPanel();
 	    panel.setLayout(new BoxLayout(panel, 1));
 	    panel.setBorder(BorderFactory.createTitledBorder("Code"));
@@ -312,7 +314,7 @@ public class Model extends JFrame implements WindowListener{
         menuItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				JOptionPane.showMessageDialog(null, "Luyten Gui v0.2 Build#"+JENKINS_BUILD+"\nby Deathmarine\n\n" +
+				JOptionPane.showMessageDialog(null, "Luyten Gui v0.3 Build#"+JENKINS_BUILD+"\nby Deathmarine\n\n" +
 						"Powered By\nProcyon v0.3.10\n(c)2013 Mike Strobel\n\nRSyntaxTextArea\n(c) 2012 Robert Futrell\nAll rights reserved.");
 				
 			}
@@ -369,78 +371,106 @@ public class Model extends JFrame implements WindowListener{
 			TreePath trp = tree.getPathForLocation(event.getX(), event.getY());
 			if(trp == null)
 				return;
-        	if(SwingUtilities.isLeftMouseButton(event) && event.getClickCount() == 2){
+        	if(SwingUtilities.isLeftMouseButton(event) 
+        			&& event.getClickCount() == 2){
         		String st = trp.toString().replace(file.getName(), "");
     			final String[] args = st.replace("[", "").replace("]", "").split(",");
-    			if(args.length>1){
-    				String name = new String();
-    				StringBuilder sb = new StringBuilder();
-    				for(int i=1;i<args.length;i++){
-    					if(i==args.length-1){
-    						name = args[i].trim(); //FileName To Open
-    					}else{
-        					sb.append(args[i].trim()).append("/");
-    					}
-    				}
-    				/*
-    				if(sb.length() > 1){
-    					sb.deleteCharAt(sb.length()-1);
-    					sb.toString(); //Package
-    				}
-    				*/    			
-    				settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
-    				settings.setForceExplicitImports(forceExplicitImports.isSelected());
-    				settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
-    				settings.setShowNestedTypes(showNestedTypes.isSelected());
-    				settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
-    				if(java.isSelected()){
-    					settings.setLanguage(Languages.java());
-    				}else if(bytecode.isSelected()){
-    					settings.setLanguage(Languages.bytecode());
-    				}else if(bytecodeAST.isSelected()){
-    					settings.setLanguage(Languages.bytecodeAst());
-    				}else if(bytecodeUn.isSelected()){
-    					settings.setLanguage(Languages.bytecodeAstUnoptimized());
-    				}
-    				JarEntry entry = file.getJarEntry(sb.toString().replace(".", "/")+name);
-    				if (entry.getName().endsWith(".class")){
-    					String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-    					try {
-    					    settings.setTypeLoader(new CompositeTypeLoader(new JarTypeLoader(file)));
-    					    MetadataSystem metadataSystem = new MetadataSystem(settings.getTypeLoader());
-    					    TypeReference type = metadataSystem.lookupType(internalName);
-    					    TypeDefinition resolvedType = null;
-    					    if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-    					    	//Dialog end operation
-    					    }
-    					    StringWriter stringwriter = new StringWriter();
-    					    settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
-    					    OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
-    					    hmap.add(open);
-    					    addTab(name, open.scrollPane);
-    					    stringwriter.close();
-    			        } catch (Throwable t) {
-    			          t.printStackTrace();
-    			        }
-    				}else{
-						try {
-							InputStream in = file.getInputStream(entry);
-	    					StringBuilder sd = new StringBuilder();
-							if(in != null){
-								BufferedReader reader = new BufferedReader(
-										new InputStreamReader(in));
-		    					String line;
-		    					while((line = reader.readLine())!=null)
-		    						sd.append(line).append("\n");
+				try {
+	    			if(args.length>1){
+	    				String name = new String();
+	    				StringBuilder sb = new StringBuilder();
+	    				for(int i=1;i<args.length;i++){
+	    					if(i==args.length-1){
+	    						name = args[i].trim();
+	    					}else{
+	        					sb.append(args[i].trim()).append("/");
+	    					}
+	    				} 			
+	    				settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
+	    				settings.setForceExplicitImports(forceExplicitImports.isSelected());
+	    				settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
+	    				settings.setShowNestedTypes(showNestedTypes.isSelected());
+	    				settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
+	    				if(java.isSelected()){
+	    					settings.setLanguage(Languages.java());
+	    				}else if(bytecode.isSelected()){
+	    					settings.setLanguage(Languages.bytecode());
+	    				}else if(bytecodeAST.isSelected()){
+	    					settings.setLanguage(Languages.bytecodeAst());
+	    				}else if(bytecodeUn.isSelected()){
+	    					settings.setLanguage(Languages.bytecodeAstUnoptimized());
+	    				}
+						if(file.getName().endsWith(".jar") || file.getName().endsWith(".zip")){
+							try {
+								JarFile jfile = new JarFile(file);
+			    				JarEntry entry = jfile.getJarEntry(sb.toString().replace(".", "/")+name);
+			    				if (entry.getName().endsWith(".class")){
+			    					String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+		    					    MetadataSystem metadataSystem = new MetadataSystem(settings.getTypeLoader());
+		    					    TypeReference type = metadataSystem.lookupType(internalName);
+		    					    TypeDefinition resolvedType = null;
+		    					    if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+		    					    	//Dialog end operation
+		    					    	jfile.close();
+								    	return;
+		    					    }
+		    					    StringWriter stringwriter = new StringWriter();
+		    					    settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
+		    					    OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
+		    					    hmap.add(open);
+		    					    addTab(name, open.scrollPane);
+		    					    stringwriter.close();
+			    				}else{
+									InputStream in = jfile.getInputStream(entry);
+			    					StringBuilder sd = new StringBuilder();
+									if(in != null){
+										BufferedReader reader = new BufferedReader(
+												new InputStreamReader(in));
+				    					String line;
+				    					while((line = reader.readLine())!=null)
+				    						sd.append(line).append("\n");
+				    					reader.close();
+									}
+			    					OpenFile open = new OpenFile(name, sd.toString(), theme);
+			    					hmap.add(open);
+		    					    addTab(name, open.scrollPane);
+			    				}
+				    		    jfile.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
 							}
+						}
+	    			}else{
+	    				String name = file.getName();
+	    				if(name.endsWith(".class")){
+						    MetadataSystem metadataSystem = new MetadataSystem(settings.getTypeLoader());
+						    TypeReference type = metadataSystem.lookupType(file.getPath());
+						    TypeDefinition resolvedType = null;
+						    if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+						    	return;
+						    }
+						    StringWriter stringwriter = new StringWriter();
+						    settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
+						    OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
+						    hmap.add(open);
+						    addTab(name, open.scrollPane);
+						    stringwriter.close();
+						}else{
+	    					StringBuilder sd = new StringBuilder();
+							BufferedReader reader = new BufferedReader(
+									new InputStreamReader(new FileInputStream(file)));
+	    					String line;
+	    					while((line = reader.readLine())!=null)
+	    						sd.append(line).append("\n");
+	    					reader.close();
 	    					OpenFile open = new OpenFile(name, sd.toString(), theme);
 	    					hmap.add(open);
-    					    addTab(name, open.scrollPane);
-						} catch (IOException e) {
-							e.printStackTrace();
+						    addTab(name, open.scrollPane);
 						}
-    				}
-    			}
+	    			}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
     			
         	}else{
 		        tree.getSelectionModel().setSelectionPath(trp);
@@ -503,6 +533,7 @@ public class Model extends JFrame implements WindowListener{
 			fc = new JFileChooser();
 			fc.addChoosableFileFilter(new FileChooserFileFilter("*.jar"));
 			fc.addChoosableFileFilter(new FileChooserFileFilter("*.zip"));
+			fc.addChoosableFileFilter(new FileChooserFileFilter("*.class"));
 			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			fc.setMultiSelectionEnabled(false);
 		}
@@ -510,23 +541,31 @@ public class Model extends JFrame implements WindowListener{
 	    public void actionPerformed(ActionEvent e) {
 	    	int returnVal = fc.showOpenDialog(Model.frame);
 	    	if (returnVal == JFileChooser.APPROVE_OPTION) {
-	    			File jfile = fc.getSelectedFile();	
+	    			file = fc.getSelectedFile();	
 	    			if(open)
 	    				new FileClose().actionPerformed(e);
 	    		    try {
-						file = new JarFile(jfile);
-		    		    Enumeration<JarEntry> entry = file.entries();
-		    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-		    		    List<String> mass = new ArrayList<String>();
-		    		    while(entry.hasMoreElements())
-		    		    	mass.add(entry.nextElement().getName());
-		    		    Collections.sort(mass,String.CASE_INSENSITIVE_ORDER);
-		    		    for(String pack : mass){
-		    		    	LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
-		    		    	load(top, list);
-		    		    }
-		    		    tree.setModel(new DefaultTreeModel(top));
-		    		    open = true;
+	    		    	if(file.getName().endsWith(".zip") || file.getName().endsWith(".jar")){
+							JarFile jfile = new JarFile(file);
+			    		    Enumeration<JarEntry> entry = jfile.entries();
+			    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+			    		    List<String> mass = new ArrayList<String>();
+			    		    while(entry.hasMoreElements())
+			    		    	mass.add(entry.nextElement().getName());
+			    		    Collections.sort(mass,String.CASE_INSENSITIVE_ORDER);
+			    		    for(String pack : mass){
+			    		    	LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
+			    		    	load(top, list);
+			    		    }
+			    		    tree.setModel(new DefaultTreeModel(top));
+    					    settings.setTypeLoader(new JarTypeLoader(jfile));
+			    		    open = true;
+	    		    	}else{
+			    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+			    		    tree.setModel(new DefaultTreeModel(top));
+						    settings.setTypeLoader(new InputTypeLoader());
+			    		    open = true;
+	    		    	}
 					} catch (IOException e1) {
 						//JOptionPane.showMessageDialog(null, null);
 					}
@@ -572,8 +611,11 @@ public class Model extends JFrame implements WindowListener{
 	public class FileClose implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			for(Component co : house.getComponents())
-				house.remove(co);
+			for(OpenFile co : hmap){
+				int pos = house.indexOfTab(co.name);
+				if(pos > 0)
+					house.remove(pos);
+			}
 			hmap.clear();
 			tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No File")));
 			open = false;

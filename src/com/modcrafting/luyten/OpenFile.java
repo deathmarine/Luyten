@@ -10,7 +10,9 @@ public class OpenFile implements SyntaxConstants{
 	RTextScrollPane scrollPane;
 	Panel image_pane;
 	RSyntaxTextArea textArea;
+	String name;
 	public OpenFile(String name, String contents, Theme theme){
+		this.name = name;
 		textArea = new RSyntaxTextArea(25, 70);
 		textArea.setCaretPosition(0);
 		textArea.requestFocusInWindow();
