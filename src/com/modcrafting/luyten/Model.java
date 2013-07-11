@@ -1,6 +1,5 @@
 package com.modcrafting.luyten;
 
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -65,7 +64,6 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import com.strobel.assembler.InputTypeLoader;
-import com.strobel.assembler.metadata.CompositeTypeLoader;
 import com.strobel.assembler.metadata.JarTypeLoader;
 import com.strobel.assembler.metadata.MetadataSystem;
 import com.strobel.assembler.metadata.TypeDefinition;
@@ -100,6 +98,20 @@ public class Model extends JFrame implements WindowListener{
     public static final String JENKINS_BUILD = "JENKINSBUILDNUMBER";
 	public Model(){
 		frame = this;
+		setup();
+	}
+	public Model(String string) {
+		frame = this;
+		setup();
+		try {
+			file = new File(string);
+			new FileLoad(false).loadFile(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void setup(){
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
         final int x = (int) (center.width * 0.2);
@@ -152,7 +164,7 @@ public class Model extends JFrame implements WindowListener{
         
         JMenuItem menuItem = new JMenuItem("Open File...");
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		menuItem.addActionListener(new FileLoad());
+		menuItem.addActionListener(new FileLoad(true));
 		fileMenu.add(menuItem);
 	    fileMenu.addSeparator();
 	    
@@ -329,13 +341,16 @@ public class Model extends JFrame implements WindowListener{
 		decompilationOptions = new DecompilationOptions();
 	    decompilationOptions.setSettings(settings);
 	    decompilationOptions.setFullDecompilation(true);
-	    
 	}
-	public static void main(String[] args){
+	public static void main(final String[] args){
 		SwingUtilities.invokeLater(new Runnable(){
 			@Override
 			public void run() {
-				new Model();
+				if(args.length>0){
+					new Model(args[0]);
+				}else{
+					new Model();
+				}
 			}
 		});
 	}
@@ -528,14 +543,15 @@ public class Model extends JFrame implements WindowListener{
 	
 	private class FileLoad implements ActionListener{
 		JFileChooser fc;
-		public FileLoad(){
-
-			fc = new JFileChooser();
-			fc.addChoosableFileFilter(new FileChooserFileFilter("*.jar"));
-			fc.addChoosableFileFilter(new FileChooserFileFilter("*.zip"));
-			fc.addChoosableFileFilter(new FileChooserFileFilter("*.class"));
-			fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-			fc.setMultiSelectionEnabled(false);
+		public FileLoad(boolean dialog){
+			if(dialog){
+				fc = new JFileChooser();
+				fc.addChoosableFileFilter(new FileChooserFileFilter("*.jar"));
+				fc.addChoosableFileFilter(new FileChooserFileFilter("*.zip"));
+				fc.addChoosableFileFilter(new FileChooserFileFilter("*.class"));
+				fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				fc.setMultiSelectionEnabled(false);
+			}
 		}
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
@@ -545,27 +561,7 @@ public class Model extends JFrame implements WindowListener{
 	    			if(open)
 	    				new FileClose().actionPerformed(e);
 	    		    try {
-	    		    	if(file.getName().endsWith(".zip") || file.getName().endsWith(".jar")){
-							JarFile jfile = new JarFile(file);
-			    		    Enumeration<JarEntry> entry = jfile.entries();
-			    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-			    		    List<String> mass = new ArrayList<String>();
-			    		    while(entry.hasMoreElements())
-			    		    	mass.add(entry.nextElement().getName());
-			    		    Collections.sort(mass,String.CASE_INSENSITIVE_ORDER);
-			    		    for(String pack : mass){
-			    		    	LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
-			    		    	load(top, list);
-			    		    }
-			    		    tree.setModel(new DefaultTreeModel(top));
-    					    settings.setTypeLoader(new JarTypeLoader(jfile));
-			    		    open = true;
-	    		    	}else{
-			    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-			    		    tree.setModel(new DefaultTreeModel(top));
-						    settings.setTypeLoader(new InputTypeLoader());
-			    		    open = true;
-	    		    	}
+	    		    	loadFile(file);
 					} catch (IOException e1) {
 						//JOptionPane.showMessageDialog(null, null);
 					}
@@ -606,6 +602,29 @@ public class Model extends JFrame implements WindowListener{
 	  		return path;
 	  	}
 		
+	    public void loadFile(File file) throws IOException{
+	    	if(file.getName().endsWith(".zip") || file.getName().endsWith(".jar")){
+				JarFile jfile = new JarFile(file);
+    		    Enumeration<JarEntry> entry = jfile.entries();
+    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+    		    List<String> mass = new ArrayList<String>();
+    		    while(entry.hasMoreElements())
+    		    	mass.add(entry.nextElement().getName());
+    		    Collections.sort(mass,String.CASE_INSENSITIVE_ORDER);
+    		    for(String pack : mass){
+    		    	LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
+    		    	load(top, list);
+    		    }
+    		    tree.setModel(new DefaultTreeModel(top));
+			    settings.setTypeLoader(new JarTypeLoader(jfile));
+    		    open = true;
+	    	}else{
+    		    DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+    		    tree.setModel(new DefaultTreeModel(top));
+			    settings.setTypeLoader(new InputTypeLoader());
+    		    open = true;
+	    	}
+	    }
 	}
 	
 	public class FileClose implements ActionListener{
