@@ -1,0 +1,76 @@
+<!-- DTD for RSyntaxTextArea Theme XML. -->
+<!ELEMENT RSyntaxTheme (baseFont, background, caret, selection,
+      currentLineHighlight, marginLine, markAllHighlight, markOccurrencesHighlight,
+      matchedBracket, hyperlinks, secondaryLanguages, gutterBorder, lineNumbers,
+      foldIndicator, iconRowHeader, tokenStyles)>
+<!ELEMENT background EMPTY>
+<!ELEMENT baseFont EMPTY>
+<!ELEMENT caret EMPTY>
+<!ELEMENT selection EMPTY>
+<!ELEMENT currentLineHighlight EMPTY>
+<!ELEMENT marginLine EMPTY>
+<!ELEMENT markAllHighlight EMPTY>
+<!ELEMENT markOccurrencesHighlight EMPTY>
+<!ELEMENT matchedBracket EMPTY>
+<!ELEMENT hyperlinks EMPTY>
+<!ELEMENT secondaryLanguages (language+)>
+<!ELEMENT language EMPTY>
+<!ELEMENT gutterBorder EMPTY>
+<!ELEMENT lineNumbers EMPTY>
+<!ELEMENT foldIndicator EMPTY>
+<!ELEMENT iconRowHeader EMPTY>
+<!ELEMENT tokenStyles (style+)>
+<!ELEMENT style EMPTY>
+
+<!ATTLIST RSyntaxTheme
+      version  CDATA #REQUIRED>
+<!ATTLIST background
+      color    CDATA #REQUIRED>
+<!ATTLIST baseFont
+      family    CDATA #IMPLIED
+      size      CDATA #REQUIRED>
+<!ATTLIST caret
+      color     CDATA #REQUIRED>
+<!ATTLIST selection
+      bg        CDATA #REQUIRED
+      roundedEdges (true|false) "false">
+<!ATTLIST currentLineHighlight
+      color     CDATA #REQUIRED
+      fade      (true|false) "false">
+<!ATTLIST marginLine
+      fg         CDATA #REQUIRED>
+<!ATTLIST markAllHighlight
+      color      CDATA #REQUIRED>
+<!ATTLIST markOccurrencesHighlight
+      color      CDATA #REQUIRED
+      border     (true|false) "false">
+<!ATTLIST matchedBracket
+      fg            CDATA #REQUIRED
+      bg            CDATA #IMPLIED
+      highlightBoth (true|false) "false"
+      animate       (true|false) "false">
+<!ATTLIST hyperlinks
+      fg         CDATA #REQUIRED>
+<!ATTLIST language
+      index      (1|2|3) #REQUIRED
+      bg         CDATA   #REQUIRED>
+<!ATTLIST gutterBorder
+      color      CDATA #REQUIRED>
+<!ATTLIST lineNumbers
+      fg         CDATA #REQUIRED
+      fontFamily CDATA #IMPLIED
+      fontSize   CDATA #IMPLIED>
+<!ATTLIST foldIndicator
+      fg         CDATA #REQUIRED
+      iconBg     CDATA #REQUIRED>
+<!ATTLIST iconRowHeader
+      activeLineRange CDATA #REQUIRED>
+<!ATTLIST style
+      token      CDATA #REQUIRED
+      fg         CDATA #IMPLIED
+      bg         CDATA #IMPLIED
+      fontFamily CDATA #IMPLIED
+      fontSize   CDATA #IMPLIED
+      bold       (true|false) "false"
+      italic     (true|false) "false"
+      underline  (true|false) "false">

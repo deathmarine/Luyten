@@ -95,6 +95,7 @@ public class Model extends JFrame implements WindowListener{
 	JRadioButtonMenuItem bytecodeUn;
 	HashSet<OpenFile> hmap = new HashSet<OpenFile>();
 	boolean open = false;
+    public static final String JENKINS_BUILD = "#0";
 	public Model(){
 		frame = this;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -309,7 +310,7 @@ public class Model extends JFrame implements WindowListener{
         menuItem.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent event) {
-				JOptionPane.showMessageDialog(null, "Luyten Gui v0.1\nby Deathmarine\n\n" +
+				JOptionPane.showMessageDialog(null, "Luyten Gui v0.1 Build#"+JENKINS_BUILD+"\nby Deathmarine\n\n" +
 						"Powered By\nProcyon v0.3.5\n(c)2013 Mike Strobel\n\nRSyntaxTextArea\n(c) 2012 Robert Futrell\nAll rights reserved.");
 				
 			}
