@@ -12,7 +12,7 @@
   <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon></icon>
+  <icon>.\Luyten.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.6.0_0</minVersion>
