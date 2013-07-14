@@ -88,8 +88,10 @@ public class Model extends JFrame implements WindowListener{
 	Theme theme;
 	JCheckBox flattenSwitchBlocks;
 	JCheckBox forceExplicitImports;
+	JCheckBox forceExplicitTypes;
 	JCheckBox showSyntheticMembers;
 	JCheckBox showNestedTypes;
+	JCheckBox retainRedundantCasts;
 	JRadioButtonMenuItem java;
 	JRadioButtonMenuItem bytecode;
 	JRadioButtonMenuItem bytecodeAST;
@@ -266,16 +268,19 @@ public class Model extends JFrame implements WindowListener{
 	    settings = new DecompilerSettings();
 	    if (settings.getFormattingOptions() == null)
 	      settings.setFormattingOptions(JavaFormattingOptions.createDefault());
-
 	    fileMenu = new JMenu("Settings");
 	    flattenSwitchBlocks = new JCheckBox("Flatten Switch Blocks");
 	    fileMenu.add(flattenSwitchBlocks);
 	    forceExplicitImports = new JCheckBox("Force Explicit Imports");
 	    fileMenu.add(forceExplicitImports);
+	    forceExplicitTypes = new JCheckBox("Force Explicit Types");
+	    fileMenu.add(forceExplicitTypes);
 	    showSyntheticMembers = new JCheckBox("Show Synthetic Members");
 	    fileMenu.add(showSyntheticMembers);
 	    showNestedTypes = new JCheckBox("Show Nested Types");
-	    fileMenu.add(showNestedTypes);
+	    fileMenu.add(showSyntheticMembers);
+	    retainRedundantCasts = new JCheckBox("Retain Redundant Casts");
+	    fileMenu.add(retainRedundantCasts);
 	    fileMenu.addSeparator();
 
 	    group = new ButtonGroup();
@@ -328,7 +333,7 @@ public class Model extends JFrame implements WindowListener{
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				JOptionPane.showMessageDialog(null, "Luyten Gui v0.3 Build#"+JENKINS_BUILD+"\nby Deathmarine\n\n" +
-						"Powered By\nProcyon v0.3.10\n(c)2013 Mike Strobel\n\nRSyntaxTextArea\n(c) 2012 Robert Futrell\nAll rights reserved.");
+						"Powered By\nProcyon v0.4\n(c)2013 Mike Strobel\n\nRSyntaxTextArea\n(c) 2012 Robert Futrell\nAll rights reserved.");
 				
 			}
         });
@@ -414,6 +419,8 @@ public class Model extends JFrame implements WindowListener{
 	    				settings.setForceExplicitImports(forceExplicitImports.isSelected());
 	    				settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
 	    				settings.setShowNestedTypes(showNestedTypes.isSelected());
+	    			    settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
+	    			    settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
 	    				settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
 	    				if(java.isSelected()){
 	    					settings.setLanguage(Languages.java());
