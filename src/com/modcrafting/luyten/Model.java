@@ -5,6 +5,14 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -18,7 +26,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +36,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TooManyListenersException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -122,6 +133,13 @@ public class Model extends JFrame implements WindowListener{
         this.setBounds(x, y, center.width, center.height);
         this.setTitle("Luyten");
         this.addWindowListener(this);
+	    DropTarget dt = new DropTarget();
+		try {
+			dt.addDropTargetListener(new DropListener());
+		} catch (TooManyListenersException e) {
+			e.printStackTrace();
+		}
+		this.setDropTarget(dt);
         try {
 			theme = Theme.load(getClass().getResourceAsStream("/themes/eclipse.xml"));
 		} catch (IOException e1) {
@@ -351,12 +369,11 @@ public class Model extends JFrame implements WindowListener{
 	
 	public static void main(final String[] args){
 		SwingUtilities.invokeLater(new Runnable(){
-			@SuppressWarnings("rawtypes")
 			@Override
 			public void run() {
 				if(args.length>0){
 					if(Arrays.asList(args).contains("--nogui")){
-						List<String> list = new LinkedList(Arrays.asList(args));
+						List<String> list = new LinkedList<String>(Arrays.asList(args));
 						list.remove("--nogui");
 						DecompilerDriver.main(list.toArray(new String[]{}));
 					}else{
@@ -683,6 +700,98 @@ public class Model extends JFrame implements WindowListener{
     	}
 
     }
+    
+    public class DropListener implements DropTargetListener{
+
+    	@SuppressWarnings("unchecked")
+    	@Override
+    	public void drop(DropTargetDropEvent event) {
+    		event.acceptDrop(DnDConstants.ACTION_COPY);
+    		Transferable transferable = event.getTransferable();
+    		if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)){
+                DataFlavor[] flavors = transferable.getTransferDataFlavors();
+    			for (DataFlavor flavor : flavors) {
+    				try {
+    					if (flavor.isFlavorJavaFileListType()) {
+    						List<File> files = (List<File>) transferable
+    								.getTransferData(flavor);
+    						if(files.size()>1){
+    							event.rejectDrop();
+    							return;
+    						}
+    						if(files.size() == 1){
+        		    			if(open)
+        		    				new FileClose().actionPerformed(null);
+        		    			file = files.get(0);
+        						new FileLoad(false).loadFile(file);
+    						}
+    					}
+    				} catch (Exception e) {
+    					e.printStackTrace();
+    				}
+    			}
+    			event.dropComplete(true);
+            } else {
+                DataFlavor[] flavors = transferable.getTransferDataFlavors();
+                boolean handled = false;
+                for (int zz = 0; zz < flavors.length; zz++) {
+                    if (flavors[zz].isRepresentationClassReader()) {
+    					try {
+    						Reader reader = flavors[zz].getReaderForText(transferable);
+                            BufferedReader br = new BufferedReader(reader);
+                            List<File> list = new ArrayList<File>();
+                            String line = null;
+                            while ((line = br.readLine()) != null) {
+                                try {
+                                    if(new String("" + (char) 0).equals(line)) continue;
+                                    File file = new File(new URI(line));
+                                    list.add(file);
+                                } catch (Exception ex) {
+                             	   ex.printStackTrace();
+                                }
+                            }
+    						if(list.size()>1){
+    							event.rejectDrop();
+    							return;
+    						}
+    						if(list.size() == 1){
+        		    			if(open)
+        		    				new FileClose().actionPerformed(null);
+        		    			file = list.get(0);
+        						new FileLoad(false).loadFile(file);
+    						}
+                            event.getDropTargetContext().dropComplete(true);
+                            handled = true;
+    					} catch (Exception e) {
+    						e.printStackTrace();
+    					}
+                        break;
+                    }
+                }
+                if(!handled){
+                    event.rejectDrop();
+                }
+            }
+
+    	}
+
+		@Override
+		public void dragEnter(DropTargetDragEvent arg0) {		
+		}
+
+		@Override
+		public void dragExit(DropTargetEvent arg0) {			
+		}
+
+		@Override
+		public void dragOver(DropTargetDragEvent arg0) {			
+		}
+
+		@Override
+		public void dropActionChanged(DropTargetDragEvent arg0) {			
+		}
+    }
+    
 	private class ThemeAction extends AbstractAction {
 
 		private static final long serialVersionUID = -6618680171943723199L;
