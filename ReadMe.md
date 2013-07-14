@@ -7,10 +7,11 @@ Decompiler Gui for Procyon<br>
 ![Screen](http://puu.sh/3Ak9r.jpg)
 
 ### Download
+[Releases](https://github.com/deathmarine/Luyten/releases)<br>
 Windows<br>
-[Download](https://github.com/deathmarine/Luyten/releases/download/v0.2.0/Luyten.exe)<br>
+[Download](https://github.com/deathmarine/Luyten/releases/download/v0.3/Luyten.exe)<br>
 Linux/Mac OS<br>
-[Download](https://github.com/deathmarine/Luyten/releases/download/v0.2.0/Luyten.jar)<br>
+[Download](https://github.com/deathmarine/Luyten/releases/download/v0.3/Luyten.jar)<br>
 
 ### Bugs/Suggestions
 [Issues](https://github.com/deathmarine/Luyten/issues)<br>
