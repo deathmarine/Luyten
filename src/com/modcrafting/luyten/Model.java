@@ -356,7 +356,11 @@ public class Model extends JFrame implements WindowListener {
             @Override
             public void actionPerformed(ActionEvent event) {
                 JOptionPane.showMessageDialog(null, "Luyten Gui v0.3 Build#" + JENKINS_BUILD + "\nby Deathmarine\n\n" +
-                        "Powered By\nProcyon v0.4\n(c)2013 Mike Strobel\n\nRSyntaxTextArea\n(c) 2012 Robert Futrell\nAll rights reserved.");
+                        "Powered By\nProcyon v0.4\n" +
+                        "(c)2013 Mike Strobel\n\n" +
+                        "RSyntaxTextArea\n" +
+                        "(c) 2012 Robert Futrell\n" +
+                        "All rights reserved.");
 
             }
         });
@@ -508,7 +512,6 @@ public class Model extends JFrame implements WindowListener {
                                     hmap.add(open);
                                     addTab(name, open.scrollPane);
                                 }
-//				    		    jfile.close();
                             } catch (IOException e1) {
                                 e1.printStackTrace();
                             }
@@ -694,12 +697,26 @@ public class Model extends JFrame implements WindowListener {
                 while (entry.hasMoreElements())
                     mass.add(entry.nextElement().getName());
                 Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
-                for (String pack : mass) {
+                List<String> sort = new ArrayList<String>();
+                for(String m : mass)
+                	if(m.contains("META-INF") && !sort.contains(m))
+                		sort.add(m);
+                for(String m : mass)
+                	if(!m.contains("META-INF") && m.contains("/") && !sort.contains(m))
+                		sort.add(m);
+                for(String m : mass)
+                	if(!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
+                		sort.add(m);
+                for (String pack : sort) {
                     LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
                     load(top, list);
                 }
                 tree.setModel(new DefaultTreeModel(top));
-                settings.setTypeLoader(new JarTypeLoader(jfile));
+                if (state == null) {
+                    ITypeLoader jarLoader = new JarTypeLoader(jfile);
+                    typeLoader.getTypeLoaders().add(jarLoader);
+                    state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                }
                 open = true;
             } else {
                 DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
@@ -709,7 +726,7 @@ public class Model extends JFrame implements WindowListener {
             }
         }
     }
-
+    
     public class FileClose implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -720,9 +737,7 @@ public class Model extends JFrame implements WindowListener {
             }
 
             final State oldState = state;
-
             Model.this.state = null;
-
             if (oldState != null) {
                 Closer.tryClose(oldState);
             }
