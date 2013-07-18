@@ -693,17 +693,31 @@ public class Model extends JFrame implements WindowListener {
                 JarFile jfile = new JarFile(file);
                 Enumeration<JarEntry> entry = jfile.entries();
                 DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+                List<String> packs = new ArrayList<String>();
                 List<String> mass = new ArrayList<String>();
-                while (entry.hasMoreElements())
-                    mass.add(entry.nextElement().getName());
-                Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
+                while (entry.hasMoreElements()){
+                	JarEntry e = entry.nextElement();
+                	if(e.isDirectory()){
+                		packs.add(e.getName());
+                	}else{
+                        mass.add(e.getName());
+                	}
+                }
                 List<String> sort = new ArrayList<String>();
+                Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
                 for(String m : mass)
                 	if(m.contains("META-INF") && !sort.contains(m))
                 		sort.add(m);
-                for(String m : mass)
-                	if(!m.contains("META-INF") && m.contains("/") && !sort.contains(m))
-                		sort.add(m);
+                Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);                
+                Collections.sort(packs, new Comparator<String>(){
+                	public int compare(String o1, String o2) {
+                			return o2.split("/").length - o1.split("/").length;
+                	}
+                });
+                for(String pack : packs)
+                	for(String m : mass)
+                		if(!m.contains("META-INF") && m.contains(pack) && !m.replace(pack, "").contains("/"))
+                			sort.add(m);
                 for(String m : mass)
                 	if(!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
                 		sort.add(m);
