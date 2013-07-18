@@ -1,5 +1,6 @@
 package com.modcrafting.luyten;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -20,20 +21,27 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -92,6 +100,8 @@ public class Model extends JFrame implements WindowListener {
     JRadioButtonMenuItem java;
     JRadioButtonMenuItem bytecode;
     JRadioButtonMenuItem bytecodeAST;
+    JProgressBar bar;
+    JLabel label;
     JMenu debugLanguagesMenu;
     HashSet<OpenFile> hmap = new HashSet<OpenFile>();
     boolean open = false;
@@ -107,12 +117,8 @@ public class Model extends JFrame implements WindowListener {
     public Model(String string) {
         frame = this;
         setup();
-        try {
-            file = new File(string);
-            new FileLoad(false).loadFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        file = new File(string);
+		new FileLoad(false).loadFile(file);
     }
 
     public void setup() {
@@ -147,7 +153,8 @@ public class Model extends JFrame implements WindowListener {
             e.printStackTrace();
         }
 
-        tree = new JTree(new DefaultMutableTreeNode("No File"));
+        tree = new JTree();
+        tree.setModel(new DefaultTreeModel(null));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setCellRenderer(new CellRenderer());
         TreeListener tl = new TreeListener();
@@ -168,8 +175,30 @@ public class Model extends JFrame implements WindowListener {
         jsp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel2, panel);
         jsp.setDividerLocation(250 % this.getWidth());
         this.getContentPane().add(jsp);
-
-
+        JPanel pane = new JPanel();
+        pane.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        pane.setPreferredSize(new Dimension(frame.getWidth(), 24));
+        pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+        
+        JPanel panel1 = new JPanel();
+        label = new JLabel(" ");
+        label.setHorizontalAlignment(JLabel.LEFT);
+        panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+        panel1.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        panel1.setPreferredSize(new Dimension(frame.getWidth()/2, 20));
+        panel1.add(label);
+        pane.add(panel1);
+        
+        panel1 = new JPanel();
+        bar = new JProgressBar();
+        bar.setIndeterminate(true);
+        bar.setOpaque(false);
+        panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+        panel1.setPreferredSize(new Dimension(frame.getWidth()/2, 20));
+        panel1.add(bar);
+        pane.add(panel1);
+        this.add(pane, BorderLayout.SOUTH);
+        
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
 
@@ -185,16 +214,15 @@ public class Model extends JFrame implements WindowListener {
         fileMenu.add(menuItem);
         fileMenu.addSeparator();
 
-        menuItem = new JMenuItem("Save...");
+        menuItem = new JMenuItem("Save As...");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
-        menuItem.setEnabled(false);
-        //menuItem.addActionListener(new FileExtract());
+        menuItem.addActionListener(new FileExtractFile());
         fileMenu.add(menuItem);
 
         menuItem = new JMenuItem("Save All...");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
-        menuItem.setEnabled(false);
-        //menuItem.addActionListener(new FileExtract());
+        //menuItem.setEnabled(false);
+        menuItem.addActionListener(new FileExtractJar());
         fileMenu.add(menuItem);
         fileMenu.addSeparator();
 
@@ -309,9 +337,8 @@ public class Model extends JFrame implements WindowListener {
         bytecodeAST.getModel().setActionCommand(Languages.bytecodeAst().getName());
         languagesGroup.add(bytecodeAST);
         fileMenu.add(bytecodeAST);
-
+        
         debugLanguagesMenu = new JMenu("Debug Languages");
-
         for (final Language language : Languages.debug()) {
             final JRadioButtonMenuItem m = new JRadioButtonMenuItem(language.getName());
             m.getModel().setActionCommand(language.getName());
@@ -319,10 +346,8 @@ public class Model extends JFrame implements WindowListener {
             debugLanguagesMenu.add(m);
             languageLookup.put(language.getName(), language);
         }
-
         fileMenu.add(debugLanguagesMenu);
         menuBar.add(fileMenu);
-
         fileMenu = new JMenu("Help");
         menuItem = new JMenuItem("Legal");
         menuItem.addActionListener(new ActionListener() {
@@ -355,13 +380,14 @@ public class Model extends JFrame implements WindowListener {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                JOptionPane.showMessageDialog(null, "Luyten Gui v0.3 Build#" + JENKINS_BUILD + "\nby Deathmarine\n\n" +
+                JOptionPane.showMessageDialog(null, 
+                		"Luyten Gui v0.4 Build#" + JENKINS_BUILD + "\n" +
+                		"by Deathmarine\n\n" +
                         "Powered By\nProcyon v0.4\n" +
-                        "(c)2013 Mike Strobel\n\n" +
+                        "(c) 2013 Mike Strobel\n\n" +
                         "RSyntaxTextArea\n" +
                         "(c) 2012 Robert Futrell\n" +
                         "All rights reserved.");
-
             }
         });
         fileMenu.add(menuItem);
@@ -369,6 +395,7 @@ public class Model extends JFrame implements WindowListener {
 
         this.setJMenuBar(menuBar);
         this.setVisible(true);
+        bar.setVisible(false);
 
 
         decompilationOptions = new DecompilationOptions();
@@ -420,6 +447,40 @@ public class Model extends JFrame implements WindowListener {
         house.remove(co);
     }
 
+    public String getName(String path) {
+        if (path == null)
+            return "";
+        int i = path.lastIndexOf("/");
+        if (i == -1)
+            i = path.lastIndexOf("\\");
+        if (i != -1)
+            return path.substring(i + 1);
+        return path;
+    }
+
+    @Override
+    public void windowActivated(WindowEvent arg0) {}
+
+    @Override
+    public void windowClosed(WindowEvent event) {}
+
+    @Override
+    public void windowClosing(WindowEvent event) {
+        new Quit().actionPerformed(null);
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent arg0) {}
+
+    @Override
+    public void windowDeiconified(WindowEvent arg0) {}
+
+    @Override
+    public void windowIconified(WindowEvent arg0) {}
+
+    @Override
+    public void windowOpened(WindowEvent arg0) {}
+
     private class TreeListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent event) {
@@ -470,7 +531,6 @@ public class Model extends JFrame implements WindowListener {
                         } else if (bytecodeAST.isSelected()) {
                             settings.setLanguage(Languages.bytecodeAst());
                         }
-
                         if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
                             try {
                                 if (state == null) {
@@ -488,7 +548,7 @@ public class Model extends JFrame implements WindowListener {
                                     TypeReference type = metadataSystem.lookupType(internalName);
                                     TypeDefinition resolvedType = null;
                                     if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-                                        //Dialog end operation
+                                        JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
                                         return;
                                     }
                                     StringWriter stringwriter = new StringWriter();
@@ -513,16 +573,16 @@ public class Model extends JFrame implements WindowListener {
                                     addTab(name, open.scrollPane);
                                 }
                             } catch (IOException e1) {
-                                e1.printStackTrace();
+                                JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     } else {
                         String name = file.getName();
                         if (name.endsWith(".class")) {
-                            MetadataSystem metadataSystem = new MetadataSystem(settings.getTypeLoader());
                             TypeReference type = metadataSystem.lookupType(file.getPath());
                             TypeDefinition resolvedType = null;
                             if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+                                JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
                             StringWriter stringwriter = new StringWriter();
@@ -545,19 +605,18 @@ public class Model extends JFrame implements WindowListener {
                         }
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, e.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
                 }
 
             } else {
                 tree.getSelectionModel().setSelectionPath(trp);
             }
-
         }
     }
 
     private final class State implements AutoCloseable {
-        final String key;
-        final File file;
+        private final String key;
+        private final File file;
         final JarFile jarFile;
         final ITypeLoader typeLoader;
 
@@ -575,6 +634,14 @@ public class Model extends JFrame implements WindowListener {
             }
             Closer.tryClose(jarFile);
         }
+
+		public File getFile() {
+			return file;
+		}
+
+		public String getKey() {
+			return key;
+		}
     }
 
     private class Tab extends JPanel {
@@ -646,11 +713,7 @@ public class Model extends JFrame implements WindowListener {
                 file = fc.getSelectedFile();
                 if (open)
                     new FileClose().actionPerformed(e);
-                try {
-                    loadFile(file);
-                } catch (IOException e1) {
-                    //JOptionPane.showMessageDialog(null, null);
-                }
+                loadFile(file);
             }
         }
 
@@ -677,67 +740,76 @@ public class Model extends JFrame implements WindowListener {
             return null;
         }
 
-        public String getName(String path) {
-            if (path == null)
-                return "";
-            int i = path.lastIndexOf("/");
-            if (i == -1)
-                i = path.lastIndexOf("\\");
-            if (i != -1)
-                return path.substring(i + 1);
-            return path;
-        }
+        public void loadFile(final File file) {
+        	new Thread(new Runnable(){
+				@Override
+				public void run() {
+			        if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
+			            JarFile jfile;
+						try {
+							jfile = new JarFile(file); 
+			                label.setText("Loading: "+jfile.getName());
+			                bar.setVisible(true);
+							Enumeration<JarEntry> entry = jfile.entries();
+				            DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+				            List<String> mass = new ArrayList<String>();
+				            while (entry.hasMoreElements()){
+				            	JarEntry e = entry.nextElement();
+				            	if(!e.isDirectory())
+				                    mass.add(e.getName());
+				      
+				            }
+				            List<String> sort = new ArrayList<String>();
+				            Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
+				            for(String m : mass)
+				            	if(m.contains("META-INF") && !sort.contains(m))
+				            		sort.add(m);
+				            Set<String> set = new HashSet<String>();
+				            for(String m : mass){
+				            	if(m.contains("/")){
+				                	set.add(m.substring(0, m.lastIndexOf("/")+1));
+				            	}
+				            }
+				            List<String> packs = Arrays.asList(set.toArray(new String[]{}));
+				            Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);                
+				            Collections.sort(packs, new Comparator<String>(){
+				            	public int compare(String o1, String o2) {
+				            		return o2.split("/").length - o1.split("/").length;
+				            	}
+				            });
+				            for(String pack : packs)
+				            	for(String m : mass)
+				            		if(!m.contains("META-INF") && m.contains(pack) && !m.replace(pack, "").contains("/"))
+				            			sort.add(m);
+				            for(String m : mass)
+				            	if(!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
+				            		sort.add(m);
+				            for (String pack : sort) {
+				                LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
+				                load(top, list);
+				            }
+				            tree.setModel(new DefaultTreeModel(top));
+				            if (state == null) {
+				                ITypeLoader jarLoader = new JarTypeLoader(jfile);
+				                typeLoader.getTypeLoaders().add(jarLoader);
+				                state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+				            }
+				            open = true;
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+			           
+			        } else {
+			            DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+			            tree.setModel(new DefaultTreeModel(top));
+			            settings.setTypeLoader(new InputTypeLoader());
+			            open = true;
+			        }
+            		label.setText("Complete");
+    				bar.setVisible(false);				
+				}
 
-        public void loadFile(File file) throws IOException {
-            if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
-                JarFile jfile = new JarFile(file);
-                Enumeration<JarEntry> entry = jfile.entries();
-                DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-                List<String> packs = new ArrayList<String>();
-                List<String> mass = new ArrayList<String>();
-                while (entry.hasMoreElements()){
-                	JarEntry e = entry.nextElement();
-                	if(e.isDirectory()){
-                		packs.add(e.getName());
-                	}else{
-                        mass.add(e.getName());
-                	}
-                }
-                List<String> sort = new ArrayList<String>();
-                Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
-                for(String m : mass)
-                	if(m.contains("META-INF") && !sort.contains(m))
-                		sort.add(m);
-                Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);                
-                Collections.sort(packs, new Comparator<String>(){
-                	public int compare(String o1, String o2) {
-                			return o2.split("/").length - o1.split("/").length;
-                	}
-                });
-                for(String pack : packs)
-                	for(String m : mass)
-                		if(!m.contains("META-INF") && m.contains(pack) && !m.replace(pack, "").contains("/"))
-                			sort.add(m);
-                for(String m : mass)
-                	if(!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
-                		sort.add(m);
-                for (String pack : sort) {
-                    LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
-                    load(top, list);
-                }
-                tree.setModel(new DefaultTreeModel(top));
-                if (state == null) {
-                    ITypeLoader jarLoader = new JarTypeLoader(jfile);
-                    typeLoader.getTypeLoaders().add(jarLoader);
-                    state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
-                }
-                open = true;
-            } else {
-                DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-                tree.setModel(new DefaultTreeModel(top));
-                settings.setTypeLoader(new InputTypeLoader());
-                open = true;
-            }
+        	}).start();
         }
     }
     
@@ -757,12 +829,139 @@ public class Model extends JFrame implements WindowListener {
             }
 
             hmap.clear();
-            tree.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("No File")));
+            tree.setModel(new DefaultTreeModel(null));
             open = false;
             metadataSystem = new MetadataSystem(typeLoader);
         }
     }
 
+    private class FileExtractFile implements ActionListener{
+        JFileChooser fc;
+    	public FileExtractFile(){
+    		fc = new JFileChooser();
+            fc.addChoosableFileFilter(new FileChooserFileFilter("*.txt"));
+            fc.addChoosableFileFilter(new FileChooserFileFilter("*.java"));
+            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fc.setMultiSelectionEnabled(false);
+    	}
+		@Override
+		public void actionPerformed(ActionEvent event) {
+			int index = house.getSelectedIndex();
+			if(index < 0)
+				return;
+            RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
+            final RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
+            String title = house.getTitleAt(index);
+			fc.setSelectedFile(new File(title.replace(".class",".java")));
+            int returnVal = fc.showSaveDialog(Model.frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+            	new Thread(new Runnable(){
+					@Override
+					public void run() {
+		                File fil = fc.getSelectedFile();
+		                label.setText("Extracting: "+fil.getName());
+		                bar.setVisible(true);
+		                try {
+		                    BufferedWriter bw = new BufferedWriter(new FileWriter(fil));
+		                    bw.write(pane.getText());
+		                    bw.flush();
+		                    bw.close();
+		                } catch (Exception e1) {
+		                    JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+		                }
+                		label.setText("Complete");
+                		bar.setVisible(false);				
+					}
+    		
+            	}).start();
+            }
+			
+		}
+    	
+    }
+
+    private class FileExtractJar implements ActionListener{
+        JFileChooser fc;
+    	public FileExtractJar(){
+    		fc = new JFileChooser();
+            fc.addChoosableFileFilter(new FileChooserFileFilter("*.jar"));
+            fc.addChoosableFileFilter(new FileChooserFileFilter("*.zip"));
+            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fc.setMultiSelectionEnabled(false);
+    	}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String s = getName(file.getName());
+			if(s.endsWith(".class")){
+				new FileExtractFile().actionPerformed(e);
+				return;
+			}
+			if(s.toLowerCase().endsWith(".jar"))
+				s = s.replaceAll("\\.[jJ][aA][rR]", ".zip");
+			fc.setSelectedFile(new File("decompiled-"+s));
+            int returnVal = fc.showSaveDialog(Model.frame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+            	new Thread(new Runnable(){
+					@Override
+					public void run() {
+		                label.setText("Extracting: "+file.getName());
+		                bar.setVisible(true);
+		                File fil = fc.getSelectedFile();
+		                try {
+		                    FileOutputStream dest = new FileOutputStream(fil);
+		                    ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+		                    byte data[] = new byte[1024];
+		                    if (state == null) {
+		                        JarFile jfile = new JarFile(file);
+		                        ITypeLoader jarLoader = new JarTypeLoader(jfile);
+		                        typeLoader.getTypeLoaders().add(jarLoader);
+		                        state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+		                    }
+		                    Enumeration<JarEntry> ent = state.jarFile.entries();
+		                    while(ent.hasMoreElements()){
+		                    	JarEntry entry = ent.nextElement();
+		                        if (entry.getName().endsWith(".class")) {
+		                        	JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
+		                            label.setText("Extracting: "+etn.getName());
+		                            out.putNextEntry(etn);
+		                            String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+		                            TypeReference type = metadataSystem.lookupType(internalName);
+		                            TypeDefinition resolvedType = null;
+		                            if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+		                                JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
+		                                return;
+		                            }
+		                            settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(new OutputStreamWriter(out)), decompilationOptions);
+		                            out.closeEntry();
+		                        } else {
+		                        	JarEntry etn = new JarEntry(entry.getName());
+		                            label.setText("Extracting: "+etn.getName());
+		                            out.putNextEntry(etn);
+		                            InputStream in = state.jarFile.getInputStream(entry);
+		                            if (in != null) {
+		                                int count;
+		                                while((count = in.read(data, 0, 1024)) != -1) {
+		                                	out.write(data, 0, count);
+		                                }
+		                                in.close();
+		                            }
+		                            out.closeEntry();
+		                        }
+		                    }
+		                    out.close();
+		                } catch (Exception e1) {
+		                    JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+		                }
+		                label.setText("Complete");
+		                bar.setVisible(false);						
+					}
+            		
+            	}).start();
+            }
+		}
+    	
+    }
+    
     public class Quit implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -902,49 +1101,9 @@ public class Model extends JFrame implements WindowListener {
                         theme.apply(f.textArea);
                     }
                 }
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
+            } catch (IOException e1) {
+                JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
             }
         }
-    }
-
-    @Override
-    public void windowActivated(WindowEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void windowClosed(WindowEvent event) {
-
-    }
-
-    @Override
-    public void windowClosing(WindowEvent event) {
-        new Quit().actionPerformed(null);
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void windowDeiconified(WindowEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void windowIconified(WindowEvent arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void windowOpened(WindowEvent arg0) {
-        // TODO Auto-generated method stub
-
     }
 }
