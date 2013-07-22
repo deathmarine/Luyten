@@ -97,12 +97,12 @@ public class Model extends JFrame implements WindowListener {
     JCheckBox showSyntheticMembers;
     JCheckBox showNestedTypes;
     JCheckBox retainRedundantCasts;
+    JCheckBox showDebugInfo;
     JRadioButtonMenuItem java;
     JRadioButtonMenuItem bytecode;
     JRadioButtonMenuItem bytecodeAST;
     JProgressBar bar;
     JLabel label;
-    JMenu debugLanguagesMenu;
     HashSet<OpenFile> hmap = new HashSet<OpenFile>();
     boolean open = false;
     public static final String JENKINS_BUILD = "JENKINSBUILDNUMBER";
@@ -317,6 +317,10 @@ public class Model extends JFrame implements WindowListener {
         fileMenu.add(showSyntheticMembers);
         retainRedundantCasts = new JCheckBox("Retain Redundant Casts");
         fileMenu.add(retainRedundantCasts);
+        JMenu debugSettingsMenu = new JMenu("Debug Settings");
+        showDebugInfo = new JCheckBox("Include Error Diagnostics");
+        debugSettingsMenu.add(showDebugInfo);
+        fileMenu.add(debugSettingsMenu);
         fileMenu.addSeparator();
 
         languageLookup.put(Languages.java().getName(), Languages.java());
@@ -338,7 +342,7 @@ public class Model extends JFrame implements WindowListener {
         languagesGroup.add(bytecodeAST);
         fileMenu.add(bytecodeAST);
         
-        debugLanguagesMenu = new JMenu("Debug Languages");
+        JMenu debugLanguagesMenu = new JMenu("Debug Languages");
         for (final Language language : Languages.debug()) {
             final JRadioButtonMenuItem m = new JRadioButtonMenuItem(language.getName());
             m.getModel().setActionCommand(language.getName());
@@ -381,9 +385,9 @@ public class Model extends JFrame implements WindowListener {
             @Override
             public void actionPerformed(ActionEvent event) {
                 JOptionPane.showMessageDialog(null, 
-                		"Luyten Gui v0.4 Build#" + JENKINS_BUILD + "\n" +
+                		"Luyten Gui Build#" + JENKINS_BUILD + "\n" +
                 		"by Deathmarine\n\n" +
-                        "Powered By\nProcyon v0.4\n" +
+                        "Powered By\nProcyon\n" +
                         "(c) 2013 Mike Strobel\n\n" +
                         "RSyntaxTextArea\n" +
                         "(c) 2012 Robert Futrell\n" +
@@ -508,7 +512,7 @@ public class Model extends JFrame implements WindowListener {
                         settings.setShowNestedTypes(showNestedTypes.isSelected());
                         settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
                         settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
-
+                        settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
                         //
                         // Note: You shouldn't ever need to set this.  It's only for languages that support catch
                         //       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
@@ -951,6 +955,7 @@ public class Model extends JFrame implements WindowListener {
 		                    out.close();
 		                } catch (Exception e1) {
 		                    JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+		                    e1.printStackTrace();
 		                }
 		                label.setText("Complete");
 		                bar.setVisible(false);						

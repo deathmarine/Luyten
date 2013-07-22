@@ -8,7 +8,9 @@
 	
 	<path id="Model.classpath">
 		<pathelement location="bin" />
-		<pathelement location="lib/procyon-decompiler-0.4.2.jar" />
+		<fileset dir="lib">
+	    	<include name="**/*.jar"/>
+	    </fileset>
 	</path>
 	
 	<taskdef name="launch4j"
@@ -86,7 +88,7 @@
 		</jar>
 		<zip destfile="dist/${ant.project.name}.jar">
 			<zipgroupfileset dir="lib"
-				includes="procyon-decompiler-0.4.2.jar" />
+				includes="*.jar" />
 			<zipgroupfileset dir="dist" includes="temp.jar" />
 		</zip>
 		<delete file="dist/temp.jar" />
