@@ -21,6 +21,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -34,13 +35,50 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+
 import java.net.URI;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TooManyListenersException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipOutputStream;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ButtonModel;
+import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTree;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultEditorKit;
@@ -52,6 +90,7 @@ import javax.swing.tree.TreeSelectionModel;
 import com.strobel.assembler.metadata.*;
 import com.strobel.core.VerifyArgument;
 import com.strobel.decompiler.languages.Language;
+
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -59,7 +98,6 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import com.strobel.assembler.InputTypeLoader;
 import com.strobel.core.StringUtilities;
 import com.strobel.decompiler.DecompilationOptions;
-import com.strobel.decompiler.DecompilerDriver;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.Languages;
@@ -70,17 +108,7 @@ public class Model extends JFrame implements WindowListener {
 
     final LuytenTypeLoader typeLoader = new LuytenTypeLoader();
     final Map<String, Language> languageLookup = new HashMap<String, Language>();
-
-    //
-    // I'm caching this for performance reasons.  There is a pretty substantial cost associated
-    // with loading types from the disk.  If you cache the metadata, decompilation should be much
-    // faster after the first few classes.
-    //
-    // Ideally, this should be purged if the user elects to 'refresh' the view.  It'll retain
-    // metadata for types it has already seen, so if the user replaces the classes/jars they're
-    // viewing and wants to see changes, a refresh feature that purges the MetadataSystem would
-    // be useful.
-    //
+    static File base;
     MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
 
     JTree tree;
@@ -105,7 +133,6 @@ public class Model extends JFrame implements WindowListener {
     JLabel label;
     HashSet<OpenFile> hmap = new HashSet<OpenFile>();
     boolean open = false;
-    public static final String JENKINS_BUILD = "JENKINSBUILDNUMBER";
     private ButtonGroup languagesGroup;
     private State state;
 
@@ -385,7 +412,7 @@ public class Model extends JFrame implements WindowListener {
             @Override
             public void actionPerformed(ActionEvent event) {
                 JOptionPane.showMessageDialog(null, 
-                		"Luyten Gui Build#" + JENKINS_BUILD + "\n" +
+                		"Luyten Gui \n" +
                 		"by Deathmarine\n\n" +
                         "Powered By\nProcyon\n" +
                         "(c) 2013 Mike Strobel\n\n" +
@@ -411,17 +438,7 @@ public class Model extends JFrame implements WindowListener {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (args.length > 0) {
-                    if (Arrays.asList(args).contains("--nogui")) {
-                        List<String> list = new LinkedList<String>(Arrays.asList(args));
-                        list.remove("--nogui");
-                        DecompilerDriver.main(list.toArray(new String[]{}));
-                    } else {
-                        new Model(args[0]);
-                    }
-                } else {
-                    new Model();
-                }
+            	new Model();
             }
         });
     }
@@ -509,7 +526,7 @@ public class Model extends JFrame implements WindowListener {
                         settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
                         settings.setForceExplicitImports(forceExplicitImports.isSelected());
                         settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
-                        settings.setShowNestedTypes(showNestedTypes.isSelected());
+                        settings.setExcludeNestedTypes(showNestedTypes.isSelected());
                         settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
                         settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
                         settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
@@ -1111,4 +1128,5 @@ public class Model extends JFrame implements WindowListener {
             }
         }
     }
+    
 }
