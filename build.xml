@@ -4,7 +4,7 @@
 	<property name="debuglevel" value="source,lines,vars" />
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
-	<property name="launch4j.dir" location="../../launch4j" />
+	<property name="launch4j.dir" location="../../../launch4j" />
 	
 	<path id="Model.classpath">
 		<pathelement location="bin" />
