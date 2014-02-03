@@ -118,7 +118,7 @@ public class Model extends JFrame implements WindowListener {
     JCheckBox forceExplicitImports;
     JCheckBox forceExplicitTypes;
     JCheckBox showSyntheticMembers;
-    JCheckBox showNestedTypes;
+    JCheckBox excludeNestedTypes;
     JCheckBox retainRedundantCasts;
     JCheckBox showDebugInfo;
     JRadioButtonMenuItem java;
@@ -335,8 +335,8 @@ public class Model extends JFrame implements WindowListener {
         fileMenu.add(forceExplicitTypes);
         showSyntheticMembers = new JCheckBox("Show Synthetic Members");
         fileMenu.add(showSyntheticMembers);
-        showNestedTypes = new JCheckBox("Show Nested Types");
-        fileMenu.add(showSyntheticMembers);
+        excludeNestedTypes = new JCheckBox("Exclude Nested Types");
+        fileMenu.add(excludeNestedTypes);
         retainRedundantCasts = new JCheckBox("Retain Redundant Casts");
         fileMenu.add(retainRedundantCasts);
         JMenu debugSettingsMenu = new JMenu("Debug Settings");
@@ -433,7 +433,7 @@ public class Model extends JFrame implements WindowListener {
         settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
         settings.setForceExplicitImports(forceExplicitImports.isSelected());
         settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
-        settings.setExcludeNestedTypes(showNestedTypes.isSelected());
+        settings.setExcludeNestedTypes(excludeNestedTypes.isSelected());
         settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
         settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
         settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
