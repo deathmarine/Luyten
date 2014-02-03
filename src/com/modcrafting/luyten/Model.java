@@ -429,6 +429,38 @@ public class Model extends JFrame implements WindowListener {
         decompilationOptions.setFullDecompilation(true);
     }
 
+	private void populateSettingsFromSettingsMenu() {
+        settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
+        settings.setForceExplicitImports(forceExplicitImports.isSelected());
+        settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
+        settings.setExcludeNestedTypes(showNestedTypes.isSelected());
+        settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
+        settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
+        settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
+        //
+        // Note: You shouldn't ever need to set this.  It's only for languages that support catch
+        //       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
+        //
+        // settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
+        //
+
+        final ButtonModel selectedLanguage = languagesGroup.getSelection();
+        if (selectedLanguage != null) {
+            final Language language = languageLookup.get(selectedLanguage.getActionCommand());
+
+            if (language != null)
+                settings.setLanguage(language);
+        }
+
+        if (java.isSelected()) {
+            settings.setLanguage(Languages.java());
+        } else if (bytecode.isSelected()) {
+            settings.setLanguage(Languages.bytecode());
+        } else if (bytecodeAST.isSelected()) {
+            settings.setLanguage(Languages.bytecodeAst());
+        }
+	}
+	
     public static void main(final String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -518,35 +550,8 @@ public class Model extends JFrame implements WindowListener {
                                 sb.append(args[i].trim()).append("/");
                             }
                         }
-                        settings.setFlattenSwitchBlocks(flattenSwitchBlocks.isSelected());
-                        settings.setForceExplicitImports(forceExplicitImports.isSelected());
-                        settings.setShowSyntheticMembers(showSyntheticMembers.isSelected());
-                        settings.setExcludeNestedTypes(showNestedTypes.isSelected());
-                        settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
-                        settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
-                        settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
-                        //
-                        // Note: You shouldn't ever need to set this.  It's only for languages that support catch
-                        //       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
-                        //
-                        // settings.setAlwaysGenerateExceptionVariableForCatchBlocks(true);
-                        //
-
-                        final ButtonModel selectedLanguage = languagesGroup.getSelection();
-                        if (selectedLanguage != null) {
-                            final Language language = languageLookup.get(selectedLanguage.getActionCommand());
-
-                            if (language != null)
-                                settings.setLanguage(language);
-                        }
-
-                        if (java.isSelected()) {
-                            settings.setLanguage(Languages.java());
-                        } else if (bytecode.isSelected()) {
-                            settings.setLanguage(Languages.bytecode());
-                        } else if (bytecodeAST.isSelected()) {
-                            settings.setLanguage(Languages.bytecodeAst());
-                        }
+                        populateSettingsFromSettingsMenu();
+                        
                         if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
                             try {
                                 if (state == null) {
@@ -918,6 +923,8 @@ public class Model extends JFrame implements WindowListener {
 				label.setText("No open file");
 				return;
 			}
+			populateSettingsFromSettingsMenu();
+			
 			String s = getName(file.getName());
 			if (s.endsWith(".class")) {
 				new FileExtractFile().actionPerformed(e);
