@@ -21,7 +21,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -35,9 +34,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.StringWriter;
-
+import java.io.Writer;
 import java.net.URI;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -52,8 +50,8 @@ import java.util.Set;
 import java.util.TooManyListenersException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -86,15 +84,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import com.strobel.assembler.metadata.*;
 import com.strobel.core.VerifyArgument;
 import com.strobel.decompiler.languages.Language;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
 import com.strobel.assembler.InputTypeLoader;
 import com.strobel.core.StringUtilities;
 import com.strobel.decompiler.DecompilationOptions;
@@ -867,35 +862,42 @@ public class Model extends JFrame implements WindowListener {
     	}
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			int index = house.getSelectedIndex();
-			if(index < 0)
+			if (!open || file == null) {
+				label.setText("No open file");
 				return;
-            RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
-            final RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
-            String title = house.getTitleAt(index);
-			fc.setSelectedFile(new File(title.replace(".class",".java")));
-            int returnVal = fc.showSaveDialog(Model.frame);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-            	new Thread(new Runnable(){
+			}
+			int index = house.getSelectedIndex();
+			if (index < 0) {
+				label.setText("No open tab");
+				return;
+			}
+			RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
+			final RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
+			String title = house.getTitleAt(index);
+			fc.setSelectedFile(new File(title.replace(".class", ".java")));
+			int returnVal = fc.showSaveDialog(Model.frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				new Thread(new Runnable() {
 					@Override
 					public void run() {
-		                File fil = fc.getSelectedFile();
-		                label.setText("Extracting: "+fil.getName());
-		                bar.setVisible(true);
-		                try {
-		                    BufferedWriter bw = new BufferedWriter(new FileWriter(fil));
-		                    bw.write(pane.getText());
-		                    bw.flush();
-		                    bw.close();
-		                } catch (Exception e1) {
-		                    JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
-		                }
-                		label.setText("Complete");
-                		bar.setVisible(false);				
+						File fil = fc.getSelectedFile();
+						try (FileWriter fw = new FileWriter(fil);
+								BufferedWriter bw = new BufferedWriter(fw);) {
+							label.setText("Extracting: " + fil.getName());
+							bar.setVisible(true);
+							bw.write(pane.getText());
+							bw.flush();
+							label.setText("Complete");
+						} catch (Exception e1) {
+							label.setText("Cannot save file: " + fil.getName());
+							e1.printStackTrace();
+							JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+						} finally {
+							bar.setVisible(false);
+						}
 					}
-    		
-            	}).start();
-            }
+				}).start();
+			}
 			
 		}
     	
@@ -912,76 +914,102 @@ public class Model extends JFrame implements WindowListener {
     	}
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			if (!open || file == null) {
+				label.setText("No open file");
+				return;
+			}
 			String s = getName(file.getName());
-			if(s.endsWith(".class")){
+			if (s.endsWith(".class")) {
 				new FileExtractFile().actionPerformed(e);
 				return;
 			}
-			if(s.toLowerCase().endsWith(".jar"))
+			if (s.toLowerCase().endsWith(".jar"))
 				s = s.replaceAll("\\.[jJ][aA][rR]", ".zip");
-			fc.setSelectedFile(new File("decompiled-"+s));
-            int returnVal = fc.showSaveDialog(Model.frame);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-            	new Thread(new Runnable(){
+			fc.setSelectedFile(new File("decompiled-" + s));
+			int returnVal = fc.showSaveDialog(Model.frame);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				new Thread(new Runnable() {
 					@Override
 					public void run() {
-		                label.setText("Extracting: "+file.getName());
-		                bar.setVisible(true);
-		                File fil = fc.getSelectedFile();
-		                try {
-		                    FileOutputStream dest = new FileOutputStream(fil);
-		                    ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-		                    byte data[] = new byte[1024];
-		                    if (state == null) {
-		                        JarFile jfile = new JarFile(file);
-		                        ITypeLoader jarLoader = new JarTypeLoader(jfile);
-		                        typeLoader.getTypeLoaders().add(jarLoader);
-		                        state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
-		                    }
-		                    Enumeration<JarEntry> ent = state.jarFile.entries();
-		                    while(ent.hasMoreElements()){
-		                    	JarEntry entry = ent.nextElement();
-		                        if (entry.getName().endsWith(".class")) {
-		                        	JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
-		                            label.setText("Extracting: "+etn.getName());
-		                            out.putNextEntry(etn);
-		                            String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-		                            TypeReference type = metadataSystem.lookupType(internalName);
-		                            TypeDefinition resolvedType = null;
-		                            if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-		                                JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
-		                                return;
-		                            }
-		                            settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(new OutputStreamWriter(out)), decompilationOptions);
-		                            out.closeEntry();
-		                        } else {
-		                        	JarEntry etn = new JarEntry(entry.getName());
-		                            label.setText("Extracting: "+etn.getName());
-		                            out.putNextEntry(etn);
-		                            InputStream in = state.jarFile.getInputStream(entry);
-		                            if (in != null) {
-		                                int count;
-		                                while((count = in.read(data, 0, 1024)) != -1) {
-		                                	out.write(data, 0, count);
-		                                }
-		                                in.close();
-		                            }
-		                            out.closeEntry();
-		                        }
-		                    }
-		                    out.close();
-		                } catch (Exception e1) {
-		                    JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
-		                    e1.printStackTrace();
-		                }
-		                label.setText("Complete");
-		                bar.setVisible(false);						
+						File fil = fc.getSelectedFile();
+						try (FileOutputStream dest = new FileOutputStream(fil);
+								BufferedOutputStream buffDest = new BufferedOutputStream(dest);
+								ZipOutputStream out = new ZipOutputStream(buffDest);) {
+							byte data[] = new byte[1024];
+							if (state == null) {
+								JarFile jfile = new JarFile(file);
+								ITypeLoader jarLoader = new JarTypeLoader(jfile);
+								typeLoader.getTypeLoaders().add(jarLoader);
+								state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+							}
+
+							Enumeration<JarEntry> ent = state.jarFile.entries();
+							while (ent.hasMoreElements()) {
+								label.setText("Extracting: " + file.getName());
+								bar.setVisible(true);
+								JarEntry entry = ent.nextElement();
+								if (entry.getName().endsWith(".class")) {
+									JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
+									label.setText("Extracting: " + etn.getName());
+									out.putNextEntry(etn);
+									try {
+										String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+										TypeReference type = metadataSystem.lookupType(internalName);
+										TypeDefinition resolvedType = null;
+										if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+											new Exception("Unable to resolve type.").printStackTrace();
+											JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!",
+													JOptionPane.ERROR_MESSAGE);
+											return;
+										}
+										Writer writer = new OutputStreamWriter(out);
+										settings.getLanguage().decompileType(resolvedType,
+												new PlainTextOutput(writer), decompilationOptions);
+										writer.flush();
+									} finally {
+										out.closeEntry();
+									}
+								} else {
+									try {
+										JarEntry etn = new JarEntry(entry.getName());
+										label.setText("Extracting: " + etn.getName());
+										out.putNextEntry(etn);
+										try {
+											InputStream in = state.jarFile.getInputStream(entry);
+											if (in != null) {
+												try {
+													int count;
+													while ((count = in.read(data, 0, 1024)) != -1) {
+														out.write(data, 0, count);
+													}
+												} finally {
+													in.close();
+												}
+											}
+										} finally {
+											out.closeEntry();
+										}
+									} catch (ZipException ze) {
+										// some jar-s contain duplicate pom.xml entries: ignore it
+										if (!ze.getMessage().contains("duplicate")) {
+											throw ze;
+										}
+									}
+								}
+							}
+							label.setText("Complete");
+						} catch (Exception e1) {
+							label.setText("Cannot save file: " + fil.getName());
+							e1.printStackTrace();
+							JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+						} finally {
+							bar.setVisible(false);
+						}
 					}
-            		
-            	}).start();
-            }
+				}).start();
+			}
+
 		}
-    	
     }
     
     public class Quit implements ActionListener {
