@@ -383,7 +383,7 @@ public class Model extends JFrame implements WindowListener {
             @Override
             public void actionPerformed(ActionEvent event) {
 
-                StringBuilder sb = new StringBuilder();
+                final StringBuilder sb = new StringBuilder();
                 try {
                     BufferedReader reader = new BufferedReader(
                             new InputStreamReader(getClass().getResourceAsStream("/distfiles/Procyon.License.txt")));
@@ -398,10 +398,18 @@ public class Model extends JFrame implements WindowListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                OpenFile open = new OpenFile("Legal", "*/Legal", sb.toString(), theme);
-                hmap.add(open);
-                addOrSwitchToTab(open);
-
+				new Thread() {
+					public void run() {
+						try {
+							bar.setVisible(true);
+			                OpenFile open = new OpenFile("Legal", "*/Legal", sb.toString(), theme);
+			                hmap.add(open);
+			                addOrSwitchToTab(open);
+						} finally {
+							bar.setVisible(false);
+						}
+					}
+				}.start();
             }
         });
         fileMenu.add(menuItem);
@@ -537,88 +545,102 @@ public class Model extends JFrame implements WindowListener {
     private class TreeListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent event) {
-            TreePath trp = tree.getPathForLocation(event.getX(), event.getY());
+            final TreePath trp = tree.getPathForLocation(event.getX(), event.getY());
             if (trp == null)
                 return;
-            if (SwingUtilities.isLeftMouseButton(event)
-                    && event.getClickCount() == 2) {
-                String st = trp.toString().replace(file.getName(), "");
-                final String[] args = st.replace("[", "").replace("]", "").split(",");
-                String name = "";
-                String path = "";
-                try {
-                    if (args.length > 1) {
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 1; i < args.length; i++) {
-                            if (i == args.length - 1) {
-                                name = args[i].trim();
-                            } else {
-                                sb.append(args[i].trim()).append("/");
-                            }
-                        }
-                        path = sb.toString().replace(".", "/") + name;
-                        populateSettingsFromSettingsMenu();
-                        
-                        if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
-                            if (state == null) {
-                                JarFile jfile = new JarFile(file);
-                                ITypeLoader jarLoader = new JarTypeLoader(jfile);
-
-                                typeLoader.getTypeLoaders().add(jarLoader);
-                                state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
-                            }
-
-                            JarEntry entry = state.jarFile.getJarEntry(path);
-        					if (entry == null) {
-        						throw new FileEntryNotFoundException();
-        					}
-                            if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
-        						throw new TooLargeFileException(entry.getSize());
-        					}
-
-                            if (entry.getName().endsWith(".class")) {
-                                String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-                                TypeReference type = metadataSystem.lookupType(internalName);
-                                extractClassToTextPane(type, name, path);
-                            } else {
-        						try (InputStream in = state.jarFile.getInputStream(entry);) {
-        							extractSimpleFileEntryToTextPane(in, name, path);
-        						}
-                            }
-                        }
-                    } else {
-                        name = file.getName();
-                        path = file.getPath().replaceAll("\\\\", "/");
-        				if (file.length() > MAX_UNPACKED_FILE_SIZE_BYTES) {
-        					throw new TooLargeFileException(file.length());
-        				}
-                        if (name.endsWith(".class")) {
-                            TypeReference type = metadataSystem.lookupType(path);
-                            extractClassToTextPane(type, name, path);
-                        } else {
-        					try (InputStream in = new FileInputStream(file);) {
-        						extractSimpleFileEntryToTextPane(in, name, path);
-        					}
-                        }
-                    }
-        			label.setText("Complete");
-        		} catch (FileEntryNotFoundException e) {
-        			label.setText("File not found: " + name);
-        		} catch (FileIsBinaryException e) {
-        			label.setText("Binary resource: " + name);
-        		} catch (TooLargeFileException e) {
-        			label.setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
-        		} catch (Exception e) {
-        			label.setText("Cannot open: " + name);
-        			e.printStackTrace();
-                    JOptionPane.showMessageDialog(null, e.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
-        		}
-
+            if (SwingUtilities.isLeftMouseButton(event) 
+            		&& event.getClickCount() == 2) {
+				new Thread() {
+					public void run() {
+						openEntryByTreePath(trp);
+					}
+				}.start();
             } else {
                 tree.getSelectionModel().setSelectionPath(trp);
             }
         }
     }
+
+	private void openEntryByTreePath(TreePath trp) {
+        String st = trp.toString().replace(file.getName(), "");
+        final String[] args = st.replace("[", "").replace("]", "").split(",");
+        String name = "";
+        String path = "";
+        try {
+        	bar.setVisible(true);
+            if (args.length > 1) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 1; i < args.length; i++) {
+                    if (i == args.length - 1) {
+                        name = args[i].trim();
+                    } else {
+                        sb.append(args[i].trim()).append("/");
+                    }
+                }
+                path = sb.toString().replace(".", "/") + name;
+                populateSettingsFromSettingsMenu();
+                
+                if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
+                    if (state == null) {
+                        JarFile jfile = new JarFile(file);
+                        ITypeLoader jarLoader = new JarTypeLoader(jfile);
+
+                        typeLoader.getTypeLoaders().add(jarLoader);
+                        state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                    }
+
+                    JarEntry entry = state.jarFile.getJarEntry(path);
+					if (entry == null) {
+						throw new FileEntryNotFoundException();
+					}
+                    if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
+						throw new TooLargeFileException(entry.getSize());
+					}
+
+                    if (entry.getName().endsWith(".class")) {
+                    	label.setText("Extracting: " + name);
+                        String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+                        TypeReference type = metadataSystem.lookupType(internalName);
+                        extractClassToTextPane(type, name, path);
+                    } else {
+                    	label.setText("Opening: " + name);
+						try (InputStream in = state.jarFile.getInputStream(entry);) {
+							extractSimpleFileEntryToTextPane(in, name, path);
+						}
+                    }
+                }
+            } else {
+                name = file.getName();
+                path = file.getPath().replaceAll("\\\\", "/");
+				if (file.length() > MAX_UNPACKED_FILE_SIZE_BYTES) {
+					throw new TooLargeFileException(file.length());
+				}
+                if (name.endsWith(".class")) {
+                	label.setText("Extracting: " + name);
+                    TypeReference type = metadataSystem.lookupType(path);
+                    extractClassToTextPane(type, name, path);
+                } else {
+                	label.setText("Opening: " + name);
+					try (InputStream in = new FileInputStream(file);) {
+						extractSimpleFileEntryToTextPane(in, name, path);
+					}
+                }
+            }
+			label.setText("Complete");
+		} catch (FileEntryNotFoundException e) {
+			label.setText("File not found: " + name);
+		} catch (FileIsBinaryException e) {
+			label.setText("Binary resource: " + name);
+		} catch (TooLargeFileException e) {
+			label.setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
+		} catch (Exception e) {
+			label.setText("Cannot open: " + name);
+			e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+		} finally {
+			bar.setVisible(false);
+		}
+	}
 
 	private void extractClassToTextPane(TypeReference type, String tabTitle, String path) throws Exception {
 		if (tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
