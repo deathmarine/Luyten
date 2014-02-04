@@ -128,6 +128,10 @@ public class FindBox extends JDialog{
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			int pos = base.house.getSelectedIndex();
+			if (pos < 0) {
+				base.label.setText("No open tab");
+				return;
+			}
 			SearchContext context = new SearchContext();
       		if (textField.getText().length() == 0)
 		         return;

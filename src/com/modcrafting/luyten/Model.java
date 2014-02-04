@@ -290,11 +290,20 @@ public class Model extends JFrame implements WindowListener {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                int pos = house.getSelectedIndex();
-                RTextScrollPane co = (RTextScrollPane) house.getComponentAt(pos);
-                RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
-                pane.setSelectionStart(0);
-                pane.setSelectionEnd(pane.getText().length());
+            	try {
+	                int pos = house.getSelectedIndex();
+	    			if (pos < 0) {
+	    				label.setText("No open tab");
+	    				return;
+	    			}
+	                RTextScrollPane co = (RTextScrollPane) house.getComponentAt(pos);
+	                RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
+	                pane.requestFocusInWindow();
+	                pane.setSelectionStart(0);
+	                pane.setSelectionEnd(pane.getText().length());
+            	} catch (Exception e) {
+            		e.printStackTrace();
+            	}
             }
         });
         fileMenu.add(menuItem);
@@ -1282,6 +1291,7 @@ public class Model extends JFrame implements WindowListener {
                     }
                 }
             } catch (IOException e1) {
+            	e1.printStackTrace();
                 JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
             }
         }
