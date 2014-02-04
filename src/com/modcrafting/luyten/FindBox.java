@@ -3,18 +3,20 @@ package com.modcrafting.luyten;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-
+import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.SearchContext;
@@ -32,8 +34,20 @@ public class FindBox extends JDialog{
     JButton findButton;
     JTextField textField;
     Model base;
+    
+	public void showFindBox() {
+		this.setVisible(true);
+		this.textField.requestFocus();
+	}
+
+	public void hideFindBox() {
+		this.setVisible(false);
+	}
+
 	public FindBox(Model base) {
 		this.base = base;
+		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
+		this.setHideOnEscapeButton();
 		
         JLabel label = new JLabel("Find What:");
         textField = new JTextField();
@@ -102,6 +116,7 @@ public class FindBox extends JDialog{
         );
  
         this.setName("Find");
+		this.setTitle("Find");
         this.setVisible(true);
     }
 	private class FindButton extends AbstractAction{
@@ -131,5 +146,20 @@ public class FindBox extends JDialog{
             }
 		}
 		
+	}
+	
+	private void setHideOnEscapeButton() {
+		Action escapeAction = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FindBox.this.setVisible(false);
+			}
+		};
+
+		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
+		this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
 	}
 }

@@ -19,6 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedOutputStream;
@@ -133,6 +134,7 @@ public class Model extends JFrame implements WindowListener {
     boolean open = false;
     private ButtonGroup languagesGroup;
     private State state;
+    private FindBox findBox;
 
     public Model() {
         frame = this;
@@ -301,11 +303,22 @@ public class Model extends JFrame implements WindowListener {
         menuItem = new JMenuItem("Find...");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         menuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                new FindBox(Model.frame);
-            }
-        });
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					int pos = house.getSelectedIndex();
+					if (pos >= 0) {
+						if (findBox == null)
+							findBox = new FindBox(Model.this);
+						findBox.showFindBox();
+					} else {
+						label.setText("No open tab");
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
         fileMenu.add(menuItem);
         menuBar.add(fileMenu);
 
@@ -431,6 +444,7 @@ public class Model extends JFrame implements WindowListener {
         menuBar.add(fileMenu);
 
         this.setJMenuBar(menuBar);
+        this.setHideFindBoxOnMainWindowFocus();
         this.setVisible(true);
         bar.setVisible(false);
 
@@ -1273,4 +1287,14 @@ public class Model extends JFrame implements WindowListener {
         }
     }
     
+	private void setHideFindBoxOnMainWindowFocus() {
+		this.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				if (findBox != null && findBox.isVisible()) {
+					findBox.setVisible(false);
+				}
+			}
+		});
+	}
 }
