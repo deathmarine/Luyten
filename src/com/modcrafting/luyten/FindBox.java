@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
@@ -73,7 +75,8 @@ public class FindBox extends JDialog{
         reverse.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		final Dimension center = new Dimension((int)(screenSize.width*0.35), (int)(screenSize.height*0.20));
+		final Dimension center = new Dimension((int)(screenSize.width*0.35),
+				Math.min((int) (screenSize.height * 0.20), 200));
 		final int x = (int) (center.width * 0.2);
 		final int y = (int) (center.height * 0.2);
 		this.setBounds(x, y, center.width, center.height);
@@ -115,6 +118,9 @@ public class FindBox extends JDialog{
                         .addComponent(reverse))))
         );
  
+		this.adjustWindowPositionBySavedState();
+		this.setSaveWindowPositionOnClosing();
+
         this.setName("Find");
 		this.setTitle("Find");
         this.setVisible(true);
@@ -165,5 +171,23 @@ public class FindBox extends JDialog{
 		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
 		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
 		this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
+	}
+	
+	private void adjustWindowPositionBySavedState() {
+		WindowPosition windowPosition = ConfigSaver.getLoadedInstance().getFindWindowPosition();
+
+		if (windowPosition.isSavedWindowPositionValid()) {
+			this.setLocation(windowPosition.getWindowX(), windowPosition.getWindowY());
+		}
+	}
+
+	private void setSaveWindowPositionOnClosing() {
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				WindowPosition windowPosition = ConfigSaver.getLoadedInstance().getFindWindowPosition();
+				windowPosition.readPositionFromDialog(FindBox.this);
+			}
+		});
 	}
 }

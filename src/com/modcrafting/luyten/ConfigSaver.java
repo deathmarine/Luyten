@@ -17,7 +17,17 @@ public class ConfigSaver {
 	private static final String INCLUDE_ERROR_DIAGNOSTICS_ID = "includeErrorDiagnostics";
 	private static final String LANGUAGE_NAME_ID = "languageName";
 
+	private static final String MAIN_WINDOW_ID_PREFIX = "main";
+	private static final String FIND_WINDOW_ID_PREFIX = "find";
+	private static final String WINDOW_IS_FULL_SCREEN_ID = "WindowIsFullScreen";
+	private static final String WINDOW_WIDTH_ID = "WindowWidth";
+	private static final String WINDOW_HEIGHT_ID = "WindowHeight";
+	private static final String WINDOW_X_ID = "WindowX";
+	private static final String WINDOW_Y_ID = "WindowY";
+
 	private DecompilerSettings decompilerSettings;
+	private WindowPosition mainWindowPosition;
+	private WindowPosition findWindowPosition;
 
 	private static ConfigSaver theLoadedInstance;
 
@@ -66,9 +76,21 @@ public class ConfigSaver {
 			decompilerSettings.setLanguage(findLanguageByName(prefs.get(LANGUAGE_NAME_ID,
 					decompilerSettings.getLanguage().getName())));
 
+			mainWindowPosition = loadWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX);
+			findWindowPosition = loadWindowPosition(prefs, FIND_WINDOW_ID_PREFIX);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private WindowPosition loadWindowPosition(Preferences prefs, String windowIdPrefix) {
+		WindowPosition windowPosition = new WindowPosition();
+		windowPosition.setFullScreen(prefs.getBoolean(windowIdPrefix + WINDOW_IS_FULL_SCREEN_ID, false));
+		windowPosition.setWindowWidth(prefs.getInt(windowIdPrefix + WINDOW_WIDTH_ID, 0));
+		windowPosition.setWindowHeight(prefs.getInt(windowIdPrefix + WINDOW_HEIGHT_ID, 0));
+		windowPosition.setWindowX(prefs.getInt(windowIdPrefix + WINDOW_X_ID, 0));
+		windowPosition.setWindowY(prefs.getInt(windowIdPrefix + WINDOW_Y_ID, 0));
+		return windowPosition;
 	}
 
 	public void saveConfig() {
@@ -86,9 +108,19 @@ public class ConfigSaver {
 			prefs.putBoolean(INCLUDE_ERROR_DIAGNOSTICS_ID, decompilerSettings.getIncludeErrorDiagnostics());
 			prefs.put(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName());
 
+			saveWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX, mainWindowPosition);
+			saveWindowPosition(prefs, FIND_WINDOW_ID_PREFIX, findWindowPosition);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void saveWindowPosition(Preferences prefs, String windowIdPrefix, WindowPosition windowPosition) {
+		prefs.putBoolean(windowIdPrefix + WINDOW_IS_FULL_SCREEN_ID, windowPosition.isFullScreen());
+		prefs.putInt(windowIdPrefix + WINDOW_WIDTH_ID, windowPosition.getWindowWidth());
+		prefs.putInt(windowIdPrefix + WINDOW_HEIGHT_ID, windowPosition.getWindowHeight());
+		prefs.putInt(windowIdPrefix + WINDOW_X_ID, windowPosition.getWindowX());
+		prefs.putInt(windowIdPrefix + WINDOW_Y_ID, windowPosition.getWindowY());
 	}
 
 	private Language findLanguageByName(String languageName) {
@@ -113,5 +145,13 @@ public class ConfigSaver {
 
 	public DecompilerSettings getDecompilerSettings() {
 		return decompilerSettings;
+	}
+
+	public WindowPosition getMainWindowPosition() {
+		return mainWindowPosition;
+	}
+
+	public WindowPosition getFindWindowPosition() {
+		return findWindowPosition;
 	}
 }
