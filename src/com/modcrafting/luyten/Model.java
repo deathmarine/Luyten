@@ -565,7 +565,10 @@ public class Model extends JFrame implements WindowListener {
                             }
 
                             JarEntry entry = state.jarFile.getJarEntry(sb.toString().replace(".", "/") + name);
-        					if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
+        					if (entry == null) {
+        						throw new FileEntryNotFoundException();
+        					}
+                            if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
         						throw new TooLargeFileException(entry.getSize());
         					}
 
@@ -584,19 +587,9 @@ public class Model extends JFrame implements WindowListener {
                                 addTab(name, open.scrollPane);
                                 stringwriter.close();
                             } else {
-                                InputStream in = state.jarFile.getInputStream(entry);
-                                StringBuilder sd = new StringBuilder();
-                                if (in != null) {
-                                    BufferedReader reader = new BufferedReader(
-                                            new InputStreamReader(in));
-                                    String line;
-                                    while ((line = reader.readLine()) != null)
-                                        sd.append(line).append("\n");
-                                    reader.close();
-                                }
-                                OpenFile open = new OpenFile(name, sd.toString(), theme);
-                                hmap.add(open);
-                                addTab(name, open.scrollPane);
+        						try (InputStream in = state.jarFile.getInputStream(entry);) {
+        							extractSimpleFileEntryToTextPane(in, name);
+        						}
                             }
                         }
                     } else {
@@ -618,19 +611,16 @@ public class Model extends JFrame implements WindowListener {
                             addTab(name, open.scrollPane);
                             stringwriter.close();
                         } else {
-                            StringBuilder sd = new StringBuilder();
-                            BufferedReader reader = new BufferedReader(
-                                    new InputStreamReader(new FileInputStream(file)));
-                            String line;
-                            while ((line = reader.readLine()) != null)
-                                sd.append(line).append("\n");
-                            reader.close();
-                            OpenFile open = new OpenFile(name, sd.toString(), theme);
-                            hmap.add(open);
-                            addTab(name, open.scrollPane);
+        					try (InputStream in = new FileInputStream(file);) {
+        						extractSimpleFileEntryToTextPane(in, name);
+        					}
                         }
                     }
         			label.setText("Complete");
+        		} catch (FileEntryNotFoundException e) {
+        			label.setText("File not found: " + name);
+        		} catch (FileIsBinaryException e) {
+        			label.setText("Binary resource: " + name);
         		} catch (TooLargeFileException e) {
         			label.setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
         		} catch (Exception e) {
@@ -644,6 +634,44 @@ public class Model extends JFrame implements WindowListener {
             }
         }
     }
+
+	private void extractSimpleFileEntryToTextPane(InputStream inputStream, String tabTitle) throws Exception {
+		
+		if (inputStream == null || tabTitle == null || tabTitle.trim().length() < 1) {
+			throw new FileEntryNotFoundException();
+		}
+		
+		// build tab content
+		StringBuilder sb = new StringBuilder();
+		long nonprintableCharactersCount = 0;
+		try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+				BufferedReader reader = new BufferedReader(inputStreamReader);) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append("\n");
+
+				for (byte nextByte : line.getBytes()) {
+					if (nextByte <= 0) {
+						nonprintableCharactersCount++;
+					}
+				}
+
+			}
+		}
+		
+		// guess binary or text
+		String extension = "." + tabTitle.replaceAll("^[^\\.]*$", "").replaceAll("[^\\.]*\\.", "");
+		boolean isTextFile = (OpenFile.WELL_KNOWN_TEXT_FILE_EXTENSIONS.contains(extension) ||
+				nonprintableCharactersCount < sb.length() / 5);
+		if (!isTextFile) {
+			throw new FileIsBinaryException();
+		}
+		
+		// open tab
+		OpenFile open = new OpenFile(tabTitle, sb.toString(), theme);
+		hmap.add(open);
+		addTab(tabTitle, open.scrollPane);
+	}
 
     private final class State implements AutoCloseable {
         private final String key;

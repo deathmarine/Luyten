@@ -1,12 +1,20 @@
 package com.modcrafting.luyten;
 
 import java.awt.Panel;
+import java.util.Arrays;
+import java.util.HashSet;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class OpenFile implements SyntaxConstants{
+
+	public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(Arrays.asList(
+			".java", ".xml", ".rss", ".project", ".classpath", ".h", ".sql", ".js", ".php", ".php5",
+			".phtml", ".html", ".htm", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".css",
+			".json", ".txt", ".rb", ".make", ".mak", ".py", ".properties", ".prop"));
+
 	RTextScrollPane scrollPane;
 	Panel image_pane;
 	RSyntaxTextArea textArea;
