@@ -398,9 +398,9 @@ public class Model extends JFrame implements WindowListener {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                OpenFile open = new OpenFile("Legal", sb.toString(), theme);
+                OpenFile open = new OpenFile("Legal", "*/Legal", sb.toString(), theme);
                 hmap.add(open);
-                addTab("Legal", open.scrollPane);
+                addOrSwitchToTab(open);
 
             }
         });
@@ -473,18 +473,20 @@ public class Model extends JFrame implements WindowListener {
         });
     }
 
-    public void addTab(String title, RTextScrollPane rTextScrollPane) {
-        if (house.indexOfTab(title) < 0) {
-            house.addTab(title, rTextScrollPane);
-            house.setSelectedIndex(house.indexOfTab(title));
-            int index = house.indexOfTab(title);
-            Tab ct = new Tab(title);
-            ct.getButton().addMouseListener(new CloseTab(title));
-            house.setTabComponentAt(index, ct);
-        } else {
-            house.setSelectedIndex(house.indexOfTab(title));
-        }
-    }
+	public void addOrSwitchToTab(OpenFile open) {
+		String title = open.name;
+		RTextScrollPane rTextScrollPane = open.scrollPane;
+		if (house.indexOfTab(title) < 0) {
+			house.addTab(title, rTextScrollPane);
+			house.setSelectedIndex(house.indexOfTab(title));
+			int index = house.indexOfTab(title);
+			Tab ct = new Tab(title);
+			ct.getButton().addMouseListener(new CloseTab(title));
+			house.setTabComponentAt(index, ct);
+		} else {
+			house.setSelectedIndex(house.indexOfTab(title));
+		}
+	}
 
     public void closeOpenTab(int index) {
         RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
@@ -543,6 +545,7 @@ public class Model extends JFrame implements WindowListener {
                 String st = trp.toString().replace(file.getName(), "");
                 final String[] args = st.replace("[", "").replace("]", "").split(",");
                 String name = "";
+                String path = "";
                 try {
                     if (args.length > 1) {
                         StringBuilder sb = new StringBuilder();
@@ -553,6 +556,7 @@ public class Model extends JFrame implements WindowListener {
                                 sb.append(args[i].trim()).append("/");
                             }
                         }
+                        path = sb.toString().replace(".", "/") + name;
                         populateSettingsFromSettingsMenu();
                         
                         if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
@@ -564,7 +568,7 @@ public class Model extends JFrame implements WindowListener {
                                 state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
                             }
 
-                            JarEntry entry = state.jarFile.getJarEntry(sb.toString().replace(".", "/") + name);
+                            JarEntry entry = state.jarFile.getJarEntry(path);
         					if (entry == null) {
         						throw new FileEntryNotFoundException();
         					}
@@ -575,44 +579,25 @@ public class Model extends JFrame implements WindowListener {
                             if (entry.getName().endsWith(".class")) {
                                 String internalName = StringUtilities.removeRight(entry.getName(), ".class");
                                 TypeReference type = metadataSystem.lookupType(internalName);
-                                TypeDefinition resolvedType = null;
-                                if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-                                    JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    return;
-                                }
-                                StringWriter stringwriter = new StringWriter();
-                                settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
-                                OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
-                                hmap.add(open);
-                                addTab(name, open.scrollPane);
-                                stringwriter.close();
+                                extractClassToTextPane(type, name, path);
                             } else {
         						try (InputStream in = state.jarFile.getInputStream(entry);) {
-        							extractSimpleFileEntryToTextPane(in, name);
+        							extractSimpleFileEntryToTextPane(in, name, path);
         						}
                             }
                         }
                     } else {
                         name = file.getName();
+                        path = file.getPath().replaceAll("\\\\", "/");
         				if (file.length() > MAX_UNPACKED_FILE_SIZE_BYTES) {
         					throw new TooLargeFileException(file.length());
         				}
                         if (name.endsWith(".class")) {
-                            TypeReference type = metadataSystem.lookupType(file.getPath());
-                            TypeDefinition resolvedType = null;
-                            if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-                                JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                            StringWriter stringwriter = new StringWriter();
-                            settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
-                            OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
-                            hmap.add(open);
-                            addTab(name, open.scrollPane);
-                            stringwriter.close();
+                            TypeReference type = metadataSystem.lookupType(path);
+                            extractClassToTextPane(type, name, path);
                         } else {
         					try (InputStream in = new FileInputStream(file);) {
-        						extractSimpleFileEntryToTextPane(in, name);
+        						extractSimpleFileEntryToTextPane(in, name, path);
         					}
                         }
                     }
@@ -635,12 +620,60 @@ public class Model extends JFrame implements WindowListener {
         }
     }
 
-	private void extractSimpleFileEntryToTextPane(InputStream inputStream, String tabTitle) throws Exception {
-		
-		if (inputStream == null || tabTitle == null || tabTitle.trim().length() < 1) {
+	private void extractClassToTextPane(TypeReference type, String tabTitle, String path) throws Exception {
+		if (tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
 			throw new FileEntryNotFoundException();
 		}
+		OpenFile sameTitledOpen = null;
+		for (OpenFile nextOpen : hmap) {
+			if (tabTitle.equals(nextOpen.name)) {
+				sameTitledOpen = nextOpen;
+				break;
+			}
+		}
+		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath())) {
+			addOrSwitchToTab(sameTitledOpen);
+			return;
+		}
 		
+		// build tab content: do decompilation
+		TypeDefinition resolvedType = null;
+		if (type == null || ((resolvedType = type.resolve()) == null)) {
+			throw new Exception("Unable to resolve type.");
+		}
+		StringWriter stringwriter = new StringWriter();
+		settings.getLanguage().decompileType(resolvedType,
+				new PlainTextOutput(stringwriter), decompilationOptions);
+		String decompiledSource = stringwriter.toString();
+
+		// open tab
+		if (sameTitledOpen != null) {
+			sameTitledOpen.setContent(decompiledSource);
+			sameTitledOpen.setPath(path);
+			addOrSwitchToTab(sameTitledOpen);
+		} else {
+			OpenFile open = new OpenFile(tabTitle, path, decompiledSource, theme);
+			hmap.add(open);
+			addOrSwitchToTab(open);
+		}
+	}
+
+	private void extractSimpleFileEntryToTextPane(InputStream inputStream, String tabTitle, String path) throws Exception {
+		if (inputStream == null || tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
+			throw new FileEntryNotFoundException();
+		}
+		OpenFile sameTitledOpen = null;
+		for (OpenFile nextOpen : hmap) {
+			if (tabTitle.equals(nextOpen.name)) {
+				sameTitledOpen = nextOpen;
+				break;
+			}
+		}
+		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath())) {
+			addOrSwitchToTab(sameTitledOpen);
+			return;
+		}
+
 		// build tab content
 		StringBuilder sb = new StringBuilder();
 		long nonprintableCharactersCount = 0;
@@ -668,9 +701,15 @@ public class Model extends JFrame implements WindowListener {
 		}
 		
 		// open tab
-		OpenFile open = new OpenFile(tabTitle, sb.toString(), theme);
-		hmap.add(open);
-		addTab(tabTitle, open.scrollPane);
+		if (sameTitledOpen != null) {
+			sameTitledOpen.setContent(sb.toString());
+			sameTitledOpen.setPath(path);
+			addOrSwitchToTab(sameTitledOpen);
+		} else {
+			OpenFile open = new OpenFile(tabTitle, path, sb.toString(), theme);
+			hmap.add(open);
+			addOrSwitchToTab(open);
+		}
 	}
 
     private final class State implements AutoCloseable {

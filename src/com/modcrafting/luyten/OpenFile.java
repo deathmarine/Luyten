@@ -19,8 +19,11 @@ public class OpenFile implements SyntaxConstants{
 	Panel image_pane;
 	RSyntaxTextArea textArea;
 	String name;
-	public OpenFile(String name, String contents, Theme theme){
+	private String path;
+	
+	public OpenFile(String name, String path, String contents, Theme theme){
 		this.name = name;
+		this.path = path;
 		textArea = new RSyntaxTextArea(25, 70);
 		textArea.setCaretPosition(0);
 		textArea.requestFocusInWindow();
@@ -81,5 +84,42 @@ public class OpenFile implements SyntaxConstants{
 		scrollPane.setIconRowHeaderEnabled(true);
 		textArea.setText(contents);
 		theme.apply(textArea);
+	}
+	
+	public void setContent(String content) {
+		textArea.setText(content);
+	}
+
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		OpenFile other = (OpenFile) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
 	}
 }
