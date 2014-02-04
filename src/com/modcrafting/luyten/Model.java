@@ -97,7 +97,6 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.Languages;
-import com.strobel.decompiler.languages.java.JavaFormattingOptions;
 
 public class Model extends JFrame implements WindowListener {
     private static final long serialVersionUID = 6896857630400910200L;
@@ -135,6 +134,7 @@ public class Model extends JFrame implements WindowListener {
     private ButtonGroup languagesGroup;
     private State state;
     private FindBox findBox;
+    private ConfigSaver configSaver;
 
     public Model() {
         frame = this;
@@ -149,6 +149,9 @@ public class Model extends JFrame implements WindowListener {
     }
 
     public void setup() {
+		configSaver = ConfigSaver.getLoadedInstance();
+		settings = configSaver.getDecompilerSettings();
+    	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
         final int x = (int) (center.width * 0.2);
@@ -348,24 +351,28 @@ public class Model extends JFrame implements WindowListener {
         fileMenu.add(a);
         menuBar.add(fileMenu);
 
-        settings = new DecompilerSettings();
-        if (settings.getFormattingOptions() == null)
-            settings.setFormattingOptions(JavaFormattingOptions.createDefault());
         fileMenu = new JMenu("Settings");
         flattenSwitchBlocks = new JCheckBox("Flatten Switch Blocks");
+        flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
         fileMenu.add(flattenSwitchBlocks);
         forceExplicitImports = new JCheckBox("Force Explicit Imports");
+        forceExplicitImports.setSelected(settings.getForceExplicitImports());
         fileMenu.add(forceExplicitImports);
         forceExplicitTypes = new JCheckBox("Force Explicit Types");
+        forceExplicitTypes.setSelected(settings.getForceExplicitTypeArguments());
         fileMenu.add(forceExplicitTypes);
         showSyntheticMembers = new JCheckBox("Show Synthetic Members");
+        showSyntheticMembers.setSelected(settings.getShowSyntheticMembers());
         fileMenu.add(showSyntheticMembers);
         excludeNestedTypes = new JCheckBox("Exclude Nested Types");
+        excludeNestedTypes.setSelected(settings.getExcludeNestedTypes());
         fileMenu.add(excludeNestedTypes);
         retainRedundantCasts = new JCheckBox("Retain Redundant Casts");
+        retainRedundantCasts.setSelected(settings.getRetainRedundantCasts());
         fileMenu.add(retainRedundantCasts);
         JMenu debugSettingsMenu = new JMenu("Debug Settings");
         showDebugInfo = new JCheckBox("Include Error Diagnostics");
+        showDebugInfo.setSelected(settings.getIncludeErrorDiagnostics());
         debugSettingsMenu.add(showDebugInfo);
         fileMenu.add(debugSettingsMenu);
         fileMenu.addSeparator();
@@ -377,15 +384,17 @@ public class Model extends JFrame implements WindowListener {
         languagesGroup = new ButtonGroup();
         java = new JRadioButtonMenuItem(Languages.java().getName());
         java.getModel().setActionCommand(Languages.java().getName());
-        java.setSelected(true);
+        java.setSelected(Languages.java().getName().equals(settings.getLanguage().getName()));
         languagesGroup.add(java);
         fileMenu.add(java);
         bytecode = new JRadioButtonMenuItem(Languages.bytecode().getName());
         bytecode.getModel().setActionCommand(Languages.bytecode().getName());
+        bytecode.setSelected(Languages.bytecode().getName().equals(settings.getLanguage().getName()));
         languagesGroup.add(bytecode);
         fileMenu.add(bytecode);
         bytecodeAST = new JRadioButtonMenuItem(Languages.bytecodeAst().getName());
         bytecodeAST.getModel().setActionCommand(Languages.bytecodeAst().getName());
+        bytecodeAST.setSelected(Languages.bytecodeAst().getName().equals(settings.getLanguage().getName()));
         languagesGroup.add(bytecodeAST);
         fileMenu.add(bytecodeAST);
         
@@ -393,6 +402,7 @@ public class Model extends JFrame implements WindowListener {
         for (final Language language : Languages.debug()) {
             final JRadioButtonMenuItem m = new JRadioButtonMenuItem(language.getName());
             m.getModel().setActionCommand(language.getName());
+            m.setSelected(language.getName().equals(settings.getLanguage().getName()));
             languagesGroup.add(m);
             debugLanguagesMenu.add(m);
             languageLookup.put(language.getName(), language);
@@ -1154,8 +1164,18 @@ public class Model extends JFrame implements WindowListener {
     public class Quit implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Model.frame.dispose();
-            System.exit(0);
+			try {
+				populateSettingsFromSettingsMenu();
+				configSaver.saveConfig();
+			} catch (Exception exc) {
+				exc.printStackTrace();
+			} finally {
+				try {
+					Model.frame.dispose();
+				} finally {
+					System.exit(0);
+				}
+			}
         }
     }
 
