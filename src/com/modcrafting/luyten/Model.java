@@ -138,6 +138,7 @@ public class Model extends JFrame implements WindowListener {
     private FindBox findBox;
     private ConfigSaver configSaver;
 	private WindowPosition windowPosition;
+	private LuytenPreferences luytenPrefs;
 
     public Model() {
         frame = this;
@@ -155,6 +156,7 @@ public class Model extends JFrame implements WindowListener {
 		configSaver = ConfigSaver.getLoadedInstance();
 		settings = configSaver.getDecompilerSettings();
 		windowPosition = configSaver.getMainWindowPosition();
+		luytenPrefs = configSaver.getLuytenPreferences();
     	
 		this.adjustWindowPositionBySavedState();
 		
@@ -167,11 +169,21 @@ public class Model extends JFrame implements WindowListener {
             e.printStackTrace();
         }
         this.setDropTarget(dt);
-        try {
-            theme = Theme.load(getClass().getResourceAsStream("/themes/eclipse.xml"));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
+        
+		try {
+			String themeXml = luytenPrefs.getThemeXml();
+			theme = Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml));
+		} catch (Exception e1) {
+			try {
+				e1.printStackTrace();
+				String themeXml = LuytenPreferences.DEFAULT_THEME_XML;
+				luytenPrefs.setThemeXml(themeXml);
+				theme = Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml));
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+		}
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException e) {
@@ -338,16 +350,19 @@ public class Model extends JFrame implements WindowListener {
         fileMenu = new JMenu("Themes");
         languagesGroup = new ButtonGroup();
         JRadioButtonMenuItem a = new JRadioButtonMenuItem(new ThemeAction("Default", "default.xml"));
+        a.setSelected("default.xml".equals(luytenPrefs.getThemeXml()));
         languagesGroup.add(a);
         fileMenu.add(a);
         a = new JRadioButtonMenuItem(new ThemeAction("Dark", "dark.xml"));
+        a.setSelected("dark.xml".equals(luytenPrefs.getThemeXml()));
         languagesGroup.add(a);
         fileMenu.add(a);
         a = new JRadioButtonMenuItem(new ThemeAction("Eclipse", "eclipse.xml"));
-        a.setSelected(true);
+        a.setSelected("eclipse.xml".equals(luytenPrefs.getThemeXml()));
         languagesGroup.add(a);
         fileMenu.add(a);
         a = new JRadioButtonMenuItem(new ThemeAction("Visual Studio", "vs.xml"));
+        a.setSelected("vs.xml".equals(luytenPrefs.getThemeXml()));
         languagesGroup.add(a);
         fileMenu.add(a);
         menuBar.add(fileMenu);
@@ -857,12 +872,17 @@ public class Model extends JFrame implements WindowListener {
                 fc.addChoosableFileFilter(new FileChooserFileFilter("*.class"));
                 fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fc.setMultiSelectionEnabled(false);
+                retrieveOpenDialogDir(fc);
             }
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
+
+        	retrieveOpenDialogDir(fc);
             int returnVal = fc.showOpenDialog(Model.frame);
+			saveOpenDialogDir(fc);
+			
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 file = fc.getSelectedFile();
                 if (open)
@@ -1007,6 +1027,7 @@ public class Model extends JFrame implements WindowListener {
             fc.addChoosableFileFilter(new FileChooserFileFilter("*.java"));
             fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
             fc.setMultiSelectionEnabled(false);
+            retrieveSaveDialogDir(fc);
     	}
 		@Override
 		public void actionPerformed(ActionEvent event) {
@@ -1023,7 +1044,11 @@ public class Model extends JFrame implements WindowListener {
 			final RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
 			String title = house.getTitleAt(index);
 			fc.setSelectedFile(new File(title.replace(".class", ".java")));
+			
+			retrieveSaveDialogDir(fc);
 			int returnVal = fc.showSaveDialog(Model.frame);
+			saveSaveDialogDir(fc);
+			
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				new Thread(new Runnable() {
 					@Override
@@ -1059,6 +1084,7 @@ public class Model extends JFrame implements WindowListener {
             fc.addChoosableFileFilter(new FileChooserFileFilter("*.zip"));
             fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
             fc.setMultiSelectionEnabled(false);
+            retrieveSaveDialogDir(fc);
     	}
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -1076,7 +1102,11 @@ public class Model extends JFrame implements WindowListener {
 			if (s.toLowerCase().endsWith(".jar"))
 				s = s.replaceAll("\\.[jJ][aA][rR]", ".zip");
 			fc.setSelectedFile(new File("decompiled-" + s));
+			
+			retrieveSaveDialogDir(fc);
 			int returnVal = fc.showSaveDialog(Model.frame);
+			saveSaveDialogDir(fc);
+
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				new Thread(new Runnable() {
 					@Override
@@ -1300,22 +1330,23 @@ public class Model extends JFrame implements WindowListener {
 
         public ThemeAction(String name, String xml) {
             putValue(NAME, name);
-            this.xml = "/themes/" + xml;
+            this.xml = xml;
         }
 
         public void actionPerformed(ActionEvent e) {
-            InputStream in = getClass().getResourceAsStream(xml);
-            try {
-                if (in != null) {
-                    theme = Theme.load(in);
-                    for (OpenFile f : hmap) {
-                        theme.apply(f.textArea);
-                    }
-                }
-            } catch (IOException e1) {
-            	e1.printStackTrace();
-                JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
-            }
+			InputStream in = getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + xml);
+			try {
+				if (in != null) {
+					theme = Theme.load(in);
+					luytenPrefs.setThemeXml(xml);
+					for (OpenFile f : hmap) {
+						theme.apply(f.textArea);
+					}
+				}
+			} catch (IOException e1) {
+				e1.printStackTrace();
+				JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+			}
         }
     }
     
@@ -1362,6 +1393,56 @@ public class Model extends JFrame implements WindowListener {
 		} else {
 			this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(),
 					windowPosition.getWindowWidth(), windowPosition.getWindowHeight());
+		}
+	}
+	
+	private void retrieveOpenDialogDir(JFileChooser fc) {
+		try {
+			String currentDirStr = luytenPrefs.getFileOpenCurrentDirectory();
+			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
+				File currentDir = new File(currentDirStr);
+				if (currentDir.exists() && currentDir.isDirectory()) {
+					fc.setCurrentDirectory(currentDir);
+				}
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+
+	private void saveOpenDialogDir(JFileChooser fc) {
+		try {
+			File currentDir = fc.getCurrentDirectory();
+			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
+				luytenPrefs.setFileOpenCurrentDirectory(currentDir.getAbsolutePath());
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+
+	private void retrieveSaveDialogDir(JFileChooser fc) {
+		try {
+			String currentDirStr = luytenPrefs.getFileSaveCurrentDirectory();
+			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
+				File currentDir = new File(currentDirStr);
+				if (currentDir.exists() && currentDir.isDirectory()) {
+					fc.setCurrentDirectory(currentDir);
+				}
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+	}
+
+	private void saveSaveDialogDir(JFileChooser fc) {
+		try {
+			File currentDir = fc.getCurrentDirectory();
+			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
+				luytenPrefs.setFileSaveCurrentDirectory(currentDir.getAbsolutePath());
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
 		}
 	}
 }

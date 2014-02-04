@@ -1,5 +1,7 @@
 package com.modcrafting.luyten;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.prefs.Preferences;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
@@ -28,6 +30,7 @@ public class ConfigSaver {
 	private DecompilerSettings decompilerSettings;
 	private WindowPosition mainWindowPosition;
 	private WindowPosition findWindowPosition;
+	private LuytenPreferences luytenPreferences;
 
 	private static ConfigSaver theLoadedInstance;
 
@@ -56,6 +59,9 @@ public class ConfigSaver {
 		if (decompilerSettings.getFormattingOptions() == null) {
 			decompilerSettings.setFormattingOptions(JavaFormattingOptions.createDefault());
 		}
+		luytenPreferences = new LuytenPreferences();
+		mainWindowPosition = new WindowPosition();
+		findWindowPosition = new WindowPosition();
 		try {
 			Preferences prefs = Preferences.userNodeForPackage(ConfigSaver.class);
 
@@ -78,6 +84,7 @@ public class ConfigSaver {
 
 			mainWindowPosition = loadWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX);
 			findWindowPosition = loadWindowPosition(prefs, FIND_WINDOW_ID_PREFIX);
+			luytenPreferences = loadLuytenPreferences(prefs);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,6 +98,32 @@ public class ConfigSaver {
 		windowPosition.setWindowX(prefs.getInt(windowIdPrefix + WINDOW_X_ID, 0));
 		windowPosition.setWindowY(prefs.getInt(windowIdPrefix + WINDOW_Y_ID, 0));
 		return windowPosition;
+	}
+
+	// load preferences by their java variable names
+	private LuytenPreferences loadLuytenPreferences(Preferences prefs) throws Exception {
+		LuytenPreferences newLuytenPrefs = new LuytenPreferences();
+		for (Field field : LuytenPreferences.class.getDeclaredFields()) {
+			if (Modifier.isStatic(field.getModifiers()))
+				continue;
+			field.setAccessible(true);
+			String prefId = field.getName();
+			Object defaultVal = field.get(newLuytenPrefs);
+
+			if (field.getType() == String.class) {
+				String defaultStr = (String) (defaultVal == null ? "" : defaultVal);
+				field.set(newLuytenPrefs, prefs.get(prefId, defaultStr));
+
+			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+				Boolean defaultBool = (Boolean) (defaultVal == null ? new Boolean(false) : defaultVal);
+				field.setBoolean(newLuytenPrefs, prefs.getBoolean(prefId, defaultBool));
+
+			} else if (field.getType() == Integer.class || field.getType() == int.class) {
+				Integer defaultInt = (Integer) (defaultVal == null ? new Integer(0) : defaultVal);
+				field.setInt(newLuytenPrefs, prefs.getInt(prefId, defaultInt));
+			}
+		}
+		return newLuytenPrefs;
 	}
 
 	public void saveConfig() {
@@ -110,6 +143,7 @@ public class ConfigSaver {
 
 			saveWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX, mainWindowPosition);
 			saveWindowPosition(prefs, FIND_WINDOW_ID_PREFIX, findWindowPosition);
+			saveLuytenPreferences(prefs);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -121,6 +155,27 @@ public class ConfigSaver {
 		prefs.putInt(windowIdPrefix + WINDOW_HEIGHT_ID, windowPosition.getWindowHeight());
 		prefs.putInt(windowIdPrefix + WINDOW_X_ID, windowPosition.getWindowX());
 		prefs.putInt(windowIdPrefix + WINDOW_Y_ID, windowPosition.getWindowY());
+	}
+
+	// save preferences by their java variable names
+	private void saveLuytenPreferences(Preferences prefs) throws Exception {
+		for (Field field : LuytenPreferences.class.getDeclaredFields()) {
+			if (Modifier.isStatic(field.getModifiers()))
+				continue;
+			field.setAccessible(true);
+			String prefId = field.getName();
+			Object value = field.get(luytenPreferences);
+
+			if (field.getType() == String.class) {
+				prefs.put(prefId, (String) (value == null ? "" : value));
+
+			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
+				prefs.putBoolean(prefId, (Boolean) (value == null ? new Boolean(false) : value));
+
+			} else if (field.getType() == Integer.class || field.getType() == int.class) {
+				prefs.putInt(prefId, (Integer) (value == null ? new Integer(0) : value));
+			}
+		}
 	}
 
 	private Language findLanguageByName(String languageName) {
@@ -153,5 +208,9 @@ public class ConfigSaver {
 
 	public WindowPosition getFindWindowPosition() {
 		return findWindowPosition;
+	}
+	
+	public LuytenPreferences getLuytenPreferences() {
+		return luytenPreferences;
 	}
 }
