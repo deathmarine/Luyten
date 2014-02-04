@@ -101,6 +101,9 @@ import com.strobel.decompiler.languages.java.JavaFormattingOptions;
 public class Model extends JFrame implements WindowListener {
     private static final long serialVersionUID = 6896857630400910200L;
 
+	private static final long MAX_JAR_FILE_SIZE_BYTES = 1_000_000_000;
+	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 1_000_000;
+    
     final LuytenTypeLoader typeLoader = new LuytenTypeLoader();
     final Map<String, Language> languageLookup = new HashMap<String, Language>();
     static File base;
@@ -539,9 +542,9 @@ public class Model extends JFrame implements WindowListener {
                     && event.getClickCount() == 2) {
                 String st = trp.toString().replace(file.getName(), "");
                 final String[] args = st.replace("[", "").replace("]", "").split(",");
+                String name = "";
                 try {
                     if (args.length > 1) {
-                        String name = new String();
                         StringBuilder sb = new StringBuilder();
                         for (int i = 1; i < args.length; i++) {
                             if (i == args.length - 1) {
@@ -553,52 +556,54 @@ public class Model extends JFrame implements WindowListener {
                         populateSettingsFromSettingsMenu();
                         
                         if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
-                            try {
-                                if (state == null) {
-                                    JarFile jfile = new JarFile(file);
-                                    ITypeLoader jarLoader = new JarTypeLoader(jfile);
+                            if (state == null) {
+                                JarFile jfile = new JarFile(file);
+                                ITypeLoader jarLoader = new JarTypeLoader(jfile);
 
-                                    typeLoader.getTypeLoaders().add(jarLoader);
-                                    state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                                typeLoader.getTypeLoaders().add(jarLoader);
+                                state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                            }
+
+                            JarEntry entry = state.jarFile.getJarEntry(sb.toString().replace(".", "/") + name);
+        					if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
+        						throw new TooLargeFileException(entry.getSize());
+        					}
+
+                            if (entry.getName().endsWith(".class")) {
+                                String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+                                TypeReference type = metadataSystem.lookupType(internalName);
+                                TypeDefinition resolvedType = null;
+                                if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+                                    JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                    return;
                                 }
-
-                                JarEntry entry = state.jarFile.getJarEntry(sb.toString().replace(".", "/") + name);
-
-                                if (entry.getName().endsWith(".class")) {
-                                    String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-                                    TypeReference type = metadataSystem.lookupType(internalName);
-                                    TypeDefinition resolvedType = null;
-                                    if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-                                        JOptionPane.showMessageDialog(null, "Unable to resolve type.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                        return;
-                                    }
-                                    StringWriter stringwriter = new StringWriter();
-                                    settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
-                                    OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
-                                    hmap.add(open);
-                                    addTab(name, open.scrollPane);
-                                    stringwriter.close();
-                                } else {
-                                    InputStream in = state.jarFile.getInputStream(entry);
-                                    StringBuilder sd = new StringBuilder();
-                                    if (in != null) {
-                                        BufferedReader reader = new BufferedReader(
-                                                new InputStreamReader(in));
-                                        String line;
-                                        while ((line = reader.readLine()) != null)
-                                            sd.append(line).append("\n");
-                                        reader.close();
-                                    }
-                                    OpenFile open = new OpenFile(name, sd.toString(), theme);
-                                    hmap.add(open);
-                                    addTab(name, open.scrollPane);
+                                StringWriter stringwriter = new StringWriter();
+                                settings.getLanguage().decompileType(resolvedType, new PlainTextOutput(stringwriter), decompilationOptions);
+                                OpenFile open = new OpenFile(name, stringwriter.getBuffer().toString(), theme);
+                                hmap.add(open);
+                                addTab(name, open.scrollPane);
+                                stringwriter.close();
+                            } else {
+                                InputStream in = state.jarFile.getInputStream(entry);
+                                StringBuilder sd = new StringBuilder();
+                                if (in != null) {
+                                    BufferedReader reader = new BufferedReader(
+                                            new InputStreamReader(in));
+                                    String line;
+                                    while ((line = reader.readLine()) != null)
+                                        sd.append(line).append("\n");
+                                    reader.close();
                                 }
-                            } catch (IOException e1) {
-                                JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+                                OpenFile open = new OpenFile(name, sd.toString(), theme);
+                                hmap.add(open);
+                                addTab(name, open.scrollPane);
                             }
                         }
                     } else {
-                        String name = file.getName();
+                        name = file.getName();
+        				if (file.length() > MAX_UNPACKED_FILE_SIZE_BYTES) {
+        					throw new TooLargeFileException(file.length());
+        				}
                         if (name.endsWith(".class")) {
                             TypeReference type = metadataSystem.lookupType(file.getPath());
                             TypeDefinition resolvedType = null;
@@ -625,9 +630,14 @@ public class Model extends JFrame implements WindowListener {
                             addTab(name, open.scrollPane);
                         }
                     }
-                } catch (IOException e) {
+        			label.setText("Complete");
+        		} catch (TooLargeFileException e) {
+        			label.setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
+        		} catch (Exception e) {
+        			label.setText("Cannot open: " + name);
+        			e.printStackTrace();
                     JOptionPane.showMessageDialog(null, e.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
-                }
+        		}
 
             } else {
                 tree.getSelectionModel().setSelectionPath(trp);
@@ -765,9 +775,15 @@ public class Model extends JFrame implements WindowListener {
         	new Thread(new Runnable(){
 				@Override
 				public void run() {
-			        if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
-			            JarFile jfile;
-						try {
+					try {
+						if (file == null) {
+							return;
+						}
+						if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
+							throw new TooLargeFileException(file.length());
+						}
+				        if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
+				            JarFile jfile;
 							jfile = new JarFile(file); 
 			                label.setText("Loading: "+jfile.getName());
 			                bar.setVisible(true);
@@ -816,18 +832,22 @@ public class Model extends JFrame implements WindowListener {
 				                state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
 				            }
 				            open = true;
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						}
-			           
-			        } else {
-			            DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
-			            tree.setModel(new DefaultTreeModel(top));
-			            settings.setTypeLoader(new InputTypeLoader());
-			            open = true;
-			        }
-            		label.setText("Complete");
-    				bar.setVisible(false);				
+		            		label.setText("Complete");
+				        } else {
+				            DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+				            tree.setModel(new DefaultTreeModel(top));
+				            settings.setTypeLoader(new InputTypeLoader());
+				            open = true;
+		            		label.setText("Complete");
+				        }
+					} catch (TooLargeFileException e) {
+						label.setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
+					} catch (Exception e1) {
+						label.setText("Cannot open: " + file.getName());
+						e1.printStackTrace();
+					} finally {
+						bar.setVisible(false);
+					}
 				}
 
         	}).start();
