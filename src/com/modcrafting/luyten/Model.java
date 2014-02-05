@@ -551,6 +551,10 @@ public class Model extends JSplitPane {
 						settings.setTypeLoader(new InputTypeLoader());
 						open = true;
 						label.setText("Complete");
+						
+						// open it automatically
+						TreePath trp = new TreePath(top.getPath());
+						openEntryByTreePath(trp);
 					}
 				} catch (TooLargeFileException e) {
 					label.setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());

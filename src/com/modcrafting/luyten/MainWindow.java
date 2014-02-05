@@ -36,7 +36,7 @@ public class MainWindow extends JFrame {
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
 
-	public MainWindow() {
+	public MainWindow(File fileFromCommandLine) {
 		configSaver = ConfigSaver.getLoadedInstance();
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
@@ -76,6 +76,10 @@ public class MainWindow extends JFrame {
 		model = new Model(this);
 		this.getContentPane().add(model);
 		this.add(pane, BorderLayout.SOUTH);
+
+		if (fileFromCommandLine != null) {
+			model.loadFile(fileFromCommandLine);
+		}
 
 		try {
 			DropTarget dt = new DropTarget();
