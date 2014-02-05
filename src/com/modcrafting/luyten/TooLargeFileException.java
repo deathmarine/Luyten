@@ -7,7 +7,6 @@ public class TooLargeFileException extends Exception {
 	private long size;
 
 	public TooLargeFileException(long size) {
-		super();
 		this.size = size;
 	}
 
