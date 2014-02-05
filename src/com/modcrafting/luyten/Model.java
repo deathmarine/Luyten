@@ -551,7 +551,7 @@ public class Model extends JSplitPane {
 						settings.setTypeLoader(new InputTypeLoader());
 						open = true;
 						label.setText("Complete");
-						
+
 						// open it automatically
 						TreePath trp = new TreePath(top.getPath());
 						openEntryByTreePath(trp);
@@ -629,7 +629,7 @@ public class Model extends JSplitPane {
 		}
 		return tabTitle;
 	}
-	
+
 	public RSyntaxTextArea getCurrentTextArea() {
 		RSyntaxTextArea currentTextArea = null;
 		try {
@@ -645,5 +645,32 @@ public class Model extends JSplitPane {
 			label.setText("No open tab");
 		}
 		return currentTextArea;
+	}
+
+	public void startWarmUpThread() {
+		new Thread() {
+			public void run() {
+				try {
+					Thread.sleep(500);
+					String internalName = FindBox.class.getName();
+					TypeReference type = metadataSystem.lookupType(internalName);
+					TypeDefinition resolvedType = null;
+					if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+						return;
+					}
+					StringWriter stringwriter = new StringWriter();
+					settings.getLanguage().decompileType(resolvedType,
+							new PlainTextOutput(stringwriter), decompilationOptions);
+					String decompiledSource = stringwriter.toString();
+					OpenFile open = new OpenFile(internalName, "*/" + internalName, decompiledSource, theme);
+					JTabbedPane pane = new JTabbedPane();
+					pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+					pane.addTab("title", open.scrollPane);
+					pane.setSelectedIndex(pane.indexOfTab("title"));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 }

@@ -91,6 +91,11 @@ public class MainWindow extends JFrame {
 
 		fileDialog = new FileDialog(this);
 		fileSaver = new FileSaver(bar, label);
+		
+		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar") || 
+				fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
+			model.startWarmUpThread();
+		}
 	}
 
 	public void onOpenFileMenu() {
