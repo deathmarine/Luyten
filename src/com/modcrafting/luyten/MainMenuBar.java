@@ -44,6 +44,7 @@ public class MainMenuBar extends JMenuBar {
 	private ButtonGroup languagesGroup;
 	private ButtonGroup themesGroup;
 	private JCheckBox singleClickOpenEnabled;
+	private JCheckBox exitByEscEnabled;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
 
@@ -241,6 +242,8 @@ public class MainMenuBar extends JMenuBar {
 		operationMenu.removeAll();
 		singleClickOpenEnabled = new JCheckBox("Single Click Open");
 		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
+		singleClickOpenEnabled.setContentAreaFilled(false);
+		singleClickOpenEnabled.setFocusable(false);
 		singleClickOpenEnabled.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -248,6 +251,18 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		operationMenu.add(singleClickOpenEnabled);
+
+		exitByEscEnabled = new JCheckBox("Exit By Esc");
+		exitByEscEnabled.setSelected(luytenPrefs.isExitByEscEnabled());
+		exitByEscEnabled.setContentAreaFilled(false);
+		exitByEscEnabled.setFocusable(false);
+		exitByEscEnabled.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setExitByEscEnabled(exitByEscEnabled.isSelected());
+			}
+		});
+		operationMenu.add(exitByEscEnabled);
 	}
 
 	private void buildSettingsMenu(JMenu settingsMenu) {
@@ -266,31 +281,51 @@ public class MainMenuBar extends JMenuBar {
 		};
 		flattenSwitchBlocks = new JCheckBox("Flatten Switch Blocks");
 		flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
+		flattenSwitchBlocks.setContentAreaFilled(false);
+		flattenSwitchBlocks.setFocusable(false);
 		flattenSwitchBlocks.addActionListener(settingsChanged);
 		settingsMenu.add(flattenSwitchBlocks);
+
 		forceExplicitImports = new JCheckBox("Force Explicit Imports");
 		forceExplicitImports.setSelected(settings.getForceExplicitImports());
+		forceExplicitImports.setContentAreaFilled(false);
+		forceExplicitImports.setFocusable(false);
 		forceExplicitImports.addActionListener(settingsChanged);
 		settingsMenu.add(forceExplicitImports);
+
 		forceExplicitTypes = new JCheckBox("Force Explicit Types");
 		forceExplicitTypes.setSelected(settings.getForceExplicitTypeArguments());
+		forceExplicitTypes.setContentAreaFilled(false);
+		forceExplicitTypes.setFocusable(false);
 		forceExplicitTypes.addActionListener(settingsChanged);
 		settingsMenu.add(forceExplicitTypes);
+
 		showSyntheticMembers = new JCheckBox("Show Synthetic Members");
 		showSyntheticMembers.setSelected(settings.getShowSyntheticMembers());
+		showSyntheticMembers.setContentAreaFilled(false);
+		showSyntheticMembers.setFocusable(false);
 		showSyntheticMembers.addActionListener(settingsChanged);
 		settingsMenu.add(showSyntheticMembers);
+
 		excludeNestedTypes = new JCheckBox("Exclude Nested Types");
 		excludeNestedTypes.setSelected(settings.getExcludeNestedTypes());
+		excludeNestedTypes.setContentAreaFilled(false);
+		excludeNestedTypes.setFocusable(false);
 		excludeNestedTypes.addActionListener(settingsChanged);
 		settingsMenu.add(excludeNestedTypes);
+
 		retainRedundantCasts = new JCheckBox("Retain Redundant Casts");
 		retainRedundantCasts.setSelected(settings.getRetainRedundantCasts());
+		retainRedundantCasts.setContentAreaFilled(false);
+		retainRedundantCasts.setFocusable(false);
 		retainRedundantCasts.addActionListener(settingsChanged);
 		settingsMenu.add(retainRedundantCasts);
+
 		JMenu debugSettingsMenu = new JMenu("Debug Settings");
 		showDebugInfo = new JCheckBox("Include Error Diagnostics");
 		showDebugInfo.setSelected(settings.getIncludeErrorDiagnostics());
+		showDebugInfo.setContentAreaFilled(false);
+		showDebugInfo.setFocusable(false);
 		showDebugInfo.addActionListener(settingsChanged);
 
 		debugSettingsMenu.add(showDebugInfo);

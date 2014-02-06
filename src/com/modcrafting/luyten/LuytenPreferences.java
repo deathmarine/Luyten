@@ -17,7 +17,9 @@ public class LuytenPreferences {
 	private String themeXml = DEFAULT_THEME_XML;
 	private String fileOpenCurrentDirectory = "";
 	private String fileSaveCurrentDirectory = "";
+
 	private boolean isSingleClickOpenEnabled = true;
+	private boolean isExitByEscEnabled = false;
 
 	public String getThemeXml() {
 		return themeXml;
@@ -49,5 +51,13 @@ public class LuytenPreferences {
 
 	public void setSingleClickOpenEnabled(boolean isSingleClickOpenEnabled) {
 		this.isSingleClickOpenEnabled = isSingleClickOpenEnabled;
+	}
+
+	public boolean isExitByEscEnabled() {
+		return isExitByEscEnabled;
+	}
+
+	public void setExitByEscEnabled(boolean isExitByEscEnabled) {
+		this.isExitByEscEnabled = isExitByEscEnabled;
 	}
 }

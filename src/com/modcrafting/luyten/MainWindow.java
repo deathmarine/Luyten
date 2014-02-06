@@ -4,19 +4,25 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
@@ -91,8 +97,10 @@ public class MainWindow extends JFrame {
 
 		fileDialog = new FileDialog(this);
 		fileSaver = new FileSaver(bar, label);
-		
-		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar") || 
+
+		this.setExitOnEscWhenEnabled(model);
+
+		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar") ||
 				fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
 			model.startWarmUpThread();
 		}
@@ -289,6 +297,23 @@ public class MainWindow extends JFrame {
 				System.exit(0);
 			}
 		}
+	}
+
+	private void setExitOnEscWhenEnabled(JComponent mainComponent) {
+		Action escapeAction = new AbstractAction() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (luytenPrefs.isExitByEscEnabled()) {
+					quit();
+				}
+			}
+		};
+
+		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+		mainComponent.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(escapeKeyStroke, "ESCAPE");
+		mainComponent.getActionMap().put("ESCAPE", escapeAction);
 	}
 
 	public Model getModel() {
