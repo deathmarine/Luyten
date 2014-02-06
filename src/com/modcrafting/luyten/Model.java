@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.swing.BorderFactory;
@@ -78,6 +80,7 @@ public class Model extends JSplitPane {
 	private JProgressBar bar;
 	private JLabel label;
 	private HashSet<OpenFile> hmap = new HashSet<OpenFile>();
+	private Set<String> treeExpansionState;
 	private boolean open = false;
 	private State state;
 	private ConfigSaver configSaver;
@@ -208,22 +211,21 @@ public class Model extends JSplitPane {
 	}
 
 	private void openEntryByTreePath(TreePath trp) {
-		String st = trp.toString().replace(file.getName(), "");
-		final String[] args = st.replace("[", "").replace("]", "").split(",");
 		String name = "";
 		String path = "";
 		try {
 			bar.setVisible(true);
-			if (args.length > 1) {
-				StringBuilder sb = new StringBuilder();
-				for (int i = 1; i < args.length; i++) {
-					if (i == args.length - 1) {
-						name = args[i].trim();
+			if (trp.getPathCount() > 1) {
+				for (int i = 1; i < trp.getPathCount(); i++) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) trp.getPathComponent(i);
+					TreeNodeUserObject userObject = (TreeNodeUserObject) node.getUserObject();
+					if (i == trp.getPathCount() - 1) {
+						name = userObject.getOriginalName();
 					} else {
-						sb.append(args[i].trim()).append("/");
+						path = path + userObject.getOriginalName() + "/";
 					}
 				}
-				path = sb.toString().replace(".", "/") + name;
+				path = path + name;
 
 				if (file.getName().endsWith(".jar") || file.getName().endsWith(".zip")) {
 					if (state == null) {
@@ -241,10 +243,10 @@ public class Model extends JSplitPane {
 					if (entry.getSize() > MAX_UNPACKED_FILE_SIZE_BYTES) {
 						throw new TooLargeFileException(entry.getSize());
 					}
-
-					if (entry.getName().endsWith(".class")) {
+					String entryName = entry.getName();
+					if (entryName.endsWith(".class")) {
 						label.setText("Extracting: " + name);
-						String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+						String internalName = StringUtilities.removeRight(entryName, ".class");
 						TypeReference type = metadataSystem.lookupType(internalName);
 						extractClassToTextPane(type, name, path);
 					} else {
@@ -540,23 +542,31 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private DefaultMutableTreeNode load(DefaultMutableTreeNode node, List<String> args) {
+	public DefaultMutableTreeNode loadNodesByNames(DefaultMutableTreeNode node, List<String> originalNames) {
+		List<TreeNodeUserObject> args = new ArrayList<>();
+		for (String originalName : originalNames) {
+			args.add(new TreeNodeUserObject(originalName));
+		}
+		return loadNodesByUserObj(node, args);
+	}
+
+	public DefaultMutableTreeNode loadNodesByUserObj(DefaultMutableTreeNode node, List<TreeNodeUserObject> args) {
 		if (args.size() > 0) {
-			String name = args.remove(0);
+			TreeNodeUserObject name = args.remove(0);
 			DefaultMutableTreeNode nod = getChild(node, name);
 			if (nod == null)
 				nod = new DefaultMutableTreeNode(name);
-			node.add(load(nod, args));
+			node.add(loadNodesByUserObj(nod, args));
 		}
 		return node;
 	}
 
 	@SuppressWarnings("unchecked")
-	private DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, String name) {
+	public DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, TreeNodeUserObject name) {
 		Enumeration<DefaultMutableTreeNode> entry = node.children();
 		while (entry.hasMoreElements()) {
 			DefaultMutableTreeNode nods = entry.nextElement();
-			if (nods.getUserObject().equals(name)) {
+			if (((TreeNodeUserObject) nods.getUserObject()).getOriginalName().equals(name.getOriginalName())) {
 				return nods;
 			}
 		}
@@ -571,6 +581,12 @@ public class Model extends JSplitPane {
 		return open;
 	}
 
+	public void updateTree() {
+		TreeUtil treeUtil = new TreeUtil(tree);
+		treeExpansionState = treeUtil.getExpansionState();
+		loadTree();
+	}
+
 	public void loadTree() {
 		new Thread(new Runnable() {
 			@Override
@@ -582,13 +598,13 @@ public class Model extends JSplitPane {
 					if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
 						throw new TooLargeFileException(file.length());
 					}
+					tree.setModel(new DefaultTreeModel(null));
 					if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
 						JarFile jfile;
 						jfile = new JarFile(file);
 						label.setText("Loading: " + jfile.getName());
 						bar.setVisible(true);
 						Enumeration<JarEntry> entry = jfile.entries();
-						DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
 						List<String> mass = new ArrayList<String>();
 						while (entry.hasMoreElements()) {
 							JarEntry e = entry.nextElement();
@@ -596,37 +612,9 @@ public class Model extends JSplitPane {
 								mass.add(e.getName());
 
 						}
-						List<String> sort = new ArrayList<String>();
-						Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
-						for (String m : mass)
-							if (m.contains("META-INF") && !sort.contains(m))
-								sort.add(m);
-						Set<String> set = new HashSet<String>();
-						for (String m : mass) {
-							if (m.contains("/")) {
-								set.add(m.substring(0, m.lastIndexOf("/") + 1));
-							}
-						}
-						List<String> packs = Arrays.asList(set.toArray(new String[] {}));
-						Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);
-						Collections.sort(packs, new Comparator<String>() {
-							public int compare(String o1, String o2) {
-								return o2.split("/").length - o1.split("/").length;
-							}
-						});
-						for (String pack : packs)
-							for (String m : mass)
-								if (!m.contains("META-INF") && m.contains(pack)
-										&& !m.replace(pack, "").contains("/"))
-									sort.add(m);
-						for (String m : mass)
-							if (!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
-								sort.add(m);
-						for (String pack : sort) {
-							LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
-							load(top, list);
-						}
-						tree.setModel(new DefaultTreeModel(top));
+
+						buildTreeFromMass(mass);
+
 						if (state == null) {
 							ITypeLoader jarLoader = new JarTypeLoader(jfile);
 							typeLoader.getTypeLoaders().add(jarLoader);
@@ -635,7 +623,8 @@ public class Model extends JSplitPane {
 						open = true;
 						label.setText("Complete");
 					} else {
-						DefaultMutableTreeNode top = new DefaultMutableTreeNode(getName(file.getName()));
+						TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
+						DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
 						tree.setModel(new DefaultTreeModel(top));
 						settings.setTypeLoader(new InputTypeLoader());
 						open = true;
@@ -645,17 +634,159 @@ public class Model extends JSplitPane {
 						TreePath trp = new TreePath(top.getPath());
 						openEntryByTreePath(trp);
 					}
+
+					if (treeExpansionState != null) {
+						try {
+							TreeUtil treeUtil = new TreeUtil(tree);
+							treeUtil.restoreExpanstionState(treeExpansionState);
+						} catch (Exception exc) {
+							exc.printStackTrace();
+						}
+					}
 				} catch (TooLargeFileException e) {
 					label.setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
+					closeFile();
 				} catch (Exception e1) {
-					label.setText("Cannot open: " + file.getName());
 					e1.printStackTrace();
+					label.setText("Cannot open: " + file.getName());
+					closeFile();
 				} finally {
 					bar.setVisible(false);
 				}
 			}
 
 		}).start();
+	}
+
+	private void buildTreeFromMass(List<String> mass) {
+		if (luytenPrefs.isPackageExplorerStyle()) {
+			buildFlatTreeFromMass(mass);
+		} else {
+			buildDirectoryTreeFromMass(mass);
+		}
+	}
+
+	private void buildDirectoryTreeFromMass(List<String> mass) {
+		TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
+		List<String> sort = new ArrayList<String>();
+		Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
+		for (String m : mass)
+			if (m.contains("META-INF") && !sort.contains(m))
+				sort.add(m);
+		Set<String> set = new HashSet<String>();
+		for (String m : mass) {
+			if (m.contains("/")) {
+				set.add(m.substring(0, m.lastIndexOf("/") + 1));
+			}
+		}
+		List<String> packs = Arrays.asList(set.toArray(new String[] {}));
+		Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);
+		Collections.sort(packs, new Comparator<String>() {
+			public int compare(String o1, String o2) {
+				return o2.split("/").length - o1.split("/").length;
+			}
+		});
+		for (String pack : packs)
+			for (String m : mass)
+				if (!m.contains("META-INF") && m.contains(pack)
+						&& !m.replace(pack, "").contains("/"))
+					sort.add(m);
+		for (String m : mass)
+			if (!m.contains("META-INF") && !m.contains("/") && !sort.contains(m))
+				sort.add(m);
+		for (String pack : sort) {
+			LinkedList<String> list = new LinkedList<String>(Arrays.asList(pack.split("/")));
+			loadNodesByNames(top, list);
+		}
+		tree.setModel(new DefaultTreeModel(top));
+	}
+
+	private void buildFlatTreeFromMass(List<String> mass) {
+		TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
+
+		TreeMap<String, TreeSet<String>> packages = new TreeMap<>();
+		HashSet<String> classContainingPackageRoots = new HashSet<>();
+
+		Comparator<String> sortByFileExtensionsComparator = new Comparator<String>() {
+			// (assertion: mass does not contain null elements)
+			@Override
+			public int compare(String o1, String o2) {
+				int comp = o1.replaceAll("[^\\.]*\\.", "").compareTo(o2.replaceAll("[^\\.]*\\.", ""));
+				if (comp != 0)
+					return comp;
+				return o1.compareTo(o2);
+			}
+		};
+
+		for (String entry : mass) {
+			String packagePath = "";
+			String packageRoot = "";
+			if (entry.contains("/")) {
+				packagePath = entry.replaceAll("/[^/]*$", "");
+				packageRoot = entry.replaceAll("/.*$", "");
+			}
+			String packageEntry = entry.replace(packagePath + "/", "");
+			if (!packages.containsKey(packagePath)) {
+				packages.put(packagePath, new TreeSet<String>(sortByFileExtensionsComparator));
+			}
+			packages.get(packagePath).add(packageEntry);
+			if (!entry.startsWith("META-INF") && packageRoot.trim().length() > 0 &&
+					entry.matches(".*\\.(class|java|prop|properties)$")) {
+				classContainingPackageRoots.add(packageRoot);
+			}
+		}
+
+		// META-INF comes first -> not flat
+		for (String packagePath : packages.keySet()) {
+			if (packagePath.startsWith("META-INF")) {
+				List<String> packagePathElements = Arrays.asList(packagePath.split("/"));
+				for (String entry : packages.get(packagePath)) {
+					ArrayList<String> list = new ArrayList<>(packagePathElements);
+					list.add(entry);
+					loadNodesByNames(top, list);
+				}
+			}
+		}
+
+		// real packages: path starts with a classContainingPackageRoot -> flat
+		for (String packagePath : packages.keySet()) {
+			String packageRoot = packagePath.replaceAll("/.*$", "");
+			if (classContainingPackageRoots.contains(packageRoot)) {
+				for (String entry : packages.get(packagePath)) {
+					ArrayList<TreeNodeUserObject> list = new ArrayList<>();
+					list.add(new TreeNodeUserObject(packagePath, packagePath.replaceAll("/", ".")));
+					list.add(new TreeNodeUserObject(entry));
+					loadNodesByUserObj(top, list);
+				}
+			}
+		}
+
+		// the rest, not real packages but directories -> not flat
+		for (String packagePath : packages.keySet()) {
+			String packageRoot = packagePath.replaceAll("/.*$", "");
+			if (!classContainingPackageRoots.contains(packageRoot) &&
+					!packagePath.startsWith("META-INF") && packagePath.length() > 0) {
+				List<String> packagePathElements = Arrays.asList(packagePath.split("/"));
+				for (String entry : packages.get(packagePath)) {
+					ArrayList<String> list = new ArrayList<>(packagePathElements);
+					list.add(entry);
+					loadNodesByNames(top, list);
+				}
+			}
+		}
+
+		// the default package -> not flat
+		String packagePath = "";
+		if (packages.containsKey(packagePath)) {
+			for (String entry : packages.get(packagePath)) {
+				ArrayList<String> list = new ArrayList<>();
+				list.add(entry);
+				loadNodesByNames(top, list);
+			}
+		}
+		tree.setModel(new DefaultTreeModel(top));
 	}
 
 	public void closeFile() {
@@ -673,8 +804,10 @@ public class Model extends JSplitPane {
 
 		hmap.clear();
 		tree.setModel(new DefaultTreeModel(null));
-		open = false;
 		metadataSystem = new MetadataSystem(typeLoader);
+		file = null;
+		treeExpansionState = null;
+		open = false;
 	}
 
 	public void changeTheme(String xml) {

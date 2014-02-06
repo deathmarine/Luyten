@@ -43,6 +43,7 @@ public class MainMenuBar extends JMenuBar {
 	private JRadioButtonMenuItem bytecodeAST;
 	private ButtonGroup languagesGroup;
 	private ButtonGroup themesGroup;
+	private JCheckBox packageExplorerStyle;
 	private JCheckBox singleClickOpenEnabled;
 	private JCheckBox exitByEscEnabled;
 	private DecompilerSettings settings;
@@ -240,6 +241,19 @@ public class MainMenuBar extends JMenuBar {
 
 	private void buildOperationMenu(JMenu operationMenu) {
 		operationMenu.removeAll();
+		packageExplorerStyle = new JCheckBox("Package Explorer Style");
+		packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
+		packageExplorerStyle.setContentAreaFilled(false);
+		packageExplorerStyle.setFocusable(false);
+		packageExplorerStyle.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setPackageExplorerStyle(packageExplorerStyle.isSelected());
+				mainWindow.onTreeSettingsChanged();
+			}
+		});
+		operationMenu.add(packageExplorerStyle);
+		
 		singleClickOpenEnabled = new JCheckBox("Single Click Open");
 		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
 		singleClickOpenEnabled.setContentAreaFilled(false);

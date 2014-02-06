@@ -223,6 +223,10 @@ public class MainWindow extends JFrame {
 		this.getModel().updateOpenClasses();
 	}
 
+	public void onTreeSettingsChanged() {
+		this.getModel().updateTree();
+	}
+
 	public void onFileDropped(File file) {
 		if (file != null) {
 			this.getModel().loadFile(file);

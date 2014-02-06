@@ -18,6 +18,7 @@ public class LuytenPreferences {
 	private String fileOpenCurrentDirectory = "";
 	private String fileSaveCurrentDirectory = "";
 
+	private boolean isPackageExplorerStyle = true;
 	private boolean isSingleClickOpenEnabled = true;
 	private boolean isExitByEscEnabled = false;
 
@@ -43,6 +44,14 @@ public class LuytenPreferences {
 
 	public void setFileSaveCurrentDirectory(String fileSaveCurrentDirectory) {
 		this.fileSaveCurrentDirectory = fileSaveCurrentDirectory;
+	}
+
+	public boolean isPackageExplorerStyle() {
+		return isPackageExplorerStyle;
+	}
+
+	public void setPackageExplorerStyle(boolean isPackageExplorerStyle) {
+		this.isPackageExplorerStyle = isPackageExplorerStyle;
 	}
 
 	public boolean isSingleClickOpenEnabled() {
