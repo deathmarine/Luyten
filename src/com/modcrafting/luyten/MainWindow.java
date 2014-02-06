@@ -31,6 +31,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
  */
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
+	private static final String TITLE = "Luyten";
 
 	private Model model;
 	private JProgressBar bar;
@@ -53,7 +54,7 @@ public class MainWindow extends JFrame {
 		this.adjustWindowPositionBySavedState();
 		this.setHideFindBoxOnMainWindowFocus();
 		this.setQuitOnWindowClosing();
-		this.setTitle("Luyten");
+		this.setTitle(TITLE);
 
 		JPanel pane = new JPanel();
 		pane.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -230,6 +231,18 @@ public class MainWindow extends JFrame {
 	public void onFileDropped(File file) {
 		if (file != null) {
 			this.getModel().loadFile(file);
+		}
+	}
+
+	public void onFileLoadEnded(File file, boolean isSuccess) {
+		try {
+			if (file != null && isSuccess) {
+				this.setTitle(TITLE + " - " + file.getName());
+			} else {
+				this.setTitle(TITLE);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 

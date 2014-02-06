@@ -77,6 +77,7 @@ public class Model extends JSplitPane {
 	private DecompilerSettings settings;
 	private DecompilationOptions decompilationOptions;
 	private Theme theme;
+	private MainWindow mainWindow;
 	private JProgressBar bar;
 	private JLabel label;
 	private HashSet<OpenFile> hmap = new HashSet<OpenFile>();
@@ -87,6 +88,7 @@ public class Model extends JSplitPane {
 	private LuytenPreferences luytenPrefs;
 
 	public Model(MainWindow mainWindow) {
+		this.mainWindow = mainWindow;
 		this.bar = mainWindow.getBar();
 		this.label = mainWindow.getLabel();
 
@@ -573,12 +575,11 @@ public class Model extends JSplitPane {
 		return null;
 	}
 
-	public boolean loadFile(File file) {
+	public void loadFile(File file) {
 		if (open)
 			closeFile();
 		this.file = file;
 		loadTree();
-		return open;
 	}
 
 	public void updateTree() {
@@ -596,7 +597,7 @@ public class Model extends JSplitPane {
 						return;
 					}
 					tree.setModel(new DefaultTreeModel(null));
-					
+
 					if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
 						throw new TooLargeFileException(file.length());
 					}
@@ -624,15 +625,19 @@ public class Model extends JSplitPane {
 						label.setText("Complete");
 					} else {
 						TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
-						DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
+						final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
 						tree.setModel(new DefaultTreeModel(top));
 						settings.setTypeLoader(new InputTypeLoader());
 						open = true;
 						label.setText("Complete");
 
 						// open it automatically
-						TreePath trp = new TreePath(top.getPath());
-						openEntryByTreePath(trp);
+						new Thread() {
+							public void run() {
+								TreePath trp = new TreePath(top.getPath());
+								openEntryByTreePath(trp);
+							};
+						}.start();
 					}
 
 					if (treeExpansionState != null) {
@@ -651,6 +656,7 @@ public class Model extends JSplitPane {
 					label.setText("Cannot open: " + file.getName());
 					closeFile();
 				} finally {
+					mainWindow.onFileLoadEnded(file, open);
 					bar.setVisible(false);
 				}
 			}
@@ -808,6 +814,7 @@ public class Model extends JSplitPane {
 		file = null;
 		treeExpansionState = null;
 		open = false;
+		mainWindow.onFileLoadEnded(file, open);
 	}
 
 	public void changeTheme(String xml) {
