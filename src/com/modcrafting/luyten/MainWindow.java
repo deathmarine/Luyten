@@ -211,7 +211,9 @@ public class MainWindow extends JFrame {
 		this.getModel().changeTheme(luytenPrefs.getThemeXml());
 	}
 
-	public void onSettingsChanged() {}
+	public void onSettingsChanged() {
+		this.getModel().updateOpenClasses();
+	}
 
 	public void onFileDropped(File file) {
 		if (file != null) {

@@ -35,6 +35,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -116,6 +118,7 @@ public class Model extends JSplitPane {
 
 		house = new JTabbedPane();
 		house.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+		house.addChangeListener(new TabChangeListener());
 
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, 1));
@@ -285,14 +288,32 @@ public class Model extends JSplitPane {
 				break;
 			}
 		}
-		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath())) {
+		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath()) &&
+				type.equals(sameTitledOpen.getType()) && sameTitledOpen.isContentValid()) {
 			addOrSwitchToTab(sameTitledOpen);
 			return;
 		}
 
 		// build tab content: do decompilation
+		String decompiledSource = extractClassToString(type);
+
+		// open tab, store type information
+		if (sameTitledOpen != null) {
+			sameTitledOpen.setContent(decompiledSource);
+			sameTitledOpen.setPath(path);
+			sameTitledOpen.setType(type);
+			sameTitledOpen.setContentValid(true);
+			addOrSwitchToTab(sameTitledOpen);
+		} else {
+			OpenFile open = new OpenFile(type, tabTitle, path, decompiledSource, theme);
+			open.setContentValid(true);
+			hmap.add(open);
+			addOrSwitchToTab(open);
+		}
+	}
+
+	private String extractClassToString(TypeReference type) throws Exception {
 		// synchronized: do not accept changes from menu while running
-		String decompiledSource;
 		synchronized (settings) {
 			TypeDefinition resolvedType = null;
 			if (type == null || ((resolvedType = type.resolve()) == null)) {
@@ -301,18 +322,7 @@ public class Model extends JSplitPane {
 			StringWriter stringwriter = new StringWriter();
 			settings.getLanguage().decompileType(resolvedType,
 					new PlainTextOutput(stringwriter), decompilationOptions);
-			decompiledSource = stringwriter.toString();
-		}
-
-		// open tab
-		if (sameTitledOpen != null) {
-			sameTitledOpen.setContent(decompiledSource);
-			sameTitledOpen.setPath(path);
-			addOrSwitchToTab(sameTitledOpen);
-		} else {
-			OpenFile open = new OpenFile(tabTitle, path, decompiledSource, theme);
-			hmap.add(open);
-			addOrSwitchToTab(open);
+			return stringwriter.toString();
 		}
 	}
 
@@ -369,6 +379,75 @@ public class Model extends JSplitPane {
 			hmap.add(open);
 			addOrSwitchToTab(open);
 		}
+	}
+
+	private class TabChangeListener implements ChangeListener {
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			int selectedIndex = house.getSelectedIndex();
+			if (selectedIndex < 0) {
+				return;
+			}
+			for (OpenFile open : hmap) {
+				if (house.indexOfTab(open.name) == selectedIndex) {
+
+					if (open.getType() != null && !open.isContentValid()) {
+						updateOpenClass(open);
+						break;
+					}
+
+				}
+			}
+		}
+	}
+
+	public void updateOpenClasses() {
+		// invalidate all open classes (update will hapen at tab change)
+		for (OpenFile open : hmap) {
+			open.setContentValid(false);
+		}
+		// ensure not showing old codes
+		for (OpenFile open : hmap) {
+			if (open.getType() != null) {
+				open.setContent("");
+			}
+		}
+		// update the current open tab - if it is a class
+		for (OpenFile open : hmap) {
+			if (open.getType() != null && isTabInForeground(open)) {
+				updateOpenClass(open);
+				break;
+			}
+		}
+	}
+
+	private void updateOpenClass(final OpenFile open) {
+		if (open.getType() == null) {
+			return;
+		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					bar.setVisible(true);
+					label.setText("Extracting: " + open.name);
+					String decompiledSource = extractClassToString(open.getType());
+					open.setContent(decompiledSource);
+					open.setContentValid(true);
+					label.setText("Complete");
+				} catch (Exception e) {
+					label.setText("Error, cannot update: " + open.name);
+				} finally {
+					bar.setVisible(false);
+				}
+			}
+		}).start();
+	}
+
+	private boolean isTabInForeground(OpenFile open) {
+		String title = open.name;
+		int selectedIndex = house.getSelectedIndex();
+		return (selectedIndex >= 0 && selectedIndex == house.indexOfTab(title));
 	}
 
 	private final class State implements AutoCloseable {

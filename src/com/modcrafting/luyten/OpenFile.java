@@ -7,6 +7,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import com.strobel.assembler.metadata.TypeReference;
 
 public class OpenFile implements SyntaxConstants {
 
@@ -20,7 +21,14 @@ public class OpenFile implements SyntaxConstants {
 	RSyntaxTextArea textArea;
 	String name;
 	private String path;
+	private TypeReference type = null;
+	private boolean isContentValid = false;
 
+	public OpenFile(TypeReference type, String name, String path, String content, Theme theme) {
+		this(name, path, content, theme);
+		this.type = type;
+	}
+	
 	public OpenFile(String name, String path, String contents, Theme theme) {
 		this.name = name;
 		this.path = path;
@@ -98,6 +106,22 @@ public class OpenFile implements SyntaxConstants {
 		this.path = path;
 	}
 
+	public TypeReference getType() {
+		return type;
+	}
+
+	public void setType(TypeReference type) {
+		this.type = type;
+	}
+
+	public boolean isContentValid() {
+		return isContentValid;
+	}
+
+	public void setContentValid(boolean isContentValid) {
+		this.isContentValid = isContentValid;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
