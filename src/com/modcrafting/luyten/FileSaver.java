@@ -11,6 +11,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipException;
@@ -110,9 +111,20 @@ public class FileSaver {
 			decompilationOptions.setSettings(settings);
 			decompilationOptions.setFullDecompilation(true);
 
+			List<String> mass = null;
+			JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
+			LuytenPreferences luytenPrefs = ConfigSaver.getLoadedInstance().getLuytenPreferences();
+			if (luytenPrefs.isFilterOutInnerClassEntries()) {
+				mass = jarEntryFilter.getEntriesWithoutInnerClasses();
+			} else {
+				mass = jarEntryFilter.getAllEntriesFromJar();
+			}
+
 			Enumeration<JarEntry> ent = jfile.entries();
 			while (ent.hasMoreElements()) {
 				JarEntry entry = ent.nextElement();
+				if (!mass.contains(entry.getName()))
+					continue;
 				label.setText("Extracting: " + entry.getName());
 				bar.setVisible(true);
 				if (entry.getName().endsWith(".class")) {
