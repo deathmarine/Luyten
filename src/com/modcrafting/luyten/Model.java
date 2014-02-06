@@ -595,24 +595,24 @@ public class Model extends JSplitPane {
 					if (file == null) {
 						return;
 					}
+					tree.setModel(new DefaultTreeModel(null));
+					
 					if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
 						throw new TooLargeFileException(file.length());
 					}
-					tree.setModel(new DefaultTreeModel(null));
 					if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
 						JarFile jfile;
 						jfile = new JarFile(file);
 						label.setText("Loading: " + jfile.getName());
 						bar.setVisible(true);
-						Enumeration<JarEntry> entry = jfile.entries();
-						List<String> mass = new ArrayList<String>();
-						while (entry.hasMoreElements()) {
-							JarEntry e = entry.nextElement();
-							if (!e.isDirectory())
-								mass.add(e.getName());
 
+						JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
+						List<String> mass = null;
+						if (luytenPrefs.isFilterOutInnerClassEntries()) {
+							mass = jarEntryFilter.getEntriesWithoutInnerClasses();
+						} else {
+							mass = jarEntryFilter.getAllEntriesFromJar();
 						}
-
 						buildTreeFromMass(mass);
 
 						if (state == null) {

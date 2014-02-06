@@ -44,6 +44,7 @@ public class MainMenuBar extends JMenuBar {
 	private ButtonGroup languagesGroup;
 	private ButtonGroup themesGroup;
 	private JCheckBox packageExplorerStyle;
+	private JCheckBox filterOutInnerClassEntries;
 	private JCheckBox singleClickOpenEnabled;
 	private JCheckBox exitByEscEnabled;
 	private DecompilerSettings settings;
@@ -254,6 +255,19 @@ public class MainMenuBar extends JMenuBar {
 		});
 		operationMenu.add(packageExplorerStyle);
 		
+		filterOutInnerClassEntries = new JCheckBox("Filter Out Inner Class Entries");
+		filterOutInnerClassEntries.setSelected(luytenPrefs.isFilterOutInnerClassEntries());
+		filterOutInnerClassEntries.setContentAreaFilled(false);
+		filterOutInnerClassEntries.setFocusable(false);
+		filterOutInnerClassEntries.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setFilterOutInnerClassEntries(filterOutInnerClassEntries.isSelected());
+				mainWindow.onTreeSettingsChanged();
+			}
+		});
+		operationMenu.add(filterOutInnerClassEntries);
+
 		singleClickOpenEnabled = new JCheckBox("Single Click Open");
 		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
 		singleClickOpenEnabled.setContentAreaFilled(false);
