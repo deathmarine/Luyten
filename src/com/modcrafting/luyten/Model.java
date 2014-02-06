@@ -39,6 +39,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -180,20 +181,29 @@ public class Model extends JSplitPane {
 
 	private class TreeListener extends MouseAdapter {
 		@Override
-		public void mouseClicked(MouseEvent event) {
+		public void mousePressed(MouseEvent event) {
+			boolean isClickCountMatches = (event.getClickCount() == 1 && luytenPrefs.isSingleClickOpenEnabled())
+					|| (event.getClickCount() == 2 && !luytenPrefs.isSingleClickOpenEnabled());
+			if (!isClickCountMatches)
+				return;
+
+			if (!SwingUtilities.isLeftMouseButton(event))
+				return;
+
 			final TreePath trp = tree.getPathForLocation(event.getX(), event.getY());
 			if (trp == null)
 				return;
-			if (SwingUtilities.isLeftMouseButton(event)
-					&& event.getClickCount() == 2) {
-				new Thread() {
-					public void run() {
-						openEntryByTreePath(trp);
-					}
-				}.start();
-			} else {
-				tree.getSelectionModel().setSelectionPath(trp);
-			}
+
+			Object lastPathComponent = trp.getLastPathComponent();
+			boolean isLeaf = (lastPathComponent instanceof TreeNode && ((TreeNode) lastPathComponent).isLeaf());
+			if (!isLeaf)
+				return;
+
+			new Thread() {
+				public void run() {
+					openEntryByTreePath(trp);
+				}
+			}.start();
 		}
 	}
 

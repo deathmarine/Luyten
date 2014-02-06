@@ -42,6 +42,8 @@ public class MainMenuBar extends JMenuBar {
 	private JRadioButtonMenuItem bytecode;
 	private JRadioButtonMenuItem bytecodeAST;
 	private ButtonGroup languagesGroup;
+	private ButtonGroup themesGroup;
+	private JCheckBox singleClickOpenEnabled;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
 
@@ -60,6 +62,9 @@ public class MainMenuBar extends JMenuBar {
 		final JMenu themesMenu = new JMenu("Themes");
 		themesMenu.add(new JMenuItem("..."));
 		this.add(themesMenu);
+		final JMenu operationMenu = new JMenu("Operation");
+		operationMenu.add(new JMenuItem("..."));
+		this.add(operationMenu);
 		final JMenu settingsMenu = new JMenu("Settings");
 		settingsMenu.add(new JMenuItem("..."));
 		this.add(settingsMenu);
@@ -80,6 +85,9 @@ public class MainMenuBar extends JMenuBar {
 
 					buildThemesMenu(themesMenu);
 					refreshMenuPopup(themesMenu);
+
+					buildOperationMenu(operationMenu);
+					refreshMenuPopup(operationMenu);
 
 					buildSettingsMenu(settingsMenu);
 					refreshMenuPopup(settingsMenu);
@@ -105,7 +113,7 @@ public class MainMenuBar extends JMenuBar {
 			}
 		}.start();
 	}
-	
+
 	private void buildFileMenu(final JMenu fileMenu) {
 		fileMenu.removeAll();
 		JMenuItem menuItem = new JMenuItem("Open File...");
@@ -165,9 +173,8 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		fileMenu.add(menuItem);
-		this.add(fileMenu);
 	}
-	
+
 	private void buildEditMenu(JMenu editMenu) {
 		editMenu.removeAll();
 		JMenuItem menuItem = new JMenuItem("Cut");
@@ -207,31 +214,42 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		editMenu.add(menuItem);
-		this.add(editMenu);
 	}
-	
+
 	private void buildThemesMenu(JMenu themesMenu) {
 		themesMenu.removeAll();
-		languagesGroup = new ButtonGroup();
+		themesGroup = new ButtonGroup();
 		JRadioButtonMenuItem a = new JRadioButtonMenuItem(new ThemeAction("Default", "default.xml"));
 		a.setSelected("default.xml".equals(luytenPrefs.getThemeXml()));
-		languagesGroup.add(a);
+		themesGroup.add(a);
 		themesMenu.add(a);
 		a = new JRadioButtonMenuItem(new ThemeAction("Dark", "dark.xml"));
 		a.setSelected("dark.xml".equals(luytenPrefs.getThemeXml()));
-		languagesGroup.add(a);
+		themesGroup.add(a);
 		themesMenu.add(a);
 		a = new JRadioButtonMenuItem(new ThemeAction("Eclipse", "eclipse.xml"));
 		a.setSelected("eclipse.xml".equals(luytenPrefs.getThemeXml()));
-		languagesGroup.add(a);
+		themesGroup.add(a);
 		themesMenu.add(a);
 		a = new JRadioButtonMenuItem(new ThemeAction("Visual Studio", "vs.xml"));
 		a.setSelected("vs.xml".equals(luytenPrefs.getThemeXml()));
-		languagesGroup.add(a);
+		themesGroup.add(a);
 		themesMenu.add(a);
-		this.add(themesMenu);
 	}
-	
+
+	private void buildOperationMenu(JMenu operationMenu) {
+		operationMenu.removeAll();
+		singleClickOpenEnabled = new JCheckBox("Single Click Open");
+		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
+		singleClickOpenEnabled.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setSingleClickOpenEnabled(singleClickOpenEnabled.isSelected());
+			}
+		});
+		operationMenu.add(singleClickOpenEnabled);
+	}
+
 	private void buildSettingsMenu(JMenu settingsMenu) {
 		settingsMenu.removeAll();
 		ActionListener settingsChanged = new ActionListener() {
@@ -313,7 +331,6 @@ public class MainMenuBar extends JMenuBar {
 			button.addActionListener(settingsChanged);
 		}
 		settingsMenu.add(debugLanguagesMenu);
-		this.add(settingsMenu);
 	}
 
 	private void buildHelpMenu(JMenu helpMenu) {
@@ -341,7 +358,6 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		helpMenu.add(menuItem);
-		this.add(helpMenu);
 	}
 
 	private void populateSettingsFromSettingsMenu() {
