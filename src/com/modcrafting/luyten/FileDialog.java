@@ -23,9 +23,15 @@ public class FileDialog {
 
 		new Thread() {
 			public void run() {
-				initOpenDialog();
-				initSaveDialog();
-				initSaveAllDialog();
+				try {
+					initOpenDialog();
+					Thread.sleep(500);
+					initSaveAllDialog();
+					Thread.sleep(500);
+					initSaveDialog();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			};
 		}.start();
 	}
@@ -62,7 +68,7 @@ public class FileDialog {
 	public File doSaveAllDialog(String recommendedFileName) {
 		File selectedFile = null;
 		initSaveAllDialog();
-		
+
 		retrieveSaveDialogDir(fcSaveAll);
 		fcSaveAll.setSelectedFile(new File(recommendedFileName));
 		int returnVal = fcSaveAll.showSaveDialog(parent);

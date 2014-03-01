@@ -141,24 +141,35 @@ public class Model extends JSplitPane {
 	}
 
 	public void showLegal(String legalStr) {
-		OpenFile open = new OpenFile("Legal", "*/Legal", legalStr, theme);
+		OpenFile open = new OpenFile("Legal", "*/Legal", theme, mainWindow);
+		open.setContent(legalStr);
 		hmap.add(open);
 		addOrSwitchToTab(open);
 	}
 
-	private void addOrSwitchToTab(OpenFile open) {
-		String title = open.name;
-		RTextScrollPane rTextScrollPane = open.scrollPane;
-		if (house.indexOfTab(title) < 0) {
-			house.addTab(title, rTextScrollPane);
-			house.setSelectedIndex(house.indexOfTab(title));
-			int index = house.indexOfTab(title);
-			Tab ct = new Tab(title);
-			ct.getButton().addMouseListener(new CloseTab(title));
-			house.setTabComponentAt(index, ct);
-		} else {
-			house.setSelectedIndex(house.indexOfTab(title));
-		}
+	private void addOrSwitchToTab(final OpenFile open) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					String title = open.name;
+					RTextScrollPane rTextScrollPane = open.scrollPane;
+					if (house.indexOfTab(title) < 0) {
+						house.addTab(title, rTextScrollPane);
+						house.setSelectedIndex(house.indexOfTab(title));
+						int index = house.indexOfTab(title);
+						Tab ct = new Tab(title);
+						ct.getButton().addMouseListener(new CloseTab(title));
+						house.setTabComponentAt(index, ct);
+					} else {
+						house.setSelectedIndex(house.indexOfTab(title));
+					}
+					open.onAddedToScreen();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private void closeOpenTab(int index) {
@@ -171,6 +182,8 @@ public class Model extends JSplitPane {
 		if (open != null && hmap.contains(open))
 			hmap.remove(open);
 		house.remove(co);
+		if (open != null)
+			open.close();
 	}
 
 	private String getName(String path) {
@@ -250,7 +263,7 @@ public class Model extends JSplitPane {
 						label.setText("Extracting: " + name);
 						String internalName = StringUtilities.removeRight(entryName, ".class");
 						TypeReference type = metadataSystem.lookupType(internalName);
-						extractClassToTextPane(type, name, path);
+						extractClassToTextPane(type, name, path, null);
 					} else {
 						label.setText("Opening: " + name);
 						try (InputStream in = state.jarFile.getInputStream(entry);) {
@@ -267,7 +280,7 @@ public class Model extends JSplitPane {
 				if (name.endsWith(".class")) {
 					label.setText("Extracting: " + name);
 					TypeReference type = metadataSystem.lookupType(path);
-					extractClassToTextPane(type, name, path);
+					extractClassToTextPane(type, name, path, null);
 				} else {
 					label.setText("Opening: " + name);
 					try (InputStream in = new FileInputStream(file);) {
@@ -291,7 +304,8 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private void extractClassToTextPane(TypeReference type, String tabTitle, String path) throws Exception {
+	private void extractClassToTextPane(TypeReference type, String tabTitle, String path,
+			String navigatonLink) throws Exception {
 		if (tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
 			throw new FileEntryNotFoundException();
 		}
@@ -302,41 +316,37 @@ public class Model extends JSplitPane {
 				break;
 			}
 		}
-		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath()) &&
+		if (sameTitledOpen != null && path.equals(sameTitledOpen.path) &&
 				type.equals(sameTitledOpen.getType()) && sameTitledOpen.isContentValid()) {
+			sameTitledOpen.setInitialNavigationLink(navigatonLink);
 			addOrSwitchToTab(sameTitledOpen);
 			return;
 		}
 
-		// build tab content: do decompilation
-		String decompiledSource = extractClassToString(type);
+		// resolve TypeDefinition
+		TypeDefinition resolvedType = null;
+		if (type == null || ((resolvedType = type.resolve()) == null)) {
+			throw new Exception("Unable to resolve type.");
+		}
 
-		// open tab, store type information
+		// open tab, store type information, start decompilation
 		if (sameTitledOpen != null) {
-			sameTitledOpen.setContent(decompiledSource);
-			sameTitledOpen.setPath(path);
-			sameTitledOpen.setType(type);
-			sameTitledOpen.setContentValid(true);
+			sameTitledOpen.path = path;
+			sameTitledOpen.invalidateContent();
+			sameTitledOpen.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
+			sameTitledOpen.setType(resolvedType);
+			sameTitledOpen.setInitialNavigationLink(navigatonLink);
+			sameTitledOpen.resetScrollPosition();
+			sameTitledOpen.decompile();
 			addOrSwitchToTab(sameTitledOpen);
 		} else {
-			OpenFile open = new OpenFile(type, tabTitle, path, decompiledSource, theme);
-			open.setContentValid(true);
+			OpenFile open = new OpenFile(tabTitle, path, theme, mainWindow);
+			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
+			open.setType(resolvedType);
+			open.setInitialNavigationLink(navigatonLink);
+			open.decompile();
 			hmap.add(open);
 			addOrSwitchToTab(open);
-		}
-	}
-
-	private String extractClassToString(TypeReference type) throws Exception {
-		// synchronized: do not accept changes from menu while running
-		synchronized (settings) {
-			TypeDefinition resolvedType = null;
-			if (type == null || ((resolvedType = type.resolve()) == null)) {
-				throw new Exception("Unable to resolve type.");
-			}
-			StringWriter stringwriter = new StringWriter();
-			settings.getLanguage().decompileType(resolvedType,
-					new PlainTextOutput(stringwriter), decompilationOptions);
-			return stringwriter.toString();
 		}
 	}
 
@@ -352,7 +362,7 @@ public class Model extends JSplitPane {
 				break;
 			}
 		}
-		if (sameTitledOpen != null && path.equals(sameTitledOpen.getPath())) {
+		if (sameTitledOpen != null && path.equals(sameTitledOpen.path)) {
 			addOrSwitchToTab(sameTitledOpen);
 			return;
 		}
@@ -385,11 +395,15 @@ public class Model extends JSplitPane {
 
 		// open tab
 		if (sameTitledOpen != null) {
+			sameTitledOpen.path = path;
+			sameTitledOpen.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
+			sameTitledOpen.resetScrollPosition();
 			sameTitledOpen.setContent(sb.toString());
-			sameTitledOpen.setPath(path);
 			addOrSwitchToTab(sameTitledOpen);
 		} else {
-			OpenFile open = new OpenFile(tabTitle, path, sb.toString(), theme);
+			OpenFile open = new OpenFile(tabTitle, path, theme, mainWindow);
+			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
+			open.setContent(sb.toString());
 			hmap.add(open);
 			addOrSwitchToTab(open);
 		}
@@ -418,12 +432,8 @@ public class Model extends JSplitPane {
 	public void updateOpenClasses() {
 		// invalidate all open classes (update will hapen at tab change)
 		for (OpenFile open : hmap) {
-			open.setContentValid(false);
-		}
-		// ensure not showing old codes
-		for (OpenFile open : hmap) {
 			if (open.getType() != null) {
-				open.setContent("");
+				open.invalidateContent();
 			}
 		}
 		// update the current open tab - if it is a class
@@ -445,9 +455,8 @@ public class Model extends JSplitPane {
 				try {
 					bar.setVisible(true);
 					label.setText("Extracting: " + open.name);
-					String decompiledSource = extractClassToString(open.getType());
-					open.setContent(decompiledSource);
-					open.setContentValid(true);
+					open.invalidateContent();
+					open.decompile();
 					label.setText("Complete");
 				} catch (Exception e) {
 					label.setText("Error, cannot update: " + open.name);
@@ -800,6 +809,7 @@ public class Model extends JSplitPane {
 			int pos = house.indexOfTab(co.name);
 			if (pos >= 0)
 				house.remove(pos);
+			co.close();
 		}
 
 		final State oldState = state;
@@ -891,7 +901,8 @@ public class Model extends JSplitPane {
 					settings.getLanguage().decompileType(resolvedType,
 							new PlainTextOutput(stringwriter), decompilationOptions);
 					String decompiledSource = stringwriter.toString();
-					OpenFile open = new OpenFile(internalName, "*/" + internalName, decompiledSource, theme);
+					OpenFile open = new OpenFile(internalName, "*/" + internalName, theme, mainWindow);
+					open.setContent(decompiledSource);
 					JTabbedPane pane = new JTabbedPane();
 					pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 					pane.addTab("title", open.scrollPane);
@@ -901,5 +912,40 @@ public class Model extends JSplitPane {
 				}
 			}
 		}.start();
+	}
+
+	public void navigateTo(final String uniqueStr) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				if (uniqueStr == null)
+					return;
+				String[] linkParts = uniqueStr.split("\\|");
+				if (linkParts.length <= 1)
+					return;
+				String destinationTypeStr = linkParts[1];
+				try {
+					bar.setVisible(true);
+					label.setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
+
+					TypeReference type = metadataSystem.lookupType(destinationTypeStr);
+					if (type == null)
+						throw new RuntimeException("Cannot lookup type: " + destinationTypeStr);
+					TypeDefinition typeDef = type.resolve();
+					if (typeDef == null)
+						throw new RuntimeException("Cannot resolve type: " + destinationTypeStr);
+
+					String tabTitle = typeDef.getName() + ".class";
+					extractClassToTextPane(typeDef, tabTitle, destinationTypeStr, uniqueStr);
+
+					label.setText("Complete");
+				} catch (Exception e) {
+					label.setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
+					e.printStackTrace();
+				} finally {
+					bar.setVisible(false);
+				}
+			}
+		}).start();
 	}
 }

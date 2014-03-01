@@ -246,6 +246,10 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	public void onNavigationRequest(String uniqueStr) {
+		this.getModel().navigateTo(uniqueStr);
+	}
+
 	private void adjustWindowPositionBySavedState() {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (!windowPosition.isSavedWindowPositionValid()) {
