@@ -1,0 +1,100 @@
+<project name="Luyten" default="package">
+	<property environment="env" />
+	<property name="env.BUILD_NUMBER" value="0" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<property name="launch4j.dir" location="../../../launch4j" />
+	
+	<path id="Model.classpath">
+		<pathelement location="bin" />
+		<fileset dir="lib">
+	    	<include name="**/*.jar"/>
+	    </fileset>
+	</path>
+	
+	<taskdef name="launch4j"
+	    classname="net.sf.launch4j.ant.Launch4jTask"
+	    classpath="${launch4j.dir}/launch4j.jar
+	        :${launch4j.dir}/lib/xstream.jar" />
+	
+	<target name="init" description="Initialize directories, etc.">
+		<mkdir dir="bin" />
+		<mkdir dir="dist" />
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="clean" depends="init"
+		description="Clean up all the temp stuff and previous builds">
+		<delete>
+			<fileset dir="bin" />
+			<fileset dir="dist" />
+		</delete>
+	</target>
+	<echo message="${ant.project.name}: ${ant.file}" />
+
+	<target name="compile" depends="clean, init" description="Compile all the code">
+	  <replace file="src/com/modcrafting/luyten/Model.java" token="JENKINSBUILDNUMBER" value="${env.BUILD_NUMBER}"/>
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin"
+			includeantruntime="false" source="${source}" target="${target}">
+			<src path="src" />
+			<classpath refid="Model.classpath" />
+			<compilerarg value="-Xlint:none" />
+		</javac>
+	</target>
+
+	<target name="package" depends="compile" description="Make the distributable jar file">
+		<copy includeemptydirs="false" todir="bin/resources">
+			<fileset dir="src/resources" includes="*.png" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin/themes">
+			<fileset dir="src/themes" includes="*.xml" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src" includes="theme.dtd" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin/org/fife/ui/rsyntaxtextarea">
+			<fileset dir="src/org/fife/ui/rsyntaxtextarea" includes="*.properties" />
+		</copy>
+		<copy includeemptydirs="false"
+			todir="bin/org/fife/ui/rsyntaxtextarea/focusabletip">
+			<fileset dir="src/org/fife/ui/rsyntaxtextarea/focusabletip"
+				includes="*.properties" />
+		</copy>
+		<copy includeemptydirs="false"
+			todir="bin/org/fife/ui/rsyntaxtextarea/focusabletip">
+			<fileset dir="src/org/fife/ui/rsyntaxtextarea/focusabletip"
+				includes="*.png" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin/org/fife/ui/rsyntaxtextarea/modes">
+			<fileset dir="src/org/fife/ui/rsyntaxtextarea/modes"
+				includes="*.flex" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin/org/fife/ui/rtextarea">
+			<fileset dir="src/org/fife/ui/rtextarea" includes="*.properties" />
+		</copy>
+		<copy includeemptydirs="false" todir="bin/distfiles">
+			<fileset dir="distfiles" includes="*.txt" />
+		</copy>
+
+		<jar basedir="bin" jarfile="dist/temp.jar" defaultexcludes="true">
+			<manifest>
+				<attribute name="Main-Class" value="com.modcrafting.luyten.Model" />
+			</manifest>
+		</jar>
+		<zip destfile="dist/${ant.project.name}.jar">
+			<zipgroupfileset dir="lib"
+				includes="*.jar" />
+			<zipgroupfileset dir="dist" includes="temp.jar" />
+		</zip>
+		<delete file="dist/temp.jar" />
+		<launch4j configFile="./l4j.xml"/>
+		
+	</target>
+
+
+</project>

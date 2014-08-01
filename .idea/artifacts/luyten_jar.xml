@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="luyten:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/luyten_jar</output-path>
+    <root id="archive" name="luyten.jar">
+      <element id="module-output" name="luyten" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/bitbucket/mstrobel/procyon-expressions/0.5.25/procyon-expressions-0.5.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/fifesoft/rsyntaxtextarea/2.5.3/rsyntaxtextarea-2.5.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/bitbucket/mstrobel/procyon-compilertools/0.5.25/procyon-compilertools-0.5.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/bitbucket/mstrobel/procyon-core/0.5.25/procyon-core-0.5.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/bitbucket/mstrobel/procyon-reflection/0.5.25/procyon-reflection-0.5.25.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
