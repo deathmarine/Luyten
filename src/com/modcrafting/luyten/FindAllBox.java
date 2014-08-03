@@ -55,8 +55,7 @@ public class FindAllBox extends JDialog {
 
     public FindAllBox(MainWindow mainWindow) {
         progressBar = new JProgressBar(0, 100);
-
-
+//test
         JLabel label = new JLabel("Find What:");
         textField = new JTextField();
 
