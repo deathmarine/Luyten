@@ -269,13 +269,11 @@ public class MainMenuBar extends JMenuBar {
                                 decompilationOptions.setFullDecompilation(true);
                                 settings.getLanguage().decompileType(resolvedType,
                                         new PlainTextOutput(stringwriter), decompilationOptions);
-                                String decompiledSource = stringwriter.toString();
-                                if (decompiledSource.contains(searchstr))
+                                String decompiledSource = stringwriter.toString().toLowerCase();
+                                if (decompiledSource.contains(searchstr.toLowerCase()))
                                 {
-                                    //FindAllBox.demoList.addElement(entry.getName());
                                     findAll.addClassName(entry.getName());
                                 }
-
                             }
                         }
                     }
