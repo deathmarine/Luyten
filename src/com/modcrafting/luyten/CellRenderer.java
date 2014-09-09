@@ -37,7 +37,7 @@ public class CellRenderer extends DefaultTreeCellRenderer{
 	}
 	
 	public String getFileName(DefaultMutableTreeNode node){
-        return (String) node.getUserObject();
+        return ((TreeNodeUserObject) node.getUserObject()).getOriginalName();
 	}
 
 }
