@@ -1,7 +1,7 @@
 Luyten
 ======
 Decompiler Gui for Procyon<br>
-[![Build Status](http://ci.modcrafting.com/view/Luyten/job/Luyten/badge/icon)](http://ci.modcrafting.com/view/Luyten/job/Luyten/)
+Apache License, Version 2.0
 
 ## Screenshot
 ![Screen](http://puu.sh/3Ak9r.jpg)
