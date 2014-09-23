@@ -2,6 +2,7 @@ package com.modcrafting.luyten;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
@@ -16,12 +17,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -56,33 +57,51 @@ public class MainWindow extends JFrame {
 		this.setQuitOnWindowClosing();
 		this.setTitle(TITLE);
 
-		JPanel pane = new JPanel();
-		pane.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		pane.setPreferredSize(new Dimension(this.getWidth(), 24));
-		pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-
-		JPanel panel1 = new JPanel();
-		label = new JLabel(" ");
+		//JPanel pane = new JPanel();
+		JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		label = new JLabel();
 		label.setHorizontalAlignment(JLabel.LEFT);
-		panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+		//panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
 		panel1.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		panel1.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
 		panel1.add(label);
-		pane.add(panel1);
+		//pane.add(panel1);
 
-		panel1 = new JPanel();
+		JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bar = new JProgressBar();
-		bar.setIndeterminate(true);
+		//bar.setIndeterminate(true);
+
+		bar.setStringPainted(true);
 		bar.setOpaque(false);
 		bar.setVisible(false);
-		panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
-		panel1.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
-		panel1.add(bar);
-		pane.add(panel1);
+		//panel2.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+		panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
+		panel2.add(bar);
+		//pane.add(panel1);
 
 		model = new Model(this);
 		this.getContentPane().add(model);
-		this.add(pane, BorderLayout.SOUTH);
+		
+		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,panel1,panel2){
+			private static final long serialVersionUID = 2189946972124687305L;
+			private final int location = 400;
+		    {
+		        setDividerLocation( location );
+		    }
+		    @Override
+		    public int getDividerLocation() {
+		        return location ;
+		    }
+		    @Override
+		    public int getLastDividerLocation() {
+		        return location ;
+		    }
+		};
+		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
+		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
+		
+		//spt.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+		this.add(spt, BorderLayout.SOUTH);
 
 		if (fileFromCommandLine != null) {
 			model.loadFile(fileFromCommandLine);
@@ -188,9 +207,11 @@ public class MainWindow extends JFrame {
 			public void run() {
 				try {
 					bar.setVisible(true);
+					bar.setIndeterminate(true);
 					String legalStr = getLegalStr();
 					MainWindow.this.getModel().showLegal(legalStr);
 				} finally {
+					bar.setIndeterminate(false);
 					bar.setVisible(false);
 				}
 			}
