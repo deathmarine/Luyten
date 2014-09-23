@@ -78,7 +78,7 @@
           <finalName>${project.artifactId}</finalName>
 		  <archive>
 		    <manifest>
-				<mainClass>com.modcrafting.luyten.Luyten</mainClass>
+				<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
 		    </manifest>
 		  </archive>
 	    </configuration>
@@ -100,7 +100,7 @@
                 <jar>target/${project.artifactId}-${project.version}.jar</jar>
                 <errTitle>App Err</errTitle>
                 <classPath>
-					<mainClass>com.modcrafting.luyten.Luyten</mainClass>
+					<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
                 </classPath>
                 <icon>Luyten.ico</icon>
                 <jre>

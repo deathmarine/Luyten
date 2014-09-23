@@ -1,4 +1,4 @@
-package com.modcrafting.luyten;
+package us.deathmarine.luyten;
 
 import java.awt.Component;
 import java.awt.Toolkit;

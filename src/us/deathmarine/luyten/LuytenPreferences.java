@@ -1,4 +1,4 @@
-package com.modcrafting.luyten;
+package us.deathmarine.luyten;
 
 /**
  * Do not instantiate this class, get the instance from

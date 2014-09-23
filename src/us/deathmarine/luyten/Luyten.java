@@ -1,4 +1,4 @@
-package com.modcrafting.luyten;
+package us.deathmarine.luyten;
 
 import java.io.File;
 import javax.swing.SwingUtilities;

@@ -1,4 +1,4 @@
-package com.modcrafting.luyten;
+package us.deathmarine.luyten;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

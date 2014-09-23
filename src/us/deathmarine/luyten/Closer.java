@@ -1,4 +1,4 @@
-package com.modcrafting.luyten;
+package us.deathmarine.luyten;
 
 public final class Closer {
     public static void tryClose(final AutoCloseable c) {
