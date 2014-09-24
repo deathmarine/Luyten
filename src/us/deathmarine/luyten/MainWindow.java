@@ -34,10 +34,11 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String TITLE = "Luyten";
 
-	private Model model;
+	public static Model model;
 	private JProgressBar bar;
 	private JLabel label;
 	private FindBox findBox;
+	private FindAllBox findAllBox;
 	private ConfigSaver configSaver;
 	private WindowPosition windowPosition;
 	private LuytenPreferences luytenPrefs;
@@ -54,53 +55,57 @@ public class MainWindow extends JFrame {
 
 		this.adjustWindowPositionBySavedState();
 		this.setHideFindBoxOnMainWindowFocus();
+		this.setShowFindAllBoxOnMainWindowFocus();
 		this.setQuitOnWindowClosing();
 		this.setTitle(TITLE);
 
-		//JPanel pane = new JPanel();
+		// JPanel pane = new JPanel();
 		JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		label = new JLabel();
 		label.setHorizontalAlignment(JLabel.LEFT);
-		//panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+		// panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
 		panel1.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		panel1.setPreferredSize(new Dimension(this.getWidth() / 2, 20));
 		panel1.add(label);
-		//pane.add(panel1);
+		// pane.add(panel1);
 
 		JPanel panel2 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		bar = new JProgressBar();
-		//bar.setIndeterminate(true);
+		// bar.setIndeterminate(true);
 
 		bar.setStringPainted(true);
 		bar.setOpaque(false);
 		bar.setVisible(false);
-		//panel2.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+		// panel2.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
 		panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
 		panel2.add(bar);
-		//pane.add(panel1);
+		// pane.add(panel1);
 
 		model = new Model(this);
 		this.getContentPane().add(model);
-		
-		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,panel1,panel2){
+
+		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1,
+				panel2) {
 			private static final long serialVersionUID = 2189946972124687305L;
 			private final int location = 400;
-		    {
-		        setDividerLocation( location );
-		    }
-		    @Override
-		    public int getDividerLocation() {
-		        return location ;
-		    }
-		    @Override
-		    public int getLastDividerLocation() {
-		        return location ;
-		    }
+			{
+				setDividerLocation(location);
+			}
+
+			@Override
+			public int getDividerLocation() {
+				return location;
+			}
+
+			@Override
+			public int getLastDividerLocation() {
+				return location;
+			}
 		};
 		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
-		
-		//spt.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
+
+		// spt.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
 		this.add(spt, BorderLayout.SOUTH);
 
 		if (fileFromCommandLine != null) {
@@ -120,8 +125,9 @@ public class MainWindow extends JFrame {
 
 		this.setExitOnEscWhenEnabled(model);
 
-		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar") ||
-				fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
+		if (fileFromCommandLine == null
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
 			model.startWarmUpThread();
 		}
 	}
@@ -161,7 +167,8 @@ public class MainWindow extends JFrame {
 		if (fileName.endsWith(".class")) {
 			fileName = fileName.replace(".class", ".java");
 		} else if (fileName.toLowerCase().endsWith(".jar")) {
-			fileName = "decompiled-" + fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
+			fileName = "decompiled-"
+					+ fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
 		} else {
 			fileName = "saved-" + fileName;
 		}
@@ -202,6 +209,17 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	public void onFindAllMenu() {
+		try {
+			if (findAllBox == null)
+				findAllBox = new FindAllBox();
+			findAllBox.showFindBox();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void onLegalMenu() {
 		new Thread() {
 			public void run() {
@@ -221,14 +239,16 @@ public class MainWindow extends JFrame {
 	private String getLegalStr() {
 		StringBuilder sb = new StringBuilder();
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass()
-					.getResourceAsStream("/distfiles/Procyon.License.txt")));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					getClass().getResourceAsStream(
+							"/distfiles/Procyon.License.txt")));
 			String line;
 			while ((line = reader.readLine()) != null)
 				sb.append(line).append("\n");
 			sb.append("\n\n\n\n\n");
 			reader = new BufferedReader(new InputStreamReader(getClass()
-					.getResourceAsStream("/distfiles/RSyntaxTextArea.License.txt")));
+					.getResourceAsStream(
+							"/distfiles/RSyntaxTextArea.License.txt")));
 			while ((line = reader.readLine()) != null)
 				sb.append(line).append("\n");
 		} catch (IOException e) {
@@ -270,7 +290,9 @@ public class MainWindow extends JFrame {
 	private void adjustWindowPositionBySavedState() {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (!windowPosition.isSavedWindowPositionValid()) {
-			final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
+			final Dimension center = new Dimension(
+					(int) (screenSize.width * 0.75),
+					(int) (screenSize.height * 0.75));
 			final int x = (int) (center.width * 0.2);
 			final int y = (int) (center.height * 0.2);
 			this.setBounds(x, y, center.width, center.height);
@@ -288,8 +310,11 @@ public class MainWindow extends JFrame {
 					if (MainWindow.this.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
 						windowPosition.setFullScreen(false);
 						if (windowPosition.isSavedWindowPositionValid()) {
-							MainWindow.this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(),
-									windowPosition.getWindowWidth(), windowPosition.getWindowHeight());
+							MainWindow.this.setBounds(
+									windowPosition.getWindowX(),
+									windowPosition.getWindowY(),
+									windowPosition.getWindowWidth(),
+									windowPosition.getWindowHeight());
 						}
 						MainWindow.this.removeComponentListener(this);
 					}
@@ -297,8 +322,10 @@ public class MainWindow extends JFrame {
 			});
 
 		} else {
-			this.setBounds(windowPosition.getWindowX(), windowPosition.getWindowY(),
-					windowPosition.getWindowWidth(), windowPosition.getWindowHeight());
+			this.setBounds(windowPosition.getWindowX(),
+					windowPosition.getWindowY(),
+					windowPosition.getWindowWidth(),
+					windowPosition.getWindowHeight());
 		}
 	}
 
@@ -308,6 +335,17 @@ public class MainWindow extends JFrame {
 			public void windowGainedFocus(WindowEvent e) {
 				if (findBox != null && findBox.isVisible()) {
 					findBox.setVisible(false);
+				}
+			}
+		});
+	}
+
+	private void setShowFindAllBoxOnMainWindowFocus() {
+		this.addWindowFocusListener(new WindowAdapter() {
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				if (findAllBox != null && findAllBox.isVisible()) {
+					findAllBox.requestFocus();
 				}
 			}
 		});
@@ -349,8 +387,11 @@ public class MainWindow extends JFrame {
 			}
 		};
 
-		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-		mainComponent.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(escapeKeyStroke, "ESCAPE");
+		KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,
+				0, false);
+		mainComponent
+				.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(escapeKeyStroke, "ESCAPE");
 		mainComponent.getActionMap().put("ESCAPE", escapeAction);
 	}
 
