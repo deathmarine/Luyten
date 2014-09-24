@@ -34,10 +34,11 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private static final String TITLE = "Luyten";
 
-	private Model model;
+    public static Model model;
 	private JProgressBar bar;
 	private JLabel label;
 	private FindBox findBox;
+    private FindAllBox findAllBox;
 	private ConfigSaver configSaver;
 	private WindowPosition windowPosition;
 	private LuytenPreferences luytenPrefs;
@@ -201,6 +202,18 @@ public class MainWindow extends JFrame {
 			e.printStackTrace();
 		}
 	}
+
+    public void onFindAllMenu() {
+        try
+        {
+            if (findAllBox == null)
+                findAllBox = new FindAllBox(this);
+            findAllBox.showFindBox();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 	public void onLegalMenu() {
 		new Thread() {

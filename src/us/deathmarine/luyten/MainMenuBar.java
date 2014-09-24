@@ -217,6 +217,17 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		editMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Find All");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
+        menuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mainWindow.onFindAllMenu();
+
+            }
+        });
+        editMenu.add(menuItem);
 	}
 
 	private void buildThemesMenu(JMenu themesMenu) {

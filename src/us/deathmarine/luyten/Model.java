@@ -68,8 +68,8 @@ public class Model extends JSplitPane {
 	private static final long MAX_JAR_FILE_SIZE_BYTES = 1_000_000_000;
 	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 1_000_000;
 
-	private final LuytenTypeLoader typeLoader = new LuytenTypeLoader();
-	private MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
+    private static LuytenTypeLoader typeLoader = new LuytenTypeLoader();
+    public static MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
 
 	private JTree tree;
 	private JTabbedPane house;
