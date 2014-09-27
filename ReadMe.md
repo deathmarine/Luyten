@@ -1,10 +1,11 @@
 Luyten
 ======
-Decompiler Gui for Procyon<br>
+**One of the Best**
+Java Decompiler Gui for Procyon<br>
 Apache License, Version 2.0
 
 ## Screenshot
-![Screen](http://puu.sh/3Ak9r.jpg)
+![Screen](http://img.ctrlv.in/img/14/09/27/54271ba60e64d.png)
 
 ### Downloads
 [Releases](https://github.com/deathmarine/Luyten/releases)<br>
