@@ -3,6 +3,7 @@ package us.deathmarine.luyten;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
@@ -15,8 +16,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -25,6 +28,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
+
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 /**
@@ -58,6 +62,7 @@ public class MainWindow extends JFrame {
 		this.setShowFindAllBoxOnMainWindowFocus();
 		this.setQuitOnWindowClosing();
 		this.setTitle(TITLE);
+        this.setIconImage(new ImageIcon(Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/Luyten.png"))).getImage());
 
 		// JPanel pane = new JPanel();
 		JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
