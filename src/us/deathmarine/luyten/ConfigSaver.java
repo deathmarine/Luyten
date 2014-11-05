@@ -64,6 +64,9 @@ public class ConfigSaver {
 		findWindowPosition = new WindowPosition();
 		try {
 			Preferences prefs = Preferences.userNodeForPackage(ConfigSaver.class);
+			if(!prefs.get(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName()).equals(
+					decompilerSettings.getLanguage().getName()))
+				prefs.put(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName());
 
 			decompilerSettings.setFlattenSwitchBlocks(prefs.getBoolean(FLATTEN_SWITCH_BLOCKS_ID,
 					decompilerSettings.getFlattenSwitchBlocks()));
