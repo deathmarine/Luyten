@@ -25,6 +25,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -336,6 +338,19 @@ public class Model extends JSplitPane {
 			StringWriter stringwriter = new StringWriter();
 			settings.getLanguage().decompileType(resolvedType,
 					new PlainTextOutput(stringwriter), decompilationOptions);
+
+			if (configSaver.isUnicodeReplaceEnabled()) {
+				String javaCode = stringwriter.toString();
+				Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+				Matcher m = p.matcher(javaCode);
+				StringBuffer buf = new StringBuffer(javaCode.length());
+				while (m.find()) {
+					String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
+					m.appendReplacement(buf, Matcher.quoteReplacement(ch));
+				}
+				m.appendTail(buf);
+				return buf.toString();
+			}
 			return stringwriter.toString();
 		}
 	}

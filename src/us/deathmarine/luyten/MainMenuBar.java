@@ -37,6 +37,7 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBox showSyntheticMembers;
 	private JCheckBox excludeNestedTypes;
 	private JCheckBox retainRedundantCasts;
+	private JCheckBox unicodeReplacement;
 	private JCheckBox showDebugInfo;
 	private JRadioButtonMenuItem java;
 	private JRadioButtonMenuItem bytecode;
@@ -52,7 +53,7 @@ public class MainMenuBar extends JMenuBar {
 
 	public MainMenuBar(MainWindow mainWnd) {
 		this.mainWindow = mainWnd;
-		ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
+		final ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
 		settings = configSaver.getDecompilerSettings();
 		luytenPrefs = configSaver.getLuytenPreferences();
 
@@ -92,7 +93,7 @@ public class MainMenuBar extends JMenuBar {
 					buildOperationMenu(operationMenu);
 					refreshMenuPopup(operationMenu);
 
-					buildSettingsMenu(settingsMenu);
+					buildSettingsMenu(settingsMenu, configSaver);
 					refreshMenuPopup(settingsMenu);
 
 					buildHelpMenu(helpMenu);
@@ -304,7 +305,7 @@ public class MainMenuBar extends JMenuBar {
 		operationMenu.add(exitByEscEnabled);
 	}
 
-	private void buildSettingsMenu(JMenu settingsMenu) {
+	private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {
 		settingsMenu.removeAll();
 		ActionListener settingsChanged = new ActionListener() {
 			@Override
@@ -359,6 +360,13 @@ public class MainMenuBar extends JMenuBar {
 		retainRedundantCasts.setFocusable(false);
 		retainRedundantCasts.addActionListener(settingsChanged);
 		settingsMenu.add(retainRedundantCasts);
+
+		unicodeReplacement = new JCheckBox("    Enable Unicode Replacement");
+		unicodeReplacement.setSelected(configSaver.isUnicodeReplaceEnabled());
+		unicodeReplacement.setContentAreaFilled(false);
+		unicodeReplacement.setFocusable(false);
+		unicodeReplacement.addActionListener(settingsChanged);
+		settingsMenu.add(unicodeReplacement);
 
 		JMenu debugSettingsMenu = new JMenu("Debug Settings");
 		showDebugInfo = new JCheckBox("    Include Error Diagnostics");
@@ -444,6 +452,7 @@ public class MainMenuBar extends JMenuBar {
 			settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
 			settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
 			settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
+			ConfigSaver.getLoadedInstance().setUnicodeReplaceEnabled(unicodeReplacement.isSelected());
 			//
 			// Note: You shouldn't ever need to set this.  It's only for languages that support catch
 			//       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
