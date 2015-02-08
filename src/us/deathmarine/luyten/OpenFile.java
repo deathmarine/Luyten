@@ -254,7 +254,9 @@ public class OpenFile implements SyntaxConstants {
 		textArea.setHyperlinksEnabled(false);
 
 		StringWriter stringwriter = new StringWriter();
-		settings.getLanguage().decompileType(type, new PlainTextOutput(stringwriter), decompilationOptions);
+		PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+		plainTextOutput.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
+		settings.getLanguage().decompileType(type, plainTextOutput, decompilationOptions);
 		setContentPreserveLastScrollPosition(stringwriter.toString());
 		this.isContentValid = true;
 	}
@@ -617,31 +619,4 @@ public class OpenFile implements SyntaxConstants {
 		return true;
 	}
 	
-//	private String extractClassToString(TypeReference type) throws Exception {
-//		// synchronized: do not accept changes from menu while running
-//		synchronized (settings) {
-//			TypeDefinition resolvedType = null;
-//			if (type == null || ((resolvedType = type.resolve()) == null)) {
-//				throw new Exception("Unable to resolve type.");
-//			}
-//			StringWriter stringwriter = new StringWriter();
-//			settings.getLanguage().decompileType(resolvedType,
-//					new PlainTextOutput(stringwriter), decompilationOptions);
-//
-//			if (configSaver.isUnicodeReplaceEnabled()) {
-//				String javaCode = stringwriter.toString();
-//				Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
-//				Matcher m = p.matcher(javaCode);
-//				StringBuffer buf = new StringBuffer(javaCode.length());
-//				while (m.find()) {
-//					String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
-//					m.appendReplacement(buf, Matcher.quoteReplacement(ch));
-//				}
-//				m.appendTail(buf);
-//				return buf.toString();
-//			}
-//			return stringwriter.toString();
-//		}
-//	}
-
 }

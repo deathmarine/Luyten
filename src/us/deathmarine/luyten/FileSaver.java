@@ -9,7 +9,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
@@ -75,9 +74,12 @@ public class FileSaver {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
+				DecompilerSettings settings = cloneSettings();
+				boolean isUnicodeEnabled = settings.isUnicodeOutputEnabled();
 				long time = System.currentTimeMillis();
-				try (FileWriter fw = new FileWriter(file);
-						BufferedWriter bw = new BufferedWriter(fw);) {
+				try (FileOutputStream fos = new FileOutputStream(file);
+						OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8") : new OutputStreamWriter(fos);
+						BufferedWriter bw = new BufferedWriter(writer);) {
 					label.setText("Extracting: " + file.getName());
 					bar.setVisible(true);
 					bw.write(text);
@@ -176,15 +178,17 @@ public class FileSaver {
 					if(history.add(etn)){
 						out.putNextEntry(etn);
 						try {
+							boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
 							String internalName = StringUtilities.removeRight(entry.getName(), ".class");
 							TypeReference type = metadataSystem.lookupType(internalName);
 							TypeDefinition resolvedType = null;
 							if ((type == null) || ((resolvedType = type.resolve()) == null)) {
 								throw new Exception("Unable to resolve type.");
 							}
-							Writer writer = new OutputStreamWriter(out);
-							settings.getLanguage().decompileType(resolvedType,
-									new PlainTextOutput(writer), decompilationOptions);
+							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, "UTF-8") : new OutputStreamWriter(out);
+							PlainTextOutput plainTextOutput = new PlainTextOutput(writer);
+							plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
+							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
 						} finally {
 							out.closeEntry();
@@ -233,17 +237,20 @@ public class FileSaver {
 		decompilationOptions.setSettings(settings);
 		decompilationOptions.setFullDecompilation(true);
 
+		boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
 		TypeDefinition resolvedType = null;
 		if (type == null || ((resolvedType = type.resolve()) == null)) {
 			throw new Exception("Unable to resolve type.");
 		}
 		StringWriter stringwriter = new StringWriter();
-		settings.getLanguage().decompileType(resolvedType,
-				new PlainTextOutput(stringwriter), decompilationOptions);
+		PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+		plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
+		settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 		String decompiledSource = stringwriter.toString();
 
-		try (FileWriter fw = new FileWriter(outFile);
-				BufferedWriter bw = new BufferedWriter(fw);) {
+		try (FileOutputStream fos = new FileOutputStream(outFile);
+				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8") : new OutputStreamWriter(fos);
+				BufferedWriter bw = new BufferedWriter(writer);) {
 			bw.write(decompiledSource);
 			bw.flush();
 		}

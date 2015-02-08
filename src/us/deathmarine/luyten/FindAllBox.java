@@ -163,9 +163,14 @@ public class FindAllBox extends JDialog {
 									decompilationOptions.setSettings(settings);
 									decompilationOptions
 											.setFullDecompilation(true);
+									PlainTextOutput plainTextOutput = 
+											new PlainTextOutput(stringwriter);
+									plainTextOutput.setUnicodeOutputEnabled(
+											decompilationOptions.getSettings()
+											.isUnicodeOutputEnabled());
 									settings.getLanguage().decompileType(
 											resolvedType,
-											new PlainTextOutput(stringwriter),
+											plainTextOutput,
 											decompilationOptions);
 									String decompiledSource = stringwriter
 											.toString().toLowerCase();

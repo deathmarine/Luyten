@@ -898,8 +898,9 @@ public class Model extends JSplitPane {
 						return;
 					}
 					StringWriter stringwriter = new StringWriter();
-					settings.getLanguage().decompileType(resolvedType,
-							new PlainTextOutput(stringwriter), decompilationOptions);
+					PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+					plainTextOutput.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
+					settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 					String decompiledSource = stringwriter.toString();
 					OpenFile open = new OpenFile(internalName, "*/" + internalName, theme, mainWindow);
 					open.setContent(decompiledSource);

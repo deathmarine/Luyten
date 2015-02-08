@@ -38,7 +38,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 		referenceToSelectionsMap = new HashMap<>();
 		currentTypeQualifiedName = type.getPackageName() + "." + type.getName();
 		final StringWriter stringwriter = new StringWriter();
-		settings.getLanguage().decompileType(type, new PlainTextOutput(stringwriter) {
+		PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter) {
 			@Override
 			public void writeDefinition(String text, Object definition, boolean isLocal) {
 				super.writeDefinition(text, definition, isLocal);
@@ -91,7 +91,9 @@ public class DecompilerLinkProvider implements LinkProvider {
 					e.printStackTrace();
 				}
 			}
-		}, decompilationOptions);
+		};
+		plainTextOutput.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
+		settings.getLanguage().decompileType(type, plainTextOutput, decompilationOptions);
 		textContent = stringwriter.toString();
 		isSelectionMapsPopulated = true;
 	}

@@ -362,7 +362,7 @@ public class MainMenuBar extends JMenuBar {
 		settingsMenu.add(retainRedundantCasts);
 
 		unicodeReplacement = new JCheckBox("    Enable Unicode Replacement");
-		unicodeReplacement.setSelected(configSaver.isUnicodeReplaceEnabled());
+		unicodeReplacement.setSelected(settings.isUnicodeOutputEnabled());
 		unicodeReplacement.setContentAreaFilled(false);
 		unicodeReplacement.setFocusable(false);
 		unicodeReplacement.addActionListener(settingsChanged);
@@ -452,7 +452,7 @@ public class MainMenuBar extends JMenuBar {
 			settings.setForceExplicitTypeArguments(forceExplicitTypes.isSelected());
 			settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
 			settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
-			ConfigSaver.getLoadedInstance().setUnicodeReplaceEnabled(unicodeReplacement.isSelected());
+			settings.setUnicodeOutputEnabled(unicodeReplacement.isSelected());
 			//
 			// Note: You shouldn't ever need to set this.  It's only for languages that support catch
 			//       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
