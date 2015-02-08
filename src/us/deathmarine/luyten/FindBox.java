@@ -37,6 +37,7 @@ public class FindBox extends JDialog {
 	public void showFindBox() {
 		this.setVisible(true);
 		this.textField.requestFocus();
+		this.textField.selectAll();
 	}
 
 	public void hideFindBox() {
