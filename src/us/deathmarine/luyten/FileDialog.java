@@ -121,7 +121,7 @@ public class FileDialog {
 		@Override
 		public boolean accept(File f) {
 			if (f.isDirectory())
-				return false;
+				return true;
 			return f.getName().toLowerCase().endsWith(objType.substring(1));
 		}
 
