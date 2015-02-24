@@ -116,9 +116,9 @@
 				</configuration>
 			</plugin>
 			<plugin>
-				<groupId>org.bluestemsoftware.open.maven.plugin</groupId>
-				<artifactId>launch4j-plugin</artifactId>
-				<version>1.5.0.0</version>
+         		<groupId>com.akathist.maven.plugins.launch4j</groupId>
+        	    <artifactId>launch4j-maven-plugin</artifactId>
+				<version>1.7.4</version>
 				<executions>
 					<execution>
 						<id>l4j-gui</id>
