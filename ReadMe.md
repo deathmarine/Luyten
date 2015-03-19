@@ -8,7 +8,7 @@ Apache License, Version 2.0
 ![Screen](http://img.ctrlv.in/img/14/09/27/54271ba60e64d.png)
 
 ### Downloads
-[Fancy Github Page](http://deathmarine.github.io/Luyten/)  
+[Releases](https://github.com/deathmarine/Luyten/releases/latest)  
 
 ### Bugs/Suggestions
 [Issues](https://github.com/deathmarine/Luyten/issues)  
