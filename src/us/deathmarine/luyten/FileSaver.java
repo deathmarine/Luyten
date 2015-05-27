@@ -198,11 +198,11 @@ public class FileSaver {
 					try {
 						JarEntry etn = new JarEntry(entry.getName());
 						if(history.add(etn))
-							continue;
+						{
 						history.add(etn);
 						out.putNextEntry(etn);
 						try {
-							InputStream in = jfile.getInputStream(entry);
+							InputStream in = jfile.getInputStream(etn);
 							if (in != null) {
 								try {
 									int count;
@@ -216,7 +216,8 @@ public class FileSaver {
 						} finally {
 							out.closeEntry();
 						}
-					} catch (ZipException ze) {
+					}
+				} catch (ZipException ze) {
 						// some jar-s contain duplicate pom.xml entries: ignore it
 						if (!ze.getMessage().contains("duplicate")) {
 							throw ze;
