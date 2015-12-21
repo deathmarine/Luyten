@@ -272,8 +272,8 @@ public class FileSaver {
 	private DecompilerSettings cloneSettings() {
 		DecompilerSettings settings = ConfigSaver.getLoadedInstance().getDecompilerSettings();
 		DecompilerSettings newSettings = new DecompilerSettings();
-		if (newSettings.getFormattingOptions() == null) {
-			newSettings.setFormattingOptions(JavaFormattingOptions.createDefault());
+		if (newSettings.getJavaFormattingOptions() == null) {
+			newSettings.setJavaFormattingOptions(JavaFormattingOptions.createDefault());
 		}
 		// synchronized: against main menu changes
 		synchronized (settings) {
