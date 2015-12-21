@@ -57,8 +57,8 @@ public class ConfigSaver {
 	 */
 	private void loadConfig() {
 		decompilerSettings = new DecompilerSettings();
-		if (decompilerSettings.getFormattingOptions() == null) {
-			decompilerSettings.setFormattingOptions(JavaFormattingOptions.createDefault());
+		if (decompilerSettings.getJavaFormattingOptions() == null) {
+			decompilerSettings.setJavaFormattingOptions(JavaFormattingOptions.createDefault());
 		}
 		luytenPreferences = new LuytenPreferences();
 		mainWindowPosition = new WindowPosition();
