@@ -29,12 +29,14 @@
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-compilertools</artifactId> 
 			<version>LATEST</version> 
-		</dependency> <!--
+		</dependency> 
+		<!--
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
 			<artifactId>procyon</artifactId>
 			<version>0.5.27</version>
-		</dependency>-->
+		</dependency>
+		-->
 	</dependencies>
 	<repositories>
 		<repository>
@@ -93,6 +95,28 @@
 				</configuration>
 			</plugin>
 			<plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-shade-plugin</artifactId>
+		      <version>2.4.2</version>
+		      <executions>
+		        <execution>
+		          <phase>package</phase>
+		          <goals>
+		            <goal>shade</goal>
+		          </goals>
+		           <configuration>
+		           <finalName>${project.artifactId}-${project.version}</finalName>
+		             <transformers>
+		               <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+		                 <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+		               </transformer>
+		             </transformers>
+		           </configuration>
+		        </execution>
+		      </executions>
+		    </plugin>
+		    <!-- Replaced by maven-shade for Uber-jar
+		    <plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4</version>
 				<executions>
@@ -114,7 +138,8 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin>
+			</plugin> 
+			-->
 			<plugin>
          		<groupId>com.akathist.maven.plugins.launch4j</groupId>
         	    <artifactId>launch4j-maven-plugin</artifactId>
@@ -136,7 +161,7 @@
 							</classPath>
 							<icon>Luyten.ico</icon>
 							<jre>
-								<minVersion>1.6.0</minVersion>
+								<minVersion>1.7.0</minVersion>
 								<maxVersion>1.8.0</maxVersion>
 								<initialHeapSize>128</initialHeapSize>
 								<maxHeapSize>1024</maxHeapSize>
@@ -145,12 +170,12 @@
 								<fileVersion>0.${project.version}</fileVersion>
 								<txtFileVersion>0.${project.version}</txtFileVersion>
 								<fileDescription>Java Decompiler</fileDescription>
-								<copyright>2014</copyright>
+								<copyright>2015</copyright>
 								<productVersion>0.${project.version}</productVersion>
 								<txtProductVersion>0.${project.version}</txtProductVersion>
 								<productName>${project.artifactId}</productName>
 								<internalName>${project.artifactId}</internalName>
-								<originalFilename>Luyten.exe</originalFilename>
+								<originalFilename>${project.artifactId}-${project.version}.exe</originalFilename>
 							</versionInfo>
 						</configuration>
 					</execution>
