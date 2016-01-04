@@ -18,6 +18,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
+
+import com.strobel.Procyon;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
 import com.strobel.decompiler.languages.Languages;
@@ -38,7 +40,9 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBox excludeNestedTypes;
 	private JCheckBox retainRedundantCasts;
 	private JCheckBox unicodeReplacement;
+	private JCheckBox debugLineNumbers;
 	private JCheckBox showDebugInfo;
+	private JCheckBox bytecodeLineNumbers;
 	private JRadioButtonMenuItem java;
 	private JRadioButtonMenuItem bytecode;
 	private JRadioButtonMenuItem bytecodeAST;
@@ -238,16 +242,29 @@ public class MainMenuBar extends JMenuBar {
 		a.setSelected("default.xml".equals(luytenPrefs.getThemeXml()));
 		themesGroup.add(a);
 		themesMenu.add(a);
+		
+		a = new JRadioButtonMenuItem(new ThemeAction("Default-Alt", "default-alt.xml"));
+		a.setSelected("default-alt.xml".equals(luytenPrefs.getThemeXml()));
+		themesGroup.add(a);
+		themesMenu.add(a);
+		
 		a = new JRadioButtonMenuItem(new ThemeAction("Dark", "dark.xml"));
 		a.setSelected("dark.xml".equals(luytenPrefs.getThemeXml()));
 		themesGroup.add(a);
 		themesMenu.add(a);
+		
 		a = new JRadioButtonMenuItem(new ThemeAction("Eclipse", "eclipse.xml"));
 		a.setSelected("eclipse.xml".equals(luytenPrefs.getThemeXml()));
 		themesGroup.add(a);
 		themesMenu.add(a);
+		
 		a = new JRadioButtonMenuItem(new ThemeAction("Visual Studio", "vs.xml"));
 		a.setSelected("vs.xml".equals(luytenPrefs.getThemeXml()));
+		themesGroup.add(a);
+		themesMenu.add(a);
+		
+		a = new JRadioButtonMenuItem(new ThemeAction("IntelliJ", "idea.xml"));
+		a.setSelected("idea.xml".equals(luytenPrefs.getThemeXml()));
 		themesGroup.add(a);
 		themesMenu.add(a);
 	}
@@ -367,6 +384,13 @@ public class MainMenuBar extends JMenuBar {
 		unicodeReplacement.setFocusable(false);
 		unicodeReplacement.addActionListener(settingsChanged);
 		settingsMenu.add(unicodeReplacement);
+		
+		debugLineNumbers = new JCheckBox("    Show Debug Line Numbers");
+		debugLineNumbers.setSelected(settings.getShowDebugLineNumbers());
+		debugLineNumbers.setContentAreaFilled(false);
+		debugLineNumbers.setFocusable(false);
+		debugLineNumbers.addActionListener(settingsChanged);
+		settingsMenu.add(debugLineNumbers);
 
 		JMenu debugSettingsMenu = new JMenu("Debug Settings");
 		showDebugInfo = new JCheckBox("    Include Error Diagnostics");
@@ -413,6 +437,13 @@ public class MainMenuBar extends JMenuBar {
 			button.addActionListener(settingsChanged);
 		}
 		settingsMenu.add(debugLanguagesMenu);
+		
+		bytecodeLineNumbers = new JCheckBox("    Show Line Numbers In Bytecode");
+		bytecodeLineNumbers.setSelected(settings.getIncludeLineNumbersInBytecode());
+		bytecodeLineNumbers.setContentAreaFilled(false);
+		bytecodeLineNumbers.setFocusable(false);
+		bytecodeLineNumbers.addActionListener(settingsChanged);
+		settingsMenu.add(bytecodeLineNumbers);
 	}
 
 	private void buildHelpMenu(JMenu helpMenu) {
@@ -432,8 +463,8 @@ public class MainMenuBar extends JMenuBar {
 				JOptionPane.showMessageDialog(null,
 						"Luyten Gui \n" +
 								"by Deathmarine, Zerdei\n\n" +
-								"Powered By\nProcyon\n" +
-								"(c) 2013 Mike Strobel\n\n" +
+								"Powered By\nProcyon "+Procyon.version()+
+								"\n(c) 2015 Mike Strobel\n\n" +
 								"RSyntaxTextArea\n" +
 								"(c) 2012 Robert Futrell\n" +
 								"All rights reserved.");
@@ -453,6 +484,7 @@ public class MainMenuBar extends JMenuBar {
 			settings.setRetainRedundantCasts(retainRedundantCasts.isSelected());
 			settings.setIncludeErrorDiagnostics(showDebugInfo.isSelected());
 			settings.setUnicodeOutputEnabled(unicodeReplacement.isSelected());
+			settings.setShowDebugLineNumbers(debugLineNumbers.isSelected());
 			//
 			// Note: You shouldn't ever need to set this.  It's only for languages that support catch
 			//       blocks without an exception variable.  Java doesn't allow this.  I think Scala does.
@@ -475,6 +507,7 @@ public class MainMenuBar extends JMenuBar {
 			} else if (bytecodeAST.isSelected()) {
 				settings.setLanguage(Languages.bytecodeAst());
 			}
+			settings.setIncludeLineNumbersInBytecode(bytecodeLineNumbers.isSelected());
 		}
 	}
 

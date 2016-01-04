@@ -10,8 +10,7 @@ package us.deathmarine.luyten;
  * declarations.
  */
 public class LuytenPreferences {
-
-	public static final String THEME_XML_PATH = "/themes/";
+	public static final String THEME_XML_PATH = "/org/fife/ui/rsyntaxtextarea/themes/";
 	public static final String DEFAULT_THEME_XML = "eclipse.xml";
 
 	private String themeXml = DEFAULT_THEME_XML;

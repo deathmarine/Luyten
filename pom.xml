@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>us.deathmarine</groupId>
 	<artifactId>luyten</artifactId>
-	<version>0.4.4</version>
+	<version>0.4.5</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
