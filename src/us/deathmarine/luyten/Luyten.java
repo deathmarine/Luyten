@@ -1,6 +1,8 @@
 package us.deathmarine.luyten;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -10,6 +12,7 @@ import javax.swing.UIManager;
 public class Luyten {
 
 	public static void main(String[] args) {
+		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
@@ -41,5 +44,22 @@ public class Luyten {
 			e.printStackTrace();
 		}
 		return fileFromCommandLine;
+	}
+	
+	public static String getVersion(){
+		String result = "";
+		try {
+			String line;
+			BufferedReader br = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("META-INF/maven/us.deathmarine/luyten/pom.properties")));
+			while((line = br.readLine())!= null){
+				if(line.contains("version")) 
+					result = line.split("=")[1];
+			}
+			br.close();
+		} catch (Exception e) {
+			return result;
+		}
+		return result;
+		
 	}
 }

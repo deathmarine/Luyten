@@ -461,9 +461,9 @@ public class MainMenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent event) {
 				JOptionPane.showMessageDialog(null,
-						"Luyten Gui \n" +
-								"by Deathmarine, Zerdei\n\n" +
-								"Powered By\nProcyon "+Procyon.version()+
+								"Luyten " + Luyten.getVersion() +
+								"\nby Deathmarine, Zerdei\n\n" +
+								"Powered By\nProcyon "+ Procyon.version()+
 								"\n(c) 2015 Mike Strobel\n\n" +
 								"RSyntaxTextArea\n" +
 								"(c) 2012 Robert Futrell\n" +
