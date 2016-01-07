@@ -4,6 +4,14 @@ Luyten
 Java Decompiler Gui for Procyon  
 Apache License, Version 2.0
 
+## Compilation
+*****
+
+We use maven to handle our dependencies.
+
+* Install [Maven 3](http://maven.apache.org/download.html)
+* Clone this repo and: `mvn clean install`
+
 ## Screenshot
 ![Screen](http://img.ctrlv.in/img/14/09/27/54271ba60e64d.png)
 
@@ -16,8 +24,9 @@ Apache License, Version 2.0
 
 ## Powered by 
 *****
+
 ### Procyon
-&copy; 2013 Mike Strobel  
+&copy; 2015 Mike Strobel  
 [https://bitbucket.org/mstrobel/procyon/overview](https://bitbucket.org/mstrobel/procyon/overview)  
 [Apache License](https://github.com/deathmarine/Luyten/blob/master/distfiles/Procyon.License.txt)  
 
