@@ -10,6 +10,11 @@
 			<artifactId>rsyntaxtextarea</artifactId>
 			<version>LATEST</version>
 		</dependency>
+		<dependency>
+			<groupId>com.apple</groupId>
+			<artifactId>AppleJavaExtensions</artifactId>
+			<version>LATEST</version>
+		</dependency>
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-core</artifactId> 
@@ -180,6 +185,55 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>jarbundler-gui</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" />
+								<chmod file="${project.build.sourceDirectory}/resources/universalJavaApplicationStub.sh" perm="+x" />
+								<jarbundler dir="${project.build.directory}" name="Luyten" shortname="Luyten" signature="Luyten"
+											jars="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+											stubfile="${project.build.sourceDirectory}/resources/universalJavaApplicationStub.sh"
+											useJavaXKey="true" workingdirectory="$JAVAROOT"
+											bundleid="${project.groupId}.${project.artifactId}"
+											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
+											version="${project.version}" copyright="2015"
+											icon="${project.build.sourceDirectory}/resources/Luyten.icns"
+											jvmversion="1.7+" screenmenu="true" 
+											antialiasedgraphics="true" highresolutioncapable="true" >
+									<documenttype name="Class File" extensions="class" role="Viewer" />
+									<documenttype name="Java File" extensions="java" role="Viewer" />
+									<documenttype name="Jar File" extensions="jar" role="Viewer" />
+									<documenttype name="War File" extensions="war" role="Viewer" />
+									<documenttype name="Ear File" extensions="ear" role="Viewer" />
+									<documenttype name="Zip File" extensions="zip" role="Viewer" />
+								</jarbundler>
+                                <zip destfile="${project.build.directory}/Luyten-OSX.zip">
+                                     <zipfileset dir="${project.build.directory}" 
+                                                 includes="Luyten.app/**" excludes="Luyten.app/Contents/MacOS/*" />
+                                     <zipfileset dir="${project.build.directory}" 
+                                                 includes="Luyten.app/Contents/MacOS/*" filemode="755" />
+                                </zip>
+							</target>									
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>com.ultramixer.jarbundler</groupId>
+						<artifactId>jarbundler-core</artifactId>
+						<version>3.3.0</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 		

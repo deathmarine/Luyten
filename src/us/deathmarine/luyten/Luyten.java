@@ -3,6 +3,9 @@ package us.deathmarine.luyten;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -10,6 +13,9 @@ import javax.swing.UIManager;
  * Starter, the main class
  */
 public class Luyten {
+	
+	private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
+	private static final List<File> pendingFiles = new ArrayList<>();
 
 	public static void main(String[] args) {
 		
@@ -27,10 +33,37 @@ public class Luyten {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				MainWindow mainWindow = new MainWindow(fileFromCommandLine);
-				mainWindow.setVisible(true);
+				if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
+					// Already set - so add the files to open
+					openFileInInstance(fileFromCommandLine);
+				}
+				processPendingFiles();
+				mainWindowRef.get().setVisible(true);
 			}
 		});
+	}
+	
+	// Private function which processes all pending files - synchronized on the list of pending files
+	private static void processPendingFiles() {
+		final MainWindow mainWindow = mainWindowRef.get();
+		if (mainWindow != null) {
+			synchronized(pendingFiles) {
+				for (File f : pendingFiles) {
+					mainWindow.getModel().loadFile(f);
+				}
+				pendingFiles.clear();
+			}
+		}
+	}
+	
+	// Function which opens the given file in the instance, if it's running - and if not, it processes the files
+	public static void openFileInInstance(File fileToOpen) {
+		synchronized(pendingFiles) {
+			if (fileToOpen != null) {
+				pendingFiles.add(fileToOpen);
+			}
+		}
+		processPendingFiles();
 	}
 
 	public static File getFileFromCommandLine(String[] args) {
