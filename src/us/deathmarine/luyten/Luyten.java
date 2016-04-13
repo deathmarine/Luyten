@@ -65,6 +65,12 @@ public class Luyten {
 		}
 		processPendingFiles();
 	}
+    
+    // Function which exits the application if it's running
+    public static void quitInstance() {
+        final MainWindow mainWindow = mainWindowRef.get();
+        if (mainWindow != null) { mainWindow.onExitMenu(); }
+    }
 
 	public static File getFileFromCommandLine(String[] args) {
 		File fileFromCommandLine = null;

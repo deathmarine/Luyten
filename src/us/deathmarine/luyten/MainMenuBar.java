@@ -173,15 +173,18 @@ public class MainMenuBar extends JMenuBar {
 		fileMenu.add(menuItem);
 		fileMenu.addSeparator();
 
-		menuItem = new JMenuItem("Exit");
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
-		menuItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mainWindow.onExitMenu();
-			}
-		});
-		fileMenu.add(menuItem);
+        // Only add the exit command for non-OS X.  OS X handles its close automatically
+        if (!("true".equals(System.getProperty("us.deathmarine.luyten.Luyten.running_in_osx")))) {
+    		menuItem = new JMenuItem("Exit");
+    		menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+    		menuItem.addActionListener(new ActionListener() {
+    			@Override
+    			public void actionPerformed(ActionEvent e) {
+    				mainWindow.onExitMenu();
+    			}
+    		});
+    		fileMenu.add(menuItem);
+        }
 	}
 
 	private void buildEditMenu(JMenu editMenu) {
