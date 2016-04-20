@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>us.deathmarine</groupId>
 	<artifactId>luyten</artifactId>
-	<version>0.4.6</version>
+	<version>0.4.7</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
@@ -239,7 +239,7 @@
 									<documenttype name="Zip File" extensions="zip" role="Viewer" />
 								</jarbundler>
                                 <!-- Produce a zip file of the application for distribution -->
-                                <zip destfile="${project.build.directory}/Luyten-OSX.zip">
+                                <zip destfile="${project.build.directory}/Luyten-OSX-${project.version}.zip">
                                      <zipfileset dir="${project.build.directory}" 
                                                  includes="Luyten.app/**" excludes="Luyten.app/Contents/MacOS/*" />
                                      <zipfileset dir="${project.build.directory}" 
