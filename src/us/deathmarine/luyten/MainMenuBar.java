@@ -460,6 +460,16 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		helpMenu.add(menuItem);
+		JMenu menuDebug = new JMenu("Debug");
+		menuItem = new JMenuItem("List JVM Classes");
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainWindow.onListLoadedClasses();
+			}
+		});
+		menuDebug.add(menuItem);
+		helpMenu.add(menuDebug);
 		menuItem = new JMenuItem("About");
 		menuItem.addActionListener(new ActionListener() {
 			@Override

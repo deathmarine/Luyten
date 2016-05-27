@@ -141,8 +141,12 @@ public class Model extends JSplitPane {
 	}
 
 	public void showLegal(String legalStr) {
-		OpenFile open = new OpenFile("Legal", "*/Legal", theme, mainWindow);
-		open.setContent(legalStr);
+		show("Legal", legalStr);
+	}
+
+	public void show(String name, String contents) {
+		OpenFile open = new OpenFile(name, "*/"+name, theme, mainWindow);
+		open.setContent(contents);
 		hmap.add(open);
 		addOrSwitchToTab(open);
 	}

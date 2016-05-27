@@ -15,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.Vector;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -240,6 +242,45 @@ public class MainWindow extends JFrame {
 		}.start();
 	}
 
+	public void onListLoadedClasses(){
+		try {
+			StringBuilder sb = new StringBuilder();
+	        ClassLoader myCL = Thread.currentThread().getContextClassLoader();
+			bar.setVisible(true);
+			bar.setIndeterminate(true);
+	        while (myCL != null) {
+	            sb.append("ClassLoader: " + myCL+"\n");
+	            for (Iterator<?> iter = list(myCL); iter.hasNext();) {
+	                sb.append("\t" + iter.next() + "\n");
+	            }
+	            myCL = myCL.getParent();
+	        }
+			MainWindow.this.getModel().show("Debug", sb.toString());
+		} finally {
+			bar.setIndeterminate(false);
+			bar.setVisible(false);
+		}
+	}
+
+
+    private static Iterator<?> list(ClassLoader CL){
+        Class<?> CL_class = CL.getClass();
+        while (CL_class != java.lang.ClassLoader.class) {
+            CL_class = CL_class.getSuperclass();
+        }
+        java.lang.reflect.Field ClassLoader_classes_field;
+		try {
+			ClassLoader_classes_field = CL_class
+			        .getDeclaredField("classes");
+	        ClassLoader_classes_field.setAccessible(true);
+	        Vector<?> classes = (Vector<?>) ClassLoader_classes_field.get(CL);
+	        return classes.iterator();
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		return null;
+    }
+    
 	private String getLegalStr() {
 		StringBuilder sb = new StringBuilder();
 		try {
