@@ -149,7 +149,7 @@ public class Model extends JSplitPane {
 		OpenFile open = new OpenFile(name, "*/"+name, theme, mainWindow);
 		open.setContent(contents);
 		hmap.add(open);
-		applayFontSize(open);
+		applyFontSize(open);
 		addOrSwitchToTab(open);
 	}
 
@@ -352,7 +352,7 @@ public class Model extends JSplitPane {
 			open.setInitialNavigationLink(navigatonLink);
 			open.decompile();
 			hmap.add(open);
-			applayFontSize(open);
+			applyFontSize(open);
 			addOrSwitchToTab(open);
 		}
 	}
@@ -412,7 +412,7 @@ public class Model extends JSplitPane {
 			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
 			open.setContent(sb.toString());
 			hmap.add(open);
-			applayFontSize(open);
+			applyFontSize(open);
 			addOrSwitchToTab(open);
 		}
 	}
@@ -862,7 +862,7 @@ public class Model extends JSplitPane {
 		}
 	}
 	
-	private void applayFontSize(OpenFile f) {
+	private void applyFontSize(OpenFile f) {
 		Font font = f.textArea.getFont();
 		font = new Font(font.getName(), font.getStyle(), luytenPrefs.getCodeFontSize());
 		f.textArea.setFont(font);
