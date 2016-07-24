@@ -21,6 +21,8 @@ public class LuytenPreferences {
 	private boolean isFilterOutInnerClassEntries = true;
 	private boolean isSingleClickOpenEnabled = true;
 	private boolean isExitByEscEnabled = false;
+	
+	private int codeFontSize = 16;
 
 	public String getThemeXml() {
 		return themeXml;
@@ -76,5 +78,13 @@ public class LuytenPreferences {
 
 	public void setExitByEscEnabled(boolean isExitByEscEnabled) {
 		this.isExitByEscEnabled = isExitByEscEnabled;
+	}
+	
+	public int getCodeFontSize() {
+		return codeFontSize;
+	}
+
+	public void setCodeFontSize(int codeFontSize) {
+		this.codeFontSize = codeFontSize;
 	}
 }

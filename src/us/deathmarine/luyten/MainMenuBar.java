@@ -340,6 +340,31 @@ public class MainMenuBar extends JMenuBar {
 				}.start();
 			}
 		};
+		
+		//
+		JMenuItem menuItem = new JMenuItem("Font++");		
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int newSize = luytenPrefs.getCodeFontSize() + 1;
+				luytenPrefs.setCodeFontSize(newSize);
+				mainWindow.getModel().changeCodeFontSize(newSize);
+			}
+		});
+		settingsMenu.add(menuItem);
+			
+		menuItem = new JMenuItem("Font--");		
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int newSize = luytenPrefs.getCodeFontSize() - 1;
+				luytenPrefs.setCodeFontSize(newSize);
+				mainWindow.getModel().changeCodeFontSize(newSize);
+			}
+		});
+		settingsMenu.add(menuItem);
+		settingsMenu.addSeparator();	
+		
 		flattenSwitchBlocks = new JCheckBox("    Flatten Switch Blocks");
 		flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
 		flattenSwitchBlocks.setContentAreaFilled(false);
