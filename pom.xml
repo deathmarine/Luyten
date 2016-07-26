@@ -164,7 +164,7 @@
 							<classPath>
 								<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
 							</classPath>
-							<icon>Luyten.ico</icon>
+							<icon>luyten.ico</icon>
 							<jre>
 								<minVersion>1.7.0</minVersion>
 								<maxVersion>1.8.0</maxVersion>
@@ -228,7 +228,7 @@
 											bundleid="${project.groupId}.${project.artifactId}"
 											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
 											version="${project.version}" copyright="2015"
-											icon="${project.build.sourceDirectory}/resources/Luyten.icns"
+											icon="${project.build.sourceDirectory}/resources/luyten.icns"
 											jvmversion="1.7+" screenmenu="true" 
 											antialiasedgraphics="true" highresolutioncapable="true" >
 									<documenttype name="Class File" extensions="class" role="Viewer" />

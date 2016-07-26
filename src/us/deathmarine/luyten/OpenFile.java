@@ -1,22 +1,34 @@
 package us.deathmarine.luyten;
 
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Panel;
+import java.awt.PopupMenu;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
@@ -26,6 +38,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
+
 import com.strobel.assembler.metadata.MetadataSystem;
 import com.strobel.assembler.metadata.TypeDefinition;
 import com.strobel.decompiler.DecompilationOptions;
@@ -67,7 +80,7 @@ public class OpenFile implements SyntaxConstants {
 	private DecompilationOptions decompilationOptions;
 	private TypeDefinition type;
 
-	public OpenFile(String name, String path, Theme theme, MainWindow mainWindow) {
+	public OpenFile(String name, String path, Theme theme, final MainWindow mainWindow) {
 		this.name = name;
 		this.path = path;
 		this.mainWindow = mainWindow;
@@ -128,8 +141,27 @@ public class OpenFile implements SyntaxConstants {
 		else
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PROPERTIES_FILE);
 		scrollPane = new RTextScrollPane(textArea, true);
+		
 		scrollPane.setIconRowHeaderEnabled(true);
 		textArea.setText("");
+		
+		//Edit RTextArea's PopupMenu
+		JPopupMenu pop = textArea.getPopupMenu();
+		pop.addSeparator();
+		JMenuItem item = new JMenuItem("Font");
+		item.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFontChooser fontChooser = new JFontChooser();
+				fontChooser.setSelectedFont(textArea.getFont());
+				int result = fontChooser.showDialog(mainWindow);
+				if (result == JFontChooser.OK_OPTION)
+					textArea.setFont(fontChooser.getSelectedFont()); 
+			}
+		});
+		pop.add(item);
+		textArea.setPopupMenu(pop);
+		
 		theme.apply(textArea);
 
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -178,7 +210,24 @@ public class OpenFile implements SyntaxConstants {
 				return null;
 			}
 		});
-
+		
+		//Add Ctrl+Wheel Zoom for Text Size
+		scrollPane.addMouseWheelListener(new MouseWheelListener(){
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0){
+					Font font = textArea.getFont();
+					int size = font.getSize();
+					if(e.getWheelRotation() > 0){ //Down
+						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));
+					}else{
+						textArea.setFont(new Font(font.getName(), font.getStyle(), --size >= 2 ? --size : 2));					
+					}
+				}
+				e.consume();
+			}
+		});
+		
 		textArea.addMouseMotionListener(new MouseMotionAdapter() {
 			private boolean isLinkLabelPrev = false;
 			private String prevLinkText = null;
