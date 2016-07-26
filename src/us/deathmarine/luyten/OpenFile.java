@@ -1,9 +1,9 @@
 package us.deathmarine.luyten;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Panel;
-import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,7 +15,6 @@ import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.StringWriter;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,13 +22,14 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
 import org.fife.ui.rsyntaxtextarea.LinkGenerator;
@@ -154,6 +154,7 @@ public class OpenFile implements SyntaxConstants {
 			public void actionPerformed(ActionEvent e) {
 				JFontChooser fontChooser = new JFontChooser();
 				fontChooser.setSelectedFont(textArea.getFont());
+				fontChooser.setSelectedFontSize(textArea.getFont().getSize());
 				int result = fontChooser.showDialog(mainWindow);
 				if (result == JFontChooser.OK_OPTION)
 					textArea.setFont(fontChooser.getSelectedFont()); 
@@ -211,19 +212,195 @@ public class OpenFile implements SyntaxConstants {
 			}
 		});
 		
-		//Add Ctrl+Wheel Zoom for Text Size
+		/*
+		 * Add Ctrl+Wheel Zoom for Text Size
+		 * Removes all standard listeners and writes new listeners for wheelscroll movement.
+		 */
+		for(MouseWheelListener listeners :scrollPane.getMouseWheelListeners()){
+			scrollPane.removeMouseWheelListener(listeners);
+		};
 		scrollPane.addMouseWheelListener(new MouseWheelListener(){
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
+				
 				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0){
 					Font font = textArea.getFont();
 					int size = font.getSize();
-					if(e.getWheelRotation() > 0){ //Down
-						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));
-					}else{
-						textArea.setFont(new Font(font.getName(), font.getStyle(), --size >= 2 ? --size : 2));					
+					if(e.getWheelRotation() > 0){
+						textArea.setFont(new Font(font.getName(), font.getStyle(), --size >= 8 ? --size : 8));	
+					}else{		
+						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));		
 					}
-				}
+				}else{
+			            if (scrollPane.isWheelScrollingEnabled() &&
+			                e.getWheelRotation() != 0) {
+			                JScrollBar toScroll = scrollPane.getVerticalScrollBar();
+			                int direction = e.getWheelRotation() < 0 ? -1 : 1;
+			                int orientation = SwingConstants.VERTICAL;
+			                if (toScroll == null || !toScroll.isVisible()) {
+			                    toScroll = scrollPane.getHorizontalScrollBar();
+			                    if (toScroll == null || !toScroll.isVisible()) {
+			                        return;
+			                    }
+			                    orientation = SwingConstants.HORIZONTAL;
+			                }
+			                e.consume();
+
+			                if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+			                	JViewport vp = scrollPane.getViewport();
+			                    if (vp == null) { 
+			                    	return; 
+			                    }
+			                    Component comp = vp.getView();
+			                    int units = Math.abs(e.getUnitsToScroll());
+			                    boolean limitScroll = Math.abs(e.getWheelRotation()) == 1;
+			                    Object fastWheelScroll = toScroll.getClientProperty(
+			                                               "JScrollBar.fastWheelScrolling");
+			                    if (Boolean.TRUE == fastWheelScroll &&
+			                        comp instanceof Scrollable) {
+			                        Scrollable scrollComp = (Scrollable) comp;
+			                        Rectangle viewRect = vp.getViewRect();
+			                        int startingX = viewRect.x;
+			                        boolean leftToRight =
+			                                 comp.getComponentOrientation().isLeftToRight();
+			                        int scrollMin = toScroll.getMinimum();
+			                        int scrollMax = toScroll.getMaximum() -
+			                                        toScroll.getModel().getExtent();
+
+			                        if (limitScroll) {
+			                            int blockIncr =
+			                                scrollComp.getScrollableBlockIncrement(viewRect,
+			                                                                    orientation,
+			                                                                    direction);
+			                            if (direction < 0) {
+			                                scrollMin = Math.max(scrollMin,
+			                                               toScroll.getValue() - blockIncr);
+			                            }
+			                            else {
+			                                scrollMax = Math.min(scrollMax,
+			                                               toScroll.getValue() + blockIncr);
+			                            }
+			                        }
+
+			                        for (int i = 0; i < units; i++) {
+			                            int unitIncr =
+			                                scrollComp.getScrollableUnitIncrement(viewRect,
+			                                                        orientation, direction);
+			                            if (orientation == SwingConstants.VERTICAL) {
+			                                if (direction < 0) {
+			                                    viewRect.y -= unitIncr;
+			                                    if (viewRect.y <= scrollMin) {
+			                                        viewRect.y = scrollMin;
+			                                        break;
+			                                    }
+			                                }
+			                                else { // (direction > 0
+			                                    viewRect.y += unitIncr;
+			                                    if (viewRect.y >= scrollMax) {
+			                                        viewRect.y = scrollMax;
+			                                        break;
+			                                    }
+			                                }
+			                            }
+			                            else {
+			                                if ((leftToRight && direction < 0) ||
+			                                    (!leftToRight && direction > 0)) {
+			                                    viewRect.x -= unitIncr;
+			                                    if (leftToRight) {
+			                                        if (viewRect.x < scrollMin) {
+			                                            viewRect.x = scrollMin;
+			                                            break;
+			                                        }
+			                                    }
+			                                }
+			                                else if ((leftToRight && direction > 0) ||
+			                                    (!leftToRight && direction < 0)) {
+			                                    viewRect.x += unitIncr;
+			                                    if (leftToRight) {
+			                                        if (viewRect.x > scrollMax) {
+			                                            viewRect.x = scrollMax;
+			                                            break;
+			                                        }
+			                                    }
+			                                }
+			                                else {
+			                                    assert false : "Non-sensical ComponentOrientation / scroll direction";
+			                                }
+			                            }
+			                        }
+			                        if (orientation == SwingConstants.VERTICAL) {
+			                            toScroll.setValue(viewRect.y);
+			                        }
+			                        else {
+			                            if (leftToRight) {
+			                                toScroll.setValue(viewRect.x);
+			                            }
+			                            else {
+			                                int newPos = toScroll.getValue() -
+			                                                       (viewRect.x - startingX);
+			                                if (newPos < scrollMin) {
+			                                    newPos = scrollMin;
+			                                }
+			                                else if (newPos > scrollMax) {
+			                                    newPos = scrollMax;
+			                                }
+			                                toScroll.setValue(newPos);
+			                            }
+			                        }
+			                    } else {
+								int delta;
+								int limit = -1;
+
+								if (limitScroll) {
+									if (direction < 0) {
+										limit = toScroll.getValue() - toScroll.getBlockIncrement(direction);
+									} else {
+										limit = toScroll.getValue() + toScroll.getBlockIncrement(direction);
+									}
+								}
+
+								for (int i = 0; i < units; i++) {
+									if (direction > 0) {
+										delta = toScroll.getUnitIncrement(direction);
+									} else {
+										delta = -toScroll.getUnitIncrement(direction);
+									}
+									int oldValue = toScroll.getValue();
+									int newValue = oldValue + delta;
+									if (delta > 0 && newValue < oldValue) {
+										newValue = toScroll.getMaximum();
+									} else if (delta < 0 && newValue > oldValue) {
+										newValue = toScroll.getMinimum();
+									}
+									if (oldValue == newValue) {
+										break;
+									}
+									if (limitScroll && i > 0) {
+										assert limit != -1;
+										if ((direction < 0 && newValue < limit)
+												|| (direction > 0 && newValue > limit)) {
+											break;
+										}
+									}
+									toScroll.setValue(newValue);
+								}
+
+			                    }
+			                } else if (e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
+			                    int oldValue = toScroll.getValue();
+			                    int blockIncrement = toScroll.getBlockIncrement(direction);
+			                    int delta = blockIncrement * ((direction > 0) ? +1 : -1);
+			                    int newValue = oldValue + delta;
+			                    if (delta > 0 && newValue < oldValue) {
+			                        newValue = toScroll.getMaximum();
+			                    }
+			                    else if (delta < 0 && newValue > oldValue) {
+			                        newValue = toScroll.getMinimum();
+			                    }
+			                    toScroll.setValue(newValue);
+			                }
+			            }
+			        }
 				e.consume();
 			}
 		});

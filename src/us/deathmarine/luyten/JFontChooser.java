@@ -55,6 +55,10 @@ import javax.swing.text.Position;
  * <pre>
  **/
 public class JFontChooser extends JComponent {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8856126034081661L;
 	// class variables
 	/**
 	 * Return value from <code>showDialog()</code>.
@@ -83,20 +87,20 @@ public class JFontChooser extends JComponent {
 	// instance variables
 	protected int dialogResultValue = ERROR_OPTION;
 
-	private String[] fontStyleNames = null;
-	private String[] fontFamilyNames = null;
-	private String[] fontSizeStrings = null;
-	private JTextField fontFamilyTextField = null;
-	private JTextField fontStyleTextField = null;
-	private JTextField fontSizeTextField = null;
-	private JList fontNameList = null;
-	private JList fontStyleList = null;
-	private JList fontSizeList = null;
-	private JPanel fontNamePanel = null;
-	private JPanel fontStylePanel = null;
-	private JPanel fontSizePanel = null;
-	private JPanel samplePanel = null;
-	private JTextField sampleText = null;
+	private String[] fontStyleNames;
+	private String[] fontFamilyNames;
+	private String[] fontSizeStrings;
+	private JTextField fontFamilyTextField;
+	private JTextField fontStyleTextField;
+	private JTextField fontSizeTextField;
+	private JList<?> fontNameList;
+	private JList<?> fontStyleList;
+	private JList<?> fontSizeList;
+	private JPanel fontNamePanel;
+	private JPanel fontStylePanel;
+	private JPanel fontSizePanel;
+	private JPanel samplePanel;
+	private JTextField sampleText;
 
 	/**
 	 * Constructs a <code>JFontChooser</code> object.
@@ -172,9 +176,9 @@ public class JFontChooser extends JComponent {
 		return fontSizeTextField;
 	}
 
-	public JList getFontFamilyList() {
+	public JList<?> getFontFamilyList() {
 		if (fontNameList == null) {
-			fontNameList = new JList(getFontFamilies());
+			fontNameList = new JList<Object>(getFontFamilies());
 			fontNameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontNameList.addListSelectionListener(new ListSelectionHandler(getFontFamilyTextField()));
 			fontNameList.setSelectedIndex(0);
@@ -184,9 +188,9 @@ public class JFontChooser extends JComponent {
 		return fontNameList;
 	}
 
-	public JList getFontStyleList() {
+	public JList<?> getFontStyleList() {
 		if (fontStyleList == null) {
-			fontStyleList = new JList(getFontStyleNames());
+			fontStyleList = new JList<Object>(getFontStyleNames());
 			fontStyleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontStyleList.addListSelectionListener(new ListSelectionHandler(getFontStyleTextField()));
 			fontStyleList.setSelectedIndex(0);
@@ -196,9 +200,9 @@ public class JFontChooser extends JComponent {
 		return fontStyleList;
 	}
 
-	public JList getFontSizeList() {
+	public JList<?> getFontSizeList() {
 		if (fontSizeList == null) {
-			fontSizeList = new JList(this.fontSizeStrings);
+			fontSizeList = new JList<Object>(this.fontSizeStrings);
 			fontSizeList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontSizeList.addListSelectionListener(new ListSelectionHandler(getFontSizeTextField()));
 			fontSizeList.setSelectedIndex(0);
@@ -390,7 +394,7 @@ public class JFontChooser extends JComponent {
 
 		public void valueChanged(ListSelectionEvent e) {
 			if (e.getValueIsAdjusting() == false) {
-				JList list = (JList) e.getSource();
+				JList<?> list = (JList<?>) e.getSource();
 				String selectedValue = (String) list.getSelectedValue();
 
 				String oldValue = textComponent.getText();
@@ -423,9 +427,9 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter {
-		private JList targetList;
+		private JList<?> targetList;
 
-		public TextFieldKeyHandlerForListSelectionUpDown(JList list) {
+		public TextFieldKeyHandlerForListSelectionUpDown(JList<?> list) {
 			this.targetList = list;
 		}
 
@@ -454,9 +458,9 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class ListSearchTextFieldDocumentHandler implements DocumentListener {
-		JList targetList;
+		JList<?> targetList;
 
-		public ListSearchTextFieldDocumentHandler(JList targetList) {
+		public ListSearchTextFieldDocumentHandler(JList<?> targetList) {
 			this.targetList = targetList;
 		}
 
@@ -511,6 +515,10 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class DialogOKAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1618273732543947323L;
 		protected static final String ACTION_NAME = "OK";
 		private JDialog dialog;
 
@@ -528,6 +536,10 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class DialogCancelAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4941763616565382601L;
 		protected static final String ACTION_NAME = "Cancel";
 		private JDialog dialog;
 
