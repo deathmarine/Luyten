@@ -19,6 +19,7 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -46,13 +47,6 @@ import javax.swing.text.Position;
  * This class has <code>JFileChooser</code> like APIs. The following code pops
  * up a font chooser dialog.
  * 
- * <pre>
- * JFontChooser fontChooser = new JFontChooser(); int result =
- * fontChooser.showDialog(parent); if (result == JFontChooser.OK_OPTION) { Font
- * font = fontChooser.getSelectedFont(); System.out.println("Selected Font : " +
- * font); }
- * 
- * <pre>
  **/
 public class JFontChooser extends JComponent {
 	/**
@@ -86,6 +80,8 @@ public class JFontChooser extends JComponent {
 
 	// instance variables
 	protected int dialogResultValue = ERROR_OPTION;
+
+	protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
 	private String[] fontStyleNames;
 	private String[] fontFamilyNames;
@@ -160,6 +156,7 @@ public class JFontChooser extends JComponent {
 			fontStyleTextField.getDocument()
 					.addDocumentListener(new ListSearchTextFieldDocumentHandler(getFontStyleList()));
 			fontStyleTextField.setFont(DEFAULT_FONT);
+
 		}
 		return fontStyleTextField;
 	}
@@ -182,7 +179,29 @@ public class JFontChooser extends JComponent {
 			fontNameList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontNameList.addListSelectionListener(new ListSelectionHandler(getFontFamilyTextField()));
 			fontNameList.setSelectedIndex(0);
-			fontNameList.setFont(DEFAULT_FONT);
+
+			// Draw Fonts
+			fontNameList.setCellRenderer(new DefaultListCellRenderer() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = -6753380853569310954L;
+
+				public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+						boolean isSelected, boolean cellHasFocus) {
+
+					JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+							isSelected, cellHasFocus);
+
+					if (value instanceof String) {
+						renderer.setText((String) value);
+						renderer.setFont(new Font((String) value, DEFAULT_FONT.getStyle(), DEFAULT_FONT.getSize() + 2));
+					} else {
+						renderer.setText("");
+					}
+					return renderer;
+				}
+			});
 			fontNameList.setFocusable(false);
 		}
 		return fontNameList;
@@ -194,8 +213,29 @@ public class JFontChooser extends JComponent {
 			fontStyleList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			fontStyleList.addListSelectionListener(new ListSelectionHandler(getFontStyleTextField()));
 			fontStyleList.setSelectedIndex(0);
-			fontStyleList.setFont(DEFAULT_FONT);
 			fontStyleList.setFocusable(false);
+			fontStyleList.setCellRenderer(new DefaultListCellRenderer() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = -3904668242514776943L;
+
+				public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+						boolean isSelected, boolean cellHasFocus) {
+
+					JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+							isSelected, cellHasFocus);
+
+					if (value instanceof String) {
+						renderer.setText((String) value);
+						renderer.setFont(
+								new Font(DEFAULT_FONT.getName(), FONT_STYLE_CODES[index], DEFAULT_FONT.getSize() + 2));
+					} else {
+						renderer.setText("");
+					}
+					return renderer;
+				}
+			});
 		}
 		return fontStyleList;
 	}
@@ -703,6 +743,7 @@ public class JFontChooser extends JComponent {
 			Border lowered = BorderFactory.createLoweredBevelBorder();
 
 			sampleText = new JTextField(("AaBbYyZz"));
+			sampleText.setHorizontalAlignment(JTextField.CENTER);
 			sampleText.setBorder(lowered);
 			sampleText.setPreferredSize(new Dimension(300, 100));
 		}
