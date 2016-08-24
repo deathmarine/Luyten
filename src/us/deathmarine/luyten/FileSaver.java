@@ -55,18 +55,18 @@ public class FileSaver {
 		this.label = label;
 		final JPopupMenu menu = new JPopupMenu("Cancel");
 		final JMenuItem item = new JMenuItem("Cancel");
-		item.addActionListener(new ActionListener(){
+		item.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				setCancel(true);				
+				setCancel(true);
 			}
 		});
 		menu.add(item);
-		this.label.addMouseListener(new MouseAdapter(){
-		    public void mouseClicked(MouseEvent ev) {
-		    	if(SwingUtilities.isRightMouseButton(ev) && isExtracting())
-		          menu.show(ev.getComponent(), ev.getX(), ev.getY());
-		    }		
+		this.label.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent ev) {
+				if (SwingUtilities.isRightMouseButton(ev) && isExtracting())
+					menu.show(ev.getComponent(), ev.getX(), ev.getY());
+			}
 		});
 	}
 
@@ -78,13 +78,14 @@ public class FileSaver {
 				boolean isUnicodeEnabled = settings.isUnicodeOutputEnabled();
 				long time = System.currentTimeMillis();
 				try (FileOutputStream fos = new FileOutputStream(file);
-						OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8") : new OutputStreamWriter(fos);
+						OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
+								: new OutputStreamWriter(fos);
 						BufferedWriter bw = new BufferedWriter(writer);) {
 					label.setText("Extracting: " + file.getName());
 					bar.setVisible(true);
 					bw.write(text);
 					bw.flush();
-					label.setText("Completed: "+getTime(time));
+					label.setText("Completed: " + getTime(time));
 				} catch (Exception e1) {
 					label.setText("Cannot save file: " + file.getName());
 					e1.printStackTrace();
@@ -115,12 +116,12 @@ public class FileSaver {
 					} else {
 						doSaveUnknownFile(inFile, outFile);
 					}
-					if(cancel){
+					if (cancel) {
 						label.setText("Cancelled");
 						outFile.delete();
 						setCancel(false);
-					}else{
-						label.setText("Completed: "+ getTime(time));
+					} else {
+						label.setText("Completed: " + getTime(time));
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -162,7 +163,7 @@ public class FileSaver {
 			}
 
 			Enumeration<JarEntry> ent = jfile.entries();
-			Set<JarEntry> history = new HashSet<JarEntry>();
+			Set<String> history = new HashSet<String>();
 			int tick = 0;
 			while (ent.hasMoreElements() && !cancel) {
 				bar.setValue(++tick);
@@ -174,8 +175,8 @@ public class FileSaver {
 				if (entry.getName().endsWith(".class")) {
 					JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
 					label.setText("Extracting: " + etn.getName());
-					//Duplicate
-					if(history.add(etn)){
+
+					if (history.add(etn.getName())) {
 						out.putNextEntry(etn);
 						try {
 							boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
@@ -185,7 +186,8 @@ public class FileSaver {
 							if ((type == null) || ((resolvedType = type.resolve()) == null)) {
 								throw new Exception("Unable to resolve type.");
 							}
-							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, "UTF-8") : new OutputStreamWriter(out);
+							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, "UTF-8")
+									: new OutputStreamWriter(out);
 							PlainTextOutput plainTextOutput = new PlainTextOutput(writer);
 							plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
@@ -197,28 +199,27 @@ public class FileSaver {
 				} else {
 					try {
 						JarEntry etn = new JarEntry(entry.getName());
-						if(history.add(etn))
-						{
-						history.add(etn);
-						out.putNextEntry(etn);
-						try {
-							InputStream in = jfile.getInputStream(etn);
-							if (in != null) {
-								try {
-									int count;
-									while ((count = in.read(data, 0, 1024)) != -1) {
-										out.write(data, 0, count);
+						if (entry.getName().endsWith(".java"))
+							etn = new JarEntry(entry.getName().replace(".java", ".src.java"));
+						if (history.add(etn.getName())) {
+							out.putNextEntry(etn);
+							try {
+								InputStream in = jfile.getInputStream(etn);
+								if (in != null) {
+									try {
+										int count;
+										while ((count = in.read(data, 0, 1024)) != -1) {
+											out.write(data, 0, count);
+										}
+									} finally {
+										in.close();
 									}
-								} finally {
-									in.close();
 								}
+							} finally {
+								out.closeEntry();
 							}
-						} finally {
-							out.closeEntry();
 						}
-					}
-				} catch (ZipException ze) {
-						// some jar-s contain duplicate pom.xml entries: ignore it
+					} catch (ZipException ze) {
 						if (!ze.getMessage().contains("duplicate")) {
 							throw ze;
 						}
@@ -250,7 +251,8 @@ public class FileSaver {
 		String decompiledSource = stringwriter.toString();
 
 		try (FileOutputStream fos = new FileOutputStream(outFile);
-				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8") : new OutputStreamWriter(fos);
+				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
+						: new OutputStreamWriter(fos);
 				BufferedWriter bw = new BufferedWriter(writer);) {
 			bw.write(decompiledSource);
 			bw.flush();
@@ -258,8 +260,7 @@ public class FileSaver {
 	}
 
 	private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
-		try (FileInputStream in = new FileInputStream(inFile);
-				FileOutputStream out = new FileOutputStream(outFile);) {
+		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile);) {
 
 			byte data[] = new byte[1024];
 			int count;
@@ -284,8 +285,8 @@ public class FileSaver {
 			newSettings.setOutputFileHeaderText(settings.getOutputFileHeaderText());
 			newSettings.setLanguage(settings.getLanguage());
 			newSettings.setShowSyntheticMembers(settings.getShowSyntheticMembers());
-			newSettings.setAlwaysGenerateExceptionVariableForCatchBlocks(settings
-					.getAlwaysGenerateExceptionVariableForCatchBlocks());
+			newSettings.setAlwaysGenerateExceptionVariableForCatchBlocks(
+					settings.getAlwaysGenerateExceptionVariableForCatchBlocks());
 			newSettings.setOutputDirectory(settings.getOutputDirectory());
 			newSettings.setRetainRedundantCasts(settings.getRetainRedundantCasts());
 			newSettings.setIncludeErrorDiagnostics(settings.getIncludeErrorDiagnostics());
@@ -313,17 +314,17 @@ public class FileSaver {
 	public void setExtracting(boolean extracting) {
 		this.extracting = extracting;
 	}
-	
-	public static String getTime(long time){
-		long lap = System.currentTimeMillis()-time;
-		lap = lap/1000; 
+
+	public static String getTime(long time) {
+		long lap = System.currentTimeMillis() - time;
+		lap = lap / 1000;
 		StringBuilder sb = new StringBuilder();
-		int hour = (int) ((lap/60)/60);
-		int min = (int) ((lap-(hour*60*60))/60);
-		int sec =(int) ((lap-(hour*60*60)-(min*60))/60);
-		if(hour > 0)
+		int hour = (int) ((lap / 60) / 60);
+		int min = (int) ((lap - (hour * 60 * 60)) / 60);
+		int sec = (int) ((lap - (hour * 60 * 60) - (min * 60)) / 60);
+		if (hour > 0)
 			sb.append("Hour:").append(hour).append(" ");
 		sb.append("Min(s): ").append(min).append(" Sec: ").append(sec);
-		return sb.toString();		
+		return sb.toString();
 	}
 }
