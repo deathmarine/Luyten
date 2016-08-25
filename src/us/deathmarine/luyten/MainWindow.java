@@ -218,7 +218,7 @@ public class MainWindow extends JFrame {
 	public void onFindAllMenu() {
 		try {
 			if (findAllBox == null)
-				findAllBox = new FindAllBox();
+				findAllBox = new FindAllBox(this);
 			findAllBox.showFindBox();
 
 		} catch (Exception e) {
@@ -394,7 +394,7 @@ public class MainWindow extends JFrame {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
 				if (findAllBox != null && findAllBox.isVisible()) {
-					findAllBox.requestFocus();
+					findAllBox.setVisible(false);
 				}
 			}
 		});

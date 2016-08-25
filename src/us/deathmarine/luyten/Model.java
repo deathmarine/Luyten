@@ -292,6 +292,7 @@ public class Model extends JSplitPane {
 					}
 				}
 			}
+				
 			label.setText("Complete");
 		} catch (FileEntryNotFoundException e) {
 			label.setText("File not found: " + name);
@@ -432,7 +433,10 @@ public class Model extends JSplitPane {
 			}
 		}
 	}
-
+	
+	public void openFileFromPath(){
+		
+	}
 	public void updateOpenClasses() {
 		// invalidate all open classes (update will hapen at tab change)
 		for (OpenFile open : hmap) {
