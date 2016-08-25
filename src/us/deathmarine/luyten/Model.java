@@ -156,7 +156,7 @@ public class Model extends JSplitPane {
 			@Override
 			public void run() {
 				try {
-					String title = open.name;
+					final String title = open.name;
 					RTextScrollPane rTextScrollPane = open.scrollPane;
 					if (house.indexOfTab(title) < 0) {
 						house.addTab(title, rTextScrollPane);
@@ -164,6 +164,15 @@ public class Model extends JSplitPane {
 						int index = house.indexOfTab(title);
 						Tab ct = new Tab(title);
 						ct.getButton().addMouseListener(new CloseTab(title));
+						ct.addMouseListener(new MouseAdapter(){
+							@Override
+							public void mouseClicked(MouseEvent e) {
+								if(SwingUtilities.isMiddleMouseButton(e)){
+									int index = house.indexOfTab(title);
+									closeOpenTab(index);
+								}
+							}
+						});
 						house.setTabComponentAt(index, ct);
 					} else {
 						house.setSelectedIndex(house.indexOfTab(title));
