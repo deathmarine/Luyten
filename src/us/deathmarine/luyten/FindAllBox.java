@@ -163,6 +163,7 @@ public class FindAllBox extends JDialog {
 						DecompilerSettings settings = configSaver
 								.getDecompilerSettings();
 						File inFile = MainWindow.model.getOpenedFile();
+						boolean filter = ConfigSaver.getLoadedInstance().getLuytenPreferences().isFilterOutInnerClassEntries();
 						try {
 							JarFile jfile = new JarFile(inFile);
 							Enumeration<JarEntry> entLength = jfile.entries();
@@ -170,8 +171,11 @@ public class FindAllBox extends JDialog {
 							Enumeration<JarEntry> ent = jfile.entries();
 							while (ent.hasMoreElements() && findButton.getText().equals("Stop")) {
 								JarEntry entry = ent.nextElement();
-								setStatus(entry.getName());
-								if (entry.getName().endsWith(".class")) {
+								String name = entry.getName();
+								setStatus(name);
+								if(filter && name.contains("$"))
+									continue;
+								if (entry.getName().endsWith(".class") ) {
 									synchronized (settings) {
 										String internalName = StringUtilities
 												.removeRight(entry.getName(),
