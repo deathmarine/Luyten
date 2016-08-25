@@ -10,15 +10,19 @@ import com.strobel.decompiler.PlainTextOutput;
 import us.deathmarine.luyten.ConfigSaver;
 import us.deathmarine.luyten.MainWindow;
 import us.deathmarine.luyten.Model;
+import us.deathmarine.luyten.Model.State;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -27,6 +31,8 @@ import java.util.jar.JarFile;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 public class FindAllBox extends JDialog {
 	private static final long serialVersionUID = -4125409760166690462L;
@@ -41,10 +47,8 @@ public class FindAllBox extends JDialog {
 	private DefaultListModel<String> classesList = new DefaultListModel<String>();
 	
 	private Thread tmp_thread;
-	private MainWindow mainWindow;
 	
-	public FindAllBox(MainWindow mainWindow) {
-		this.mainWindow = mainWindow;
+	public FindAllBox(final MainWindow mainWindow) {
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setHideOnEscapeButton();
 		
@@ -61,6 +65,26 @@ public class FindAllBox extends JDialog {
 		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL_WRAP);
 		list.setVisibleRowCount(-1);
+		list.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent evt) {
+		        @SuppressWarnings("unchecked")
+				JList<String> list = (JList<String>) evt.getSource();
+		        if (evt.getClickCount() == 2) {
+		            int index = list.locationToIndex(evt.getPoint());
+		            String entryName = (String) list.getModel().getElementAt(index);
+		            String[] array = entryName.split("/");
+					String internalName = StringUtilities.removeRight(entryName, ".class");
+					TypeReference type = Model.metadataSystem.lookupType(internalName);
+					try {
+						mainWindow.getModel().extractClassToTextPane(type, array[array.length-1], entryName, null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+		            
+		        }
+		    }
+		});
 		JScrollPane listScroller = new JScrollPane(list);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -115,7 +139,6 @@ public class FindAllBox extends JDialog {
 				.addComponent(statusLabel).addComponent(progressBar));
 		this.adjustWindowPositionBySavedState();
 		this.setSaveWindowPositionOnClosing();
-		//this.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 
 		this.setName("Find All");
 		this.setTitle("Find All");

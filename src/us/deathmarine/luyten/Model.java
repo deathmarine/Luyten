@@ -90,7 +90,7 @@ public class Model extends JSplitPane {
 	public Model(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 		this.bar = mainWindow.getBar();
-		this.label = mainWindow.getLabel();
+		this.setLabel(mainWindow.getLabel());
 
 		configSaver = ConfigSaver.getLoadedInstance();
 		settings = configSaver.getDecompilerSettings();
@@ -229,7 +229,7 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private void openEntryByTreePath(TreePath trp) {
+	public void openEntryByTreePath(TreePath trp) {
 		String name = "";
 		String path = "";
 		try {
@@ -264,12 +264,12 @@ public class Model extends JSplitPane {
 					}
 					String entryName = entry.getName();
 					if (entryName.endsWith(".class")) {
-						label.setText("Extracting: " + name);
+						getLabel().setText("Extracting: " + name);
 						String internalName = StringUtilities.removeRight(entryName, ".class");
 						TypeReference type = metadataSystem.lookupType(internalName);
 						extractClassToTextPane(type, name, path, null);
 					} else {
-						label.setText("Opening: " + name);
+						getLabel().setText("Opening: " + name);
 						try (InputStream in = state.jarFile.getInputStream(entry);) {
 							extractSimpleFileEntryToTextPane(in, name, path);
 						}
@@ -282,26 +282,26 @@ public class Model extends JSplitPane {
 					throw new TooLargeFileException(file.length());
 				}
 				if (name.endsWith(".class")) {
-					label.setText("Extracting: " + name);
+					getLabel().setText("Extracting: " + name);
 					TypeReference type = metadataSystem.lookupType(path);
 					extractClassToTextPane(type, name, path, null);
 				} else {
-					label.setText("Opening: " + name);
+					getLabel().setText("Opening: " + name);
 					try (InputStream in = new FileInputStream(file);) {
 						extractSimpleFileEntryToTextPane(in, name, path);
 					}
 				}
 			}
 				
-			label.setText("Complete");
+			getLabel().setText("Complete");
 		} catch (FileEntryNotFoundException e) {
-			label.setText("File not found: " + name);
+			getLabel().setText("File not found: " + name);
 		} catch (FileIsBinaryException e) {
-			label.setText("Binary resource: " + name);
+			getLabel().setText("Binary resource: " + name);
 		} catch (TooLargeFileException e) {
-			label.setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
+			getLabel().setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
 		} catch (Exception e) {
-			label.setText("Cannot open: " + name);
+			getLabel().setText("Cannot open: " + name);
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
 		} finally {
@@ -309,7 +309,7 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private void extractClassToTextPane(TypeReference type, String tabTitle, String path,
+	void extractClassToTextPane(TypeReference type, String tabTitle, String path,
 			String navigatonLink) throws Exception {
 		if (tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
 			throw new FileEntryNotFoundException();
@@ -355,7 +355,7 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private void extractSimpleFileEntryToTextPane(InputStream inputStream, String tabTitle, String path)
+	public void extractSimpleFileEntryToTextPane(InputStream inputStream, String tabTitle, String path)
 			throws Exception {
 		if (inputStream == null || tabTitle == null || tabTitle.trim().length() < 1 || path == null) {
 			throw new FileEntryNotFoundException();
@@ -434,9 +434,6 @@ public class Model extends JSplitPane {
 		}
 	}
 	
-	public void openFileFromPath(){
-		
-	}
 	public void updateOpenClasses() {
 		// invalidate all open classes (update will hapen at tab change)
 		for (OpenFile open : hmap) {
@@ -462,12 +459,12 @@ public class Model extends JSplitPane {
 			public void run() {
 				try {
 					bar.setVisible(true);
-					label.setText("Extracting: " + open.name);
+					getLabel().setText("Extracting: " + open.name);
 					open.invalidateContent();
 					open.decompile();
-					label.setText("Complete");
+					getLabel().setText("Complete");
 				} catch (Exception e) {
-					label.setText("Error, cannot update: " + open.name);
+					getLabel().setText("Error, cannot update: " + open.name);
 				} finally {
 					bar.setVisible(false);
 				}
@@ -481,7 +478,7 @@ public class Model extends JSplitPane {
 		return (selectedIndex >= 0 && selectedIndex == house.indexOfTab(title));
 	}
 
-	private final class State implements AutoCloseable {
+	final class State implements AutoCloseable {
 		private final String key;
 		private final File file;
 		final JarFile jarFile;
@@ -621,7 +618,7 @@ public class Model extends JSplitPane {
 					if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
 						JarFile jfile;
 						jfile = new JarFile(file);
-						label.setText("Loading: " + jfile.getName());
+						getLabel().setText("Loading: " + jfile.getName());
 						bar.setVisible(true);
 
 						JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
@@ -639,14 +636,14 @@ public class Model extends JSplitPane {
 							state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
 						}
 						open = true;
-						label.setText("Complete");
+						getLabel().setText("Complete");
 					} else {
 						TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
 						final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
 						tree.setModel(new DefaultTreeModel(top));
 						settings.setTypeLoader(new InputTypeLoader());
 						open = true;
-						label.setText("Complete");
+						getLabel().setText("Complete");
 
 						// open it automatically
 						new Thread() {
@@ -666,11 +663,11 @@ public class Model extends JSplitPane {
 						}
 					}
 				} catch (TooLargeFileException e) {
-					label.setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
+					getLabel().setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
 					closeFile();
 				} catch (Exception e1) {
 					e1.printStackTrace();
-					label.setText("Cannot open: " + file.getName());
+					getLabel().setText("Cannot open: " + file.getName());
 					closeFile();
 				} finally {
 					mainWindow.onFileLoadEnded(file, open);
@@ -856,7 +853,7 @@ public class Model extends JSplitPane {
 			openedFile = file;
 		}
 		if (openedFile == null) {
-			label.setText("No open file");
+			getLabel().setText("No open file");
 		}
 		return openedFile;
 	}
@@ -872,7 +869,7 @@ public class Model extends JSplitPane {
 			e1.printStackTrace();
 		}
 		if (tabTitle == null) {
-			label.setText("No open tab");
+			getLabel().setText("No open tab");
 		}
 		return tabTitle;
 	}
@@ -889,7 +886,7 @@ public class Model extends JSplitPane {
 			e1.printStackTrace();
 		}
 		if (currentTextArea == null) {
-			label.setText("No open tab");
+			getLabel().setText("No open tab");
 		}
 		return currentTextArea;
 	}
@@ -935,7 +932,7 @@ public class Model extends JSplitPane {
 				String destinationTypeStr = linkParts[1];
 				try {
 					bar.setVisible(true);
-					label.setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
+					getLabel().setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
 
 					TypeReference type = metadataSystem.lookupType(destinationTypeStr);
 					if (type == null)
@@ -947,9 +944,9 @@ public class Model extends JSplitPane {
 					String tabTitle = typeDef.getName() + ".class";
 					extractClassToTextPane(typeDef, tabTitle, destinationTypeStr, uniqueStr);
 
-					label.setText("Complete");
+					getLabel().setText("Complete");
 				} catch (Exception e) {
-					label.setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
+					getLabel().setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
 					e.printStackTrace();
 				} finally {
 					bar.setVisible(false);
@@ -957,4 +954,18 @@ public class Model extends JSplitPane {
 			}
 		}).start();
 	}
+
+	public JLabel getLabel() {
+		return label;
+	}
+
+	public void setLabel(JLabel label) {
+		this.label = label;
+	}
+	
+	public State getState(){
+		return state;
+	}
+	
+	
 }
