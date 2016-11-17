@@ -141,6 +141,7 @@ public class MainWindow extends JFrame {
 	public void onOpenFileMenu() {
 		File selectedFile = fileDialog.doOpenDialog();
 		if (selectedFile != null) {
+			System.out.println("[Open]: Opening "+ selectedFile.getAbsolutePath());
 			this.getModel().loadFile(selectedFile);
 		}
 	}

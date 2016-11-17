@@ -107,6 +107,7 @@ public class FileSaver {
 					bar.setVisible(true);
 					setExtracting(true);
 					label.setText("Extracting: " + outFile.getName());
+					System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
 					String inFileName = inFile.getName().toLowerCase();
 
 					if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
@@ -175,6 +176,7 @@ public class FileSaver {
 				if (entry.getName().endsWith(".class")) {
 					JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
 					label.setText("Extracting: " + etn.getName());
+					System.out.println("[SaveAll]: "+etn.getName()+" -> "+outFile.getName());
 
 					if (history.add(etn.getName())) {
 						out.putNextEntry(etn);
@@ -192,6 +194,10 @@ public class FileSaver {
 							plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
+						} catch(Exception e){
+							//e.printStackTrace();
+							label.setText("Cannot decompile file: " + entry.getName());
+							JOptionPane.showMessageDialog(null, "Unable to Decompile file!\n"+e.toString()+"\nSkipping file...", "Error!", JOptionPane.ERROR_MESSAGE);
 						} finally {
 							out.closeEntry();
 						}
@@ -250,6 +256,7 @@ public class FileSaver {
 		settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 		String decompiledSource = stringwriter.toString();
 
+		System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
 		try (FileOutputStream fos = new FileOutputStream(outFile);
 				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
 						: new OutputStreamWriter(fos);
@@ -261,6 +268,7 @@ public class FileSaver {
 
 	private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
 		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile);) {
+			System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
 
 			byte data[] = new byte[1024];
 			int count;
