@@ -104,7 +104,7 @@ public class MainMenuBar extends JMenuBar {
 					buildHelpMenu(helpMenu);
 					refreshMenuPopup(helpMenu);
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			}
 
@@ -117,7 +117,7 @@ public class MainMenuBar extends JMenuBar {
 						menu.getPopupMenu().setVisible(true);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			}
 		}.start();

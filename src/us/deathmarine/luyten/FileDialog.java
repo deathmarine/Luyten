@@ -30,7 +30,7 @@ public class FileDialog {
 					Thread.sleep(500);
 					initSaveDialog();
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			};
 		}.start();
@@ -140,8 +140,8 @@ public class FileDialog {
 					fc.setCurrentDirectory(currentDir);
 				}
 			}
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		} catch (Exception e) {
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -151,8 +151,8 @@ public class FileDialog {
 			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
 				luytenPrefs.setFileOpenCurrentDirectory(currentDir.getAbsolutePath());
 			}
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		} catch (Exception e) {
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -165,8 +165,8 @@ public class FileDialog {
 					fc.setCurrentDirectory(currentDir);
 				}
 			}
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		} catch (Exception e) {
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -176,8 +176,8 @@ public class FileDialog {
 			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
 				luytenPrefs.setFileSaveCurrentDirectory(currentDir.getAbsolutePath());
 			}
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		} catch (Exception e) {
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 }

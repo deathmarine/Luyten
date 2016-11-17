@@ -1,5 +1,6 @@
 package us.deathmarine.luyten;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -11,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Enumeration;
@@ -25,8 +27,11 @@ import java.util.zip.ZipOutputStream;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import com.strobel.assembler.metadata.ITypeLoader;
@@ -88,8 +93,7 @@ public class FileSaver {
 					label.setText("Completed: " + getTime(time));
 				} catch (Exception e1) {
 					label.setText("Cannot save file: " + file.getName());
-					e1.printStackTrace();
-					JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+					Luyten.showExceptionDialog("Unable to save file!\n",e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -125,9 +129,8 @@ public class FileSaver {
 						label.setText("Completed: " + getTime(time));
 					}
 				} catch (Exception e1) {
-					e1.printStackTrace();
 					label.setText("Cannot save file: " + outFile.getName());
-					JOptionPane.showMessageDialog(null, e1.toString(), "Error!", JOptionPane.ERROR_MESSAGE);
+					Luyten.showExceptionDialog("Unable to save file!\n",e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -195,9 +198,8 @@ public class FileSaver {
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
 						} catch(Exception e){
-							//e.printStackTrace();
 							label.setText("Cannot decompile file: " + entry.getName());
-							JOptionPane.showMessageDialog(null, "Unable to Decompile file!\n"+e.toString()+"\nSkipping file...", "Error!", JOptionPane.ERROR_MESSAGE);
+							Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...",e);
 						} finally {
 							out.closeEntry();
 						}

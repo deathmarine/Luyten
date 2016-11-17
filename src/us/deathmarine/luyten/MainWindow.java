@@ -123,7 +123,7 @@ public class MainWindow extends JFrame {
 			dt.addDropTargetListener(new DropListener(this));
 			this.setDropTarget(dt);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 
 		fileDialog = new FileDialog(this);
@@ -199,7 +199,7 @@ public class MainWindow extends JFrame {
 				pane.setSelectionEnd(pane.getText().length());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -212,7 +212,7 @@ public class MainWindow extends JFrame {
 				findBox.showFindBox();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -223,7 +223,7 @@ public class MainWindow extends JFrame {
 			findAllBox.showFindBox();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -277,7 +277,7 @@ public class MainWindow extends JFrame {
 	        Vector<?> classes = (Vector<?>) ClassLoader_classes_field.get(CL);
 	        return classes.iterator();
 		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 		return null;
     }
@@ -298,7 +298,7 @@ public class MainWindow extends JFrame {
 			while ((line = reader.readLine()) != null)
 				sb.append(line).append("\n");
 		} catch (IOException e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 		return sb.toString();
 	}
@@ -329,7 +329,7 @@ public class MainWindow extends JFrame {
 				this.setTitle(TITLE);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -414,8 +414,8 @@ public class MainWindow extends JFrame {
 		try {
 			windowPosition.readPositionFromWindow(this);
 			configSaver.saveConfig();
-		} catch (Exception exc) {
-			exc.printStackTrace();
+		} catch (Exception e) {
+			Luyten.showExceptionDialog("Exception!",e);
 		} finally {
 			try {
 				this.dispose();

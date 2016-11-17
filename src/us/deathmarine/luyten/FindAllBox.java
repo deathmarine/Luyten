@@ -78,7 +78,7 @@ public class FindAllBox extends JDialog {
 					try {
 						mainWindow.getModel().extractClassToTextPane(type, array[array.length-1], entryName, null);
 					} catch (Exception e) {
-						e.printStackTrace();
+						Luyten.showExceptionDialog("Exception!",e);
 					}
 					
 		            
@@ -218,10 +218,8 @@ public class FindAllBox extends JDialog {
 								findButton.setText("Find");
 							}
 							jfile.close();
-						} catch (IOException e1) {
-							e1.printStackTrace();
-						} catch (Exception e1) {
-							e1.printStackTrace();
+						} catch (Exception e) {
+							Luyten.showExceptionDialog("Exception!",e);
 						}
 						
 					}

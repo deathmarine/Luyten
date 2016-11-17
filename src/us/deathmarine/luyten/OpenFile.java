@@ -583,7 +583,7 @@ public class OpenFile implements SyntaxConstants {
 			isNavigableCache.clear();
 			readableLinksCache.clear();
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -655,7 +655,7 @@ public class OpenFile implements SyntaxConstants {
 			isNavigableCache.put(uniqueStr, isNavigable);
 			return isNavigable;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 		return false;
 	}
@@ -672,7 +672,7 @@ public class OpenFile implements SyntaxConstants {
 				return description;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 		return null;
 	}
@@ -705,7 +705,7 @@ public class OpenFile implements SyntaxConstants {
 			Selection selection = linkProvider.getDefinitionToSelectionMap().get(uniqueStr);
 			doLocalNavigation(selection);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -721,7 +721,7 @@ public class OpenFile implements SyntaxConstants {
 				textArea.setSelectionEnd(0);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 	}
 
@@ -748,7 +748,7 @@ public class OpenFile implements SyntaxConstants {
 						textArea.scrollRectToVisible(rectToScroll);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			}
 		});

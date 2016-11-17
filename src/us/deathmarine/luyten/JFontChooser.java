@@ -522,7 +522,7 @@ public class JFontChooser extends JComponent {
 				Document doc = event.getDocument();
 				newValue = doc.getText(0, doc.getLength());
 			} catch (BadLocationException e) {
-				e.printStackTrace();
+				Luyten.showExceptionDialog("Exception!",e);
 			}
 
 			if (newValue.length() > 0) {

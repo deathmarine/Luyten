@@ -54,7 +54,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			}
 
@@ -88,7 +88,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					Luyten.showExceptionDialog("Exception!",e);
 				}
 			}
 		};
@@ -360,7 +360,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 			}
 		} catch (Exception e) {
 			readableLink = null;
-			e.printStackTrace();
+			Luyten.showExceptionDialog("Exception!",e);
 		}
 		return readableLink;
 	}
