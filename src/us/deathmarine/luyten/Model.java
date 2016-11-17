@@ -1,5 +1,6 @@
 package us.deathmarine.luyten;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -124,7 +125,15 @@ public class Model extends JSplitPane {
 		house = new JTabbedPane();
 		house.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		house.addChangeListener(new TabChangeListener());
-
+		house.addMouseListener(new MouseAdapter(){
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if(SwingUtilities.isMiddleMouseButton(e)){
+						Component comp = house.getComponentAt(e.getX(), e.getY());
+						closeOpenTab(house.getSelectedIndex());
+					}
+				}
+			});
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, 1));
 		panel.setBorder(BorderFactory.createTitledBorder("Code"));
@@ -163,15 +172,6 @@ public class Model extends JSplitPane {
 						int index = house.indexOfTab(title);
 						Tab ct = new Tab(title);
 						ct.getButton().addMouseListener(new CloseTab(title));
-						ct.addMouseListener(new MouseAdapter(){
-							@Override
-							public void mouseClicked(MouseEvent e) {
-								if(SwingUtilities.isMiddleMouseButton(e)){
-									int index = house.indexOfTab(title);
-									closeOpenTab(index);
-								}
-							}
-						});
 						house.setTabComponentAt(index, ct);
 					} else {
 						house.setSelectedIndex(house.indexOfTab(title));
