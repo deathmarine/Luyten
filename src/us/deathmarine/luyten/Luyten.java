@@ -1,6 +1,8 @@
 package us.deathmarine.luyten;
 
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -14,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.ArrayList;
@@ -128,6 +132,7 @@ public class Luyten {
 	
 	/**
 	 * Method allows for users to copy the stacktrace for reporting any issues.
+	 * Add Cool Hyperlink
 	 * Enhanced for mouse users.
 	 * 
 	 * @param message
@@ -186,6 +191,28 @@ public class Luyten {
 		JScrollPane scroll = new JScrollPane(exception);
 		scroll.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("Stacktrace"),new BevelBorder(BevelBorder.LOWERED)));
 		pane.add(scroll);
+		final String issue = "https://github.com/deathmarine/Luyten/issues";
+		final JLabel link = new JLabel("<HTML>Submit to <FONT color=\"#000099\"><U>"+issue+"</U></FONT></HTML>");
+	    link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		link.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI(issue));
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				link.setText("<HTML>Submit to <FONT color=\"#00aa99\"><U>"+issue+"</U></FONT></HTML>");
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				link.setText("<HTML>Submit to <FONT color=\"#000099\"><U>"+issue+"</U></FONT></HTML>");
+			}
+		});
+		pane.add(link);
 		JOptionPane.showMessageDialog(null, pane, "Error!", JOptionPane.ERROR_MESSAGE);
 	}
 }
