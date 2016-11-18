@@ -83,36 +83,25 @@ public class FindBox extends JDialog {
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 
-		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addComponent(label)
-				.addGroup(layout.createParallelGroup(Alignment.LEADING)
-						.addComponent(textField)
+		layout.setHorizontalGroup(layout.createSequentialGroup().addComponent(label)
+				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(textField)
 						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(Alignment.LEADING)
-										.addComponent(mcase)
+								.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(mcase)
 										.addComponent(wholew))
-								.addGroup(layout.createParallelGroup(Alignment.LEADING)
-										.addComponent(regex)
-										.addComponent(reverse))))
-				.addGroup(layout.createParallelGroup(Alignment.LEADING)
-						.addComponent(findButton))
-				);
+						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)
+								.addComponent(reverse))))
+				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton)));
 
 		layout.linkSize(SwingConstants.HORIZONTAL, findButton);
 		layout.setVerticalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-						.addComponent(label)
-						.addComponent(textField)
+				.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(label).addComponent(textField)
 						.addComponent(findButton))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
-								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-										.addComponent(mcase)
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(mcase)
 										.addComponent(regex))
-								.addGroup(layout.createParallelGroup(Alignment.BASELINE)
-										.addComponent(wholew)
-										.addComponent(reverse))))
-				);
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(wholew)
+										.addComponent(reverse)))));
 
 		this.adjustWindowPositionBySavedState();
 		this.setSaveWindowPositionOnClosing();
@@ -151,7 +140,7 @@ public class FindBox extends JDialog {
 
 	private void setHideOnEscapeButton() {
 		Action escapeAction = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
+			private static final long serialVersionUID = 5572504000935312338L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

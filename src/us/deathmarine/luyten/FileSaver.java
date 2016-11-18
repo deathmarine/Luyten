@@ -1,6 +1,5 @@
 package us.deathmarine.luyten;
 
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -12,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Enumeration;
@@ -26,12 +24,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import com.strobel.assembler.metadata.ITypeLoader;
@@ -93,7 +87,7 @@ public class FileSaver {
 					label.setText("Completed: " + getTime(time));
 				} catch (Exception e1) {
 					label.setText("Cannot save file: " + file.getName());
-					Luyten.showExceptionDialog("Unable to save file!\n",e1);
+					Luyten.showExceptionDialog("Unable to save file!\n", e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -111,7 +105,7 @@ public class FileSaver {
 					bar.setVisible(true);
 					setExtracting(true);
 					label.setText("Extracting: " + outFile.getName());
-					System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
+					System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 					String inFileName = inFile.getName().toLowerCase();
 
 					if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
@@ -130,7 +124,7 @@ public class FileSaver {
 					}
 				} catch (Exception e1) {
 					label.setText("Cannot save file: " + outFile.getName());
-					Luyten.showExceptionDialog("Unable to save file!\n",e1);
+					Luyten.showExceptionDialog("Unable to save file!\n", e1);
 				} finally {
 					setExtracting(false);
 					bar.setVisible(false);
@@ -179,7 +173,7 @@ public class FileSaver {
 				if (entry.getName().endsWith(".class")) {
 					JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
 					label.setText("Extracting: " + etn.getName());
-					System.out.println("[SaveAll]: "+etn.getName()+" -> "+outFile.getName());
+					System.out.println("[SaveAll]: " + etn.getName() + " -> " + outFile.getName());
 
 					if (history.add(etn.getName())) {
 						out.putNextEntry(etn);
@@ -197,9 +191,9 @@ public class FileSaver {
 							plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
-						} catch(Exception e){
+						} catch (Exception e) {
 							label.setText("Cannot decompile file: " + entry.getName());
-							Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...",e);
+							Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...", e);
 						} finally {
 							out.closeEntry();
 						}
@@ -258,7 +252,7 @@ public class FileSaver {
 		settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 		String decompiledSource = stringwriter.toString();
 
-		System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
+		System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 		try (FileOutputStream fos = new FileOutputStream(outFile);
 				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
 						: new OutputStreamWriter(fos);
@@ -270,7 +264,7 @@ public class FileSaver {
 
 	private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
 		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile);) {
-			System.out.println("[SaveAll]: "+inFile.getName()+" -> "+outFile.getName());
+			System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 
 			byte data[] = new byte[1024];
 			int count;

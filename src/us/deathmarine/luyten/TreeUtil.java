@@ -10,7 +10,8 @@ public class TreeUtil {
 
 	private JTree tree;
 
-	public TreeUtil() {}
+	public TreeUtil() {
+	}
 
 	public TreeUtil(JTree tree) {
 		this.tree = tree;

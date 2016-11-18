@@ -46,7 +46,8 @@ public class DecompilerLinkProvider implements LinkProvider {
 					if (text != null && definition != null) {
 						String uniqueStr = createUniqueStrForReference(definition);
 						if (uniqueStr != null) {
-							// fix link's underline length: _java.util.HashSet_ -> _HashSet_
+							// fix link's underline length: _java.util.HashSet_
+							// -> _HashSet_
 							text = text.replaceAll("[^\\.]*\\.", "");
 							int from = stringwriter.getBuffer().length() - text.length();
 							int to = stringwriter.getBuffer().length();
@@ -54,7 +55,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 						}
 					}
 				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!",e);
+					Luyten.showExceptionDialog("Exception!", e);
 				}
 			}
 
@@ -88,7 +89,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 						}
 					}
 				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!",e);
+					Luyten.showExceptionDialog("Exception!", e);
 				}
 			}
 		};
@@ -110,8 +111,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 			MethodReference method = (MethodReference) reference;
 			String pathAndTypeStr = getPathAndTypeStr(method.getDeclaringType());
 			if (pathAndTypeStr != null) {
-				uniqueStr = "method|" + pathAndTypeStr + "|" +
-						method.getName() + "|" + method.getErasedSignature();
+				uniqueStr = "method|" + pathAndTypeStr + "|" + method.getName() + "|" + method.getErasedSignature();
 			}
 		} else if (reference instanceof FieldReference) {
 			FieldReference field = (FieldReference) reference;
@@ -128,8 +128,8 @@ public class DecompilerLinkProvider implements LinkProvider {
 		String packageStr = typeRef.getPackageName();
 		TypeReference mostOuterTypeRef = getMostOuterTypeRef(typeRef);
 		String mostOuterTypeName = mostOuterTypeRef.getName();
-		if (name != null && packageStr != null && mostOuterTypeName != null &&
-				name.trim().length() > 0 && mostOuterTypeName.trim().length() > 0) {
+		if (name != null && packageStr != null && mostOuterTypeName != null && name.trim().length() > 0
+				&& mostOuterTypeName.trim().length() > 0) {
 			String pathStr = packageStr.replaceAll("\\.", "/") + "/" + mostOuterTypeName;
 			String typeStr = packageStr + "." + name.replace(".", "$");
 			return pathStr + "|" + typeStr;
@@ -184,7 +184,8 @@ public class DecompilerLinkProvider implements LinkProvider {
 	}
 
 	@Override
-	public void processLinks() {}
+	public void processLinks() {
+	}
 
 	@Override
 	public Map<String, Selection> getDefinitionToSelectionMap() {
@@ -221,9 +222,8 @@ public class DecompilerLinkProvider implements LinkProvider {
 			// current type's navigable definitions checked already, now it's erroneous
 			if (currentTypeQualifiedName == null || currentTypeQualifiedName.trim().length() <= 0)
 				return false;
-			if (typeStr.equals(currentTypeQualifiedName) ||
-					typeStr.startsWith(currentTypeQualifiedName + ".") ||
-					typeStr.startsWith(currentTypeQualifiedName + "$"))
+			if (typeStr.equals(currentTypeQualifiedName) || typeStr.startsWith(currentTypeQualifiedName + ".")
+					|| typeStr.startsWith(currentTypeQualifiedName + "$"))
 				return false;
 		}
 
@@ -360,7 +360,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 			}
 		} catch (Exception e) {
 			readableLink = null;
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 		return readableLink;
 	}
@@ -371,8 +371,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 		return desc;
 	}
 
-	public void setDecompilerReferences(MetadataSystem metadataSystem,
-			DecompilerSettings settings,
+	public void setDecompilerReferences(MetadataSystem metadataSystem, DecompilerSettings settings,
 			DecompilationOptions decompilationOptions) {
 		this.metadataSystem = metadataSystem;
 		this.settings = settings;

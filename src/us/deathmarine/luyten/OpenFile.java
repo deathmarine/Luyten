@@ -48,10 +48,10 @@ import com.strobel.decompiler.languages.Languages;
 
 public class OpenFile implements SyntaxConstants {
 
-	public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(Arrays.asList(
-			".java", ".xml", ".rss", ".project", ".classpath", ".h", ".sql", ".js", ".php", ".php5",
-			".phtml", ".html", ".htm", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".css",
-			".json", ".txt", ".rb", ".make", ".mak", ".py", ".properties", ".prop"));
+	public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(
+			Arrays.asList(".java", ".xml", ".rss", ".project", ".classpath", ".h", ".sql", ".js", ".php", ".php5",
+					".phtml", ".html", ".htm", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".css", ".json", ".txt",
+					".rb", ".make", ".mak", ".py", ".properties", ".prop"));
 
 	// navigation links
 	private TreeMap<Selection, String> selectionToUniqueStrTreeMap = new TreeMap<>();
@@ -92,13 +92,10 @@ public class OpenFile implements SyntaxConstants {
 		textArea.setEditable(false);
 		textArea.setAntiAliasingEnabled(true);
 		textArea.setCodeFoldingEnabled(true);
-		if (name.toLowerCase().endsWith(".class")
-				|| name.toLowerCase().endsWith(".java"))
+		if (name.toLowerCase().endsWith(".class") || name.toLowerCase().endsWith(".java"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVA);
-		else if (name.toLowerCase().endsWith(".xml")
-				|| name.toLowerCase().endsWith(".rss")
-				|| name.toLowerCase().endsWith(".project")
-				|| name.toLowerCase().endsWith(".classpath"))
+		else if (name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".rss")
+				|| name.toLowerCase().endsWith(".project") || name.toLowerCase().endsWith(".classpath"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_XML);
 		else if (name.toLowerCase().endsWith(".h"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_C);
@@ -106,14 +103,11 @@ public class OpenFile implements SyntaxConstants {
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_SQL);
 		else if (name.toLowerCase().endsWith(".js"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
-		else if (name.toLowerCase().endsWith(".php")
-				|| name.toLowerCase().endsWith(".php5")
+		else if (name.toLowerCase().endsWith(".php") || name.toLowerCase().endsWith(".php5")
 				|| name.toLowerCase().endsWith(".phtml"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PHP);
-		else if (name.toLowerCase().endsWith(".html")
-				|| name.toLowerCase().endsWith(".htm")
-				|| name.toLowerCase().endsWith(".xhtm")
-				|| name.toLowerCase().endsWith(".xhtml"))
+		else if (name.toLowerCase().endsWith(".html") || name.toLowerCase().endsWith(".htm")
+				|| name.toLowerCase().endsWith(".xhtm") || name.toLowerCase().endsWith(".xhtml"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_HTML);
 		else if (name.toLowerCase().endsWith(".js"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
@@ -133,19 +127,18 @@ public class OpenFile implements SyntaxConstants {
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
 		else if (name.toLowerCase().endsWith(".rb"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_RUBY);
-		else if (name.toLowerCase().endsWith(".make")
-				|| name.toLowerCase().endsWith(".mak"))
+		else if (name.toLowerCase().endsWith(".make") || name.toLowerCase().endsWith(".mak"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_MAKEFILE);
 		else if (name.toLowerCase().endsWith(".py"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PYTHON);
 		else
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PROPERTIES_FILE);
 		scrollPane = new RTextScrollPane(textArea, true);
-		
+
 		scrollPane.setIconRowHeaderEnabled(true);
 		textArea.setText("");
-		
-		//Edit RTextArea's PopupMenu
+
+		// Edit RTextArea's PopupMenu
 		JPopupMenu pop = textArea.getPopupMenu();
 		pop.addSeparator();
 		JMenuItem item = new JMenuItem("Font");
@@ -157,12 +150,12 @@ public class OpenFile implements SyntaxConstants {
 				fontChooser.setSelectedFontSize(textArea.getFont().getSize());
 				int result = fontChooser.showDialog(mainWindow);
 				if (result == JFontChooser.OK_OPTION)
-					textArea.setFont(fontChooser.getSelectedFont()); 
+					textArea.setFont(fontChooser.getSelectedFont());
 			}
 		});
 		pop.add(item);
 		textArea.setPopupMenu(pop);
-		
+
 		theme.apply(textArea);
 
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -211,143 +204,123 @@ public class OpenFile implements SyntaxConstants {
 				return null;
 			}
 		});
-		
+
 		/*
-		 * Add Ctrl+Wheel Zoom for Text Size
-		 * Removes all standard listeners and writes new listeners for wheelscroll movement.
+		 * Add Ctrl+Wheel Zoom for Text Size Removes all standard listeners and
+		 * writes new listeners for wheelscroll movement.
 		 */
-		for(MouseWheelListener listeners :scrollPane.getMouseWheelListeners()){
+		for (MouseWheelListener listeners : scrollPane.getMouseWheelListeners()) {
 			scrollPane.removeMouseWheelListener(listeners);
-		};
-		scrollPane.addMouseWheelListener(new MouseWheelListener(){
+		}
+		;
+		scrollPane.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
-				
-				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0){
+
+				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
 					Font font = textArea.getFont();
 					int size = font.getSize();
-					if(e.getWheelRotation() > 0){
-						textArea.setFont(new Font(font.getName(), font.getStyle(), --size >= 8 ? --size : 8));	
-					}else{		
-						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));		
+					if (e.getWheelRotation() > 0) {
+						textArea.setFont(new Font(font.getName(), font.getStyle(), --size >= 8 ? --size : 8));
+					} else {
+						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));
 					}
-				}else{
-			            if (scrollPane.isWheelScrollingEnabled() &&
-			                e.getWheelRotation() != 0) {
-			                JScrollBar toScroll = scrollPane.getVerticalScrollBar();
-			                int direction = e.getWheelRotation() < 0 ? -1 : 1;
-			                int orientation = SwingConstants.VERTICAL;
-			                if (toScroll == null || !toScroll.isVisible()) {
-			                    toScroll = scrollPane.getHorizontalScrollBar();
-			                    if (toScroll == null || !toScroll.isVisible()) {
-			                        return;
-			                    }
-			                    orientation = SwingConstants.HORIZONTAL;
-			                }
-			                e.consume();
+				} else {
+					if (scrollPane.isWheelScrollingEnabled() && e.getWheelRotation() != 0) {
+						JScrollBar toScroll = scrollPane.getVerticalScrollBar();
+						int direction = e.getWheelRotation() < 0 ? -1 : 1;
+						int orientation = SwingConstants.VERTICAL;
+						if (toScroll == null || !toScroll.isVisible()) {
+							toScroll = scrollPane.getHorizontalScrollBar();
+							if (toScroll == null || !toScroll.isVisible()) {
+								return;
+							}
+							orientation = SwingConstants.HORIZONTAL;
+						}
+						e.consume();
 
-			                if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-			                	JViewport vp = scrollPane.getViewport();
-			                    if (vp == null) { 
-			                    	return; 
-			                    }
-			                    Component comp = vp.getView();
-			                    int units = Math.abs(e.getUnitsToScroll());
-			                    boolean limitScroll = Math.abs(e.getWheelRotation()) == 1;
-			                    Object fastWheelScroll = toScroll.getClientProperty(
-			                                               "JScrollBar.fastWheelScrolling");
-			                    if (Boolean.TRUE == fastWheelScroll &&
-			                        comp instanceof Scrollable) {
-			                        Scrollable scrollComp = (Scrollable) comp;
-			                        Rectangle viewRect = vp.getViewRect();
-			                        int startingX = viewRect.x;
-			                        boolean leftToRight =
-			                                 comp.getComponentOrientation().isLeftToRight();
-			                        int scrollMin = toScroll.getMinimum();
-			                        int scrollMax = toScroll.getMaximum() -
-			                                        toScroll.getModel().getExtent();
+						if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+							JViewport vp = scrollPane.getViewport();
+							if (vp == null) {
+								return;
+							}
+							Component comp = vp.getView();
+							int units = Math.abs(e.getUnitsToScroll());
+							boolean limitScroll = Math.abs(e.getWheelRotation()) == 1;
+							Object fastWheelScroll = toScroll.getClientProperty("JScrollBar.fastWheelScrolling");
+							if (Boolean.TRUE == fastWheelScroll && comp instanceof Scrollable) {
+								Scrollable scrollComp = (Scrollable) comp;
+								Rectangle viewRect = vp.getViewRect();
+								int startingX = viewRect.x;
+								boolean leftToRight = comp.getComponentOrientation().isLeftToRight();
+								int scrollMin = toScroll.getMinimum();
+								int scrollMax = toScroll.getMaximum() - toScroll.getModel().getExtent();
 
-			                        if (limitScroll) {
-			                            int blockIncr =
-			                                scrollComp.getScrollableBlockIncrement(viewRect,
-			                                                                    orientation,
-			                                                                    direction);
-			                            if (direction < 0) {
-			                                scrollMin = Math.max(scrollMin,
-			                                               toScroll.getValue() - blockIncr);
-			                            }
-			                            else {
-			                                scrollMax = Math.min(scrollMax,
-			                                               toScroll.getValue() + blockIncr);
-			                            }
-			                        }
+								if (limitScroll) {
+									int blockIncr = scrollComp.getScrollableBlockIncrement(viewRect, orientation,
+											direction);
+									if (direction < 0) {
+										scrollMin = Math.max(scrollMin, toScroll.getValue() - blockIncr);
+									} else {
+										scrollMax = Math.min(scrollMax, toScroll.getValue() + blockIncr);
+									}
+								}
 
-			                        for (int i = 0; i < units; i++) {
-			                            int unitIncr =
-			                                scrollComp.getScrollableUnitIncrement(viewRect,
-			                                                        orientation, direction);
-			                            if (orientation == SwingConstants.VERTICAL) {
-			                                if (direction < 0) {
-			                                    viewRect.y -= unitIncr;
-			                                    if (viewRect.y <= scrollMin) {
-			                                        viewRect.y = scrollMin;
-			                                        break;
-			                                    }
-			                                }
-			                                else { // (direction > 0
-			                                    viewRect.y += unitIncr;
-			                                    if (viewRect.y >= scrollMax) {
-			                                        viewRect.y = scrollMax;
-			                                        break;
-			                                    }
-			                                }
-			                            }
-			                            else {
-			                                if ((leftToRight && direction < 0) ||
-			                                    (!leftToRight && direction > 0)) {
-			                                    viewRect.x -= unitIncr;
-			                                    if (leftToRight) {
-			                                        if (viewRect.x < scrollMin) {
-			                                            viewRect.x = scrollMin;
-			                                            break;
-			                                        }
-			                                    }
-			                                }
-			                                else if ((leftToRight && direction > 0) ||
-			                                    (!leftToRight && direction < 0)) {
-			                                    viewRect.x += unitIncr;
-			                                    if (leftToRight) {
-			                                        if (viewRect.x > scrollMax) {
-			                                            viewRect.x = scrollMax;
-			                                            break;
-			                                        }
-			                                    }
-			                                }
-			                                else {
-			                                    assert false : "Non-sensical ComponentOrientation / scroll direction";
-			                                }
-			                            }
-			                        }
-			                        if (orientation == SwingConstants.VERTICAL) {
-			                            toScroll.setValue(viewRect.y);
-			                        }
-			                        else {
-			                            if (leftToRight) {
-			                                toScroll.setValue(viewRect.x);
-			                            }
-			                            else {
-			                                int newPos = toScroll.getValue() -
-			                                                       (viewRect.x - startingX);
-			                                if (newPos < scrollMin) {
-			                                    newPos = scrollMin;
-			                                }
-			                                else if (newPos > scrollMax) {
-			                                    newPos = scrollMax;
-			                                }
-			                                toScroll.setValue(newPos);
-			                            }
-			                        }
-			                    } else {
+								for (int i = 0; i < units; i++) {
+									int unitIncr = scrollComp.getScrollableUnitIncrement(viewRect, orientation,
+											direction);
+									if (orientation == SwingConstants.VERTICAL) {
+										if (direction < 0) {
+											viewRect.y -= unitIncr;
+											if (viewRect.y <= scrollMin) {
+												viewRect.y = scrollMin;
+												break;
+											}
+										} else { // (direction > 0
+											viewRect.y += unitIncr;
+											if (viewRect.y >= scrollMax) {
+												viewRect.y = scrollMax;
+												break;
+											}
+										}
+									} else {
+										if ((leftToRight && direction < 0) || (!leftToRight && direction > 0)) {
+											viewRect.x -= unitIncr;
+											if (leftToRight) {
+												if (viewRect.x < scrollMin) {
+													viewRect.x = scrollMin;
+													break;
+												}
+											}
+										} else if ((leftToRight && direction > 0) || (!leftToRight && direction < 0)) {
+											viewRect.x += unitIncr;
+											if (leftToRight) {
+												if (viewRect.x > scrollMax) {
+													viewRect.x = scrollMax;
+													break;
+												}
+											}
+										} else {
+											assert false : "Non-sensical ComponentOrientation / scroll direction";
+										}
+									}
+								}
+								if (orientation == SwingConstants.VERTICAL) {
+									toScroll.setValue(viewRect.y);
+								} else {
+									if (leftToRight) {
+										toScroll.setValue(viewRect.x);
+									} else {
+										int newPos = toScroll.getValue() - (viewRect.x - startingX);
+										if (newPos < scrollMin) {
+											newPos = scrollMin;
+										} else if (newPos > scrollMax) {
+											newPos = scrollMax;
+										}
+										toScroll.setValue(newPos);
+									}
+								}
+							} else {
 								int delta;
 								int limit = -1;
 
@@ -385,26 +358,25 @@ public class OpenFile implements SyntaxConstants {
 									toScroll.setValue(newValue);
 								}
 
-			                    }
-			                } else if (e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
-			                    int oldValue = toScroll.getValue();
-			                    int blockIncrement = toScroll.getBlockIncrement(direction);
-			                    int delta = blockIncrement * ((direction > 0) ? +1 : -1);
-			                    int newValue = oldValue + delta;
-			                    if (delta > 0 && newValue < oldValue) {
-			                        newValue = toScroll.getMaximum();
-			                    }
-			                    else if (delta < 0 && newValue > oldValue) {
-			                        newValue = toScroll.getMinimum();
-			                    }
-			                    toScroll.setValue(newValue);
-			                }
-			            }
-			        }
+							}
+						} else if (e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
+							int oldValue = toScroll.getValue();
+							int blockIncrement = toScroll.getBlockIncrement(direction);
+							int delta = blockIncrement * ((direction > 0) ? +1 : -1);
+							int newValue = oldValue + delta;
+							if (delta > 0 && newValue < oldValue) {
+								newValue = toScroll.getMaximum();
+							} else if (delta < 0 && newValue > oldValue) {
+								newValue = toScroll.getMinimum();
+							}
+							toScroll.setValue(newValue);
+						}
+					}
+				}
 				e.consume();
 			}
 		});
-		
+
 		textArea.addMouseMotionListener(new MouseMotionAdapter() {
 			private boolean isLinkLabelPrev = false;
 			private String prevLinkText = null;
@@ -583,7 +555,7 @@ public class OpenFile implements SyntaxConstants {
 			isNavigableCache.clear();
 			readableLinksCache.clear();
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 	}
 
@@ -655,7 +627,7 @@ public class OpenFile implements SyntaxConstants {
 			isNavigableCache.put(uniqueStr, isNavigable);
 			return isNavigable;
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 		return false;
 	}
@@ -672,7 +644,7 @@ public class OpenFile implements SyntaxConstants {
 				return description;
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 		return null;
 	}
@@ -705,7 +677,7 @@ public class OpenFile implements SyntaxConstants {
 			Selection selection = linkProvider.getDefinitionToSelectionMap().get(uniqueStr);
 			doLocalNavigation(selection);
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 	}
 
@@ -721,7 +693,7 @@ public class OpenFile implements SyntaxConstants {
 				textArea.setSelectionEnd(0);
 			}
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 	}
 
@@ -738,8 +710,8 @@ public class OpenFile implements SyntaxConstants {
 					int upperLineToSet = selectionLineNum - upperMarginToScroll;
 					int currentUpperLine = textArea.getVisibleRect().y / textArea.getLineHeight();
 
-					if (selectionLineNum <= currentUpperLine + 2 ||
-							selectionLineNum >= currentUpperLine + viewportLineCount - 4) {
+					if (selectionLineNum <= currentUpperLine + 2
+							|| selectionLineNum >= currentUpperLine + viewportLineCount - 4) {
 						Rectangle rectToScroll = new Rectangle();
 						rectToScroll.x = 0;
 						rectToScroll.width = 1;
@@ -748,7 +720,7 @@ public class OpenFile implements SyntaxConstants {
 						textArea.scrollRectToVisible(rectToScroll);
 					}
 				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!",e);
+					Luyten.showExceptionDialog("Exception!", e);
 				}
 			}
 		});
@@ -758,8 +730,7 @@ public class OpenFile implements SyntaxConstants {
 		mainWindow.onNavigationRequest(uniqueStr);
 	}
 
-	public void setDecompilerReferences(MetadataSystem metadataSystem,
-			DecompilerSettings settings,
+	public void setDecompilerReferences(MetadataSystem metadataSystem, DecompilerSettings settings,
 			DecompilationOptions decompilationOptions) {
 		this.metadataSystem = metadataSystem;
 		this.settings = settings;
@@ -810,8 +781,8 @@ public class OpenFile implements SyntaxConstants {
 	}
 
 	/**
-	 * sun.swing.CachedPainter holds on OpenFile for a while
-	 * even after JTabbedPane.remove(component)
+	 * sun.swing.CachedPainter holds on OpenFile for a while even after
+	 * JTabbedPane.remove(component)
 	 */
 	public void close() {
 		linkProvider = null;
@@ -844,5 +815,5 @@ public class OpenFile implements SyntaxConstants {
 			return false;
 		return true;
 	}
-	
+
 }

@@ -38,7 +38,8 @@ public class ConfigSaver {
 	/**
 	 * Do not instantiate, get the loaded instance
 	 */
-	private ConfigSaver() {}
+	private ConfigSaver() {
+	}
 
 	public static ConfigSaver getLoadedInstance() {
 		if (theLoadedInstance == null) {
@@ -65,33 +66,33 @@ public class ConfigSaver {
 		findWindowPosition = new WindowPosition();
 		try {
 			Preferences prefs = Preferences.userNodeForPackage(ConfigSaver.class);
-			if(!prefs.get(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName()).equals(
-					decompilerSettings.getLanguage().getName()))
+			if (!prefs.get(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName())
+					.equals(decompilerSettings.getLanguage().getName()))
 				prefs.put(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName());
 
-			decompilerSettings.setFlattenSwitchBlocks(prefs.getBoolean(FLATTEN_SWITCH_BLOCKS_ID,
-					decompilerSettings.getFlattenSwitchBlocks()));
-			decompilerSettings.setForceExplicitImports(prefs.getBoolean(FORCE_EXPLICIT_IMPORTS_ID,
-					decompilerSettings.getForceExplicitImports()));
-			decompilerSettings.setShowSyntheticMembers(prefs.getBoolean(SHOW_SYNTHETIC_MEMBERS_ID,
-					decompilerSettings.getShowSyntheticMembers()));
-			decompilerSettings.setExcludeNestedTypes(prefs.getBoolean(EXCLUDE_NESTED_TYPES_ID,
-					decompilerSettings.getExcludeNestedTypes()));
+			decompilerSettings.setFlattenSwitchBlocks(
+					prefs.getBoolean(FLATTEN_SWITCH_BLOCKS_ID, decompilerSettings.getFlattenSwitchBlocks()));
+			decompilerSettings.setForceExplicitImports(
+					prefs.getBoolean(FORCE_EXPLICIT_IMPORTS_ID, decompilerSettings.getForceExplicitImports()));
+			decompilerSettings.setShowSyntheticMembers(
+					prefs.getBoolean(SHOW_SYNTHETIC_MEMBERS_ID, decompilerSettings.getShowSyntheticMembers()));
+			decompilerSettings.setExcludeNestedTypes(
+					prefs.getBoolean(EXCLUDE_NESTED_TYPES_ID, decompilerSettings.getExcludeNestedTypes()));
 			decompilerSettings.setForceExplicitTypeArguments(prefs.getBoolean(FORCE_EXPLICIT_TYPE_ARGUMENTS_ID,
 					decompilerSettings.getForceExplicitTypeArguments()));
-			decompilerSettings.setRetainRedundantCasts(prefs.getBoolean(RETAIN_REDUNDANT_CASTS_ID,
-					decompilerSettings.getRetainRedundantCasts()));
-			decompilerSettings.setIncludeErrorDiagnostics(prefs.getBoolean(INCLUDE_ERROR_DIAGNOSTICS_ID,
-					decompilerSettings.getIncludeErrorDiagnostics()));
-			decompilerSettings.setLanguage(findLanguageByName(prefs.get(LANGUAGE_NAME_ID,
-					decompilerSettings.getLanguage().getName())));
+			decompilerSettings.setRetainRedundantCasts(
+					prefs.getBoolean(RETAIN_REDUNDANT_CASTS_ID, decompilerSettings.getRetainRedundantCasts()));
+			decompilerSettings.setIncludeErrorDiagnostics(
+					prefs.getBoolean(INCLUDE_ERROR_DIAGNOSTICS_ID, decompilerSettings.getIncludeErrorDiagnostics()));
+			decompilerSettings.setLanguage(
+					findLanguageByName(prefs.get(LANGUAGE_NAME_ID, decompilerSettings.getLanguage().getName())));
 			decompilerSettings.setUnicodeOutputEnabled(prefs.getBoolean(UNICODE_REPLACE_ENABLED_ID, false));
 
 			mainWindowPosition = loadWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX);
 			findWindowPosition = loadWindowPosition(prefs, FIND_WINDOW_ID_PREFIX);
 			luytenPreferences = loadLuytenPreferences(prefs);
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 	}
 
@@ -151,7 +152,7 @@ public class ConfigSaver {
 			saveWindowPosition(prefs, FIND_WINDOW_ID_PREFIX, findWindowPosition);
 			saveLuytenPreferences(prefs);
 		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!",e);
+			Luyten.showExceptionDialog("Exception!", e);
 		}
 	}
 
@@ -215,7 +216,7 @@ public class ConfigSaver {
 	public WindowPosition getFindWindowPosition() {
 		return findWindowPosition;
 	}
-	
+
 	public LuytenPreferences getLuytenPreferences() {
 		return luytenPreferences;
 	}

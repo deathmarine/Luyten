@@ -34,8 +34,7 @@ public class DropListener implements DropTargetListener {
 			for (DataFlavor flavor : flavors) {
 				try {
 					if (flavor.isFlavorJavaFileListType()) {
-						List<File> files = (List<File>) transferable
-								.getTransferData(flavor);
+						List<File> files = (List<File>) transferable.getTransferData(flavor);
 						if (files.size() > 1) {
 							event.rejectDrop();
 							return;
@@ -45,7 +44,7 @@ public class DropListener implements DropTargetListener {
 						}
 					}
 				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!",e);
+					Luyten.showExceptionDialog("Exception!", e);
 				}
 			}
 			event.dropComplete(true);
@@ -92,14 +91,18 @@ public class DropListener implements DropTargetListener {
 	}
 
 	@Override
-	public void dragEnter(DropTargetDragEvent arg0) {}
+	public void dragEnter(DropTargetDragEvent arg0) {
+	}
 
 	@Override
-	public void dragExit(DropTargetEvent arg0) {}
+	public void dragExit(DropTargetEvent arg0) {
+	}
 
 	@Override
-	public void dragOver(DropTargetDragEvent arg0) {}
+	public void dragOver(DropTargetDragEvent arg0) {
+	}
 
 	@Override
-	public void dropActionChanged(DropTargetDragEvent arg0) {}
+	public void dropActionChanged(DropTargetDragEvent arg0) {
+	}
 }

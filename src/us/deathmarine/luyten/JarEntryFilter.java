@@ -12,7 +12,8 @@ public class JarEntryFilter {
 
 	private JarFile jfile;
 
-	public JarEntryFilter() {}
+	public JarEntryFilter() {
+	}
 
 	public JarEntryFilter(JarFile jfile) {
 		this.jfile = jfile;

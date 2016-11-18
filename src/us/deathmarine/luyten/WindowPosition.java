@@ -44,8 +44,8 @@ public class WindowPosition {
 		if (windowWidth > screenSize.width + 50 || windowHeight > screenSize.height + 50) {
 			return false;
 		}
-		if (windowY < -20 || windowY > screenSize.height - 50 ||
-				windowX < 50 - windowWidth || windowX > screenSize.width - 50) {
+		if (windowY < -20 || windowY > screenSize.height - 50 || windowX < 50 - windowWidth
+				|| windowX > screenSize.width - 50) {
 			return false;
 		}
 		return true;
