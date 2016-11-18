@@ -512,6 +512,7 @@ public class MainMenuBar extends JMenuBar {
 			    link.setCursor(new Cursor(Cursor.HAND_CURSOR));
 				link.addMouseListener(new LinkListener(rsyntax, link));
 				pane.add(link);
+				pane.add(new JLabel("Version: 2.6.0"));
 				pane.add(new JLabel("(c) 2016 Robert Futrell"));
 				pane.add(new JLabel(" "));
 				JOptionPane.showMessageDialog(null,pane);
