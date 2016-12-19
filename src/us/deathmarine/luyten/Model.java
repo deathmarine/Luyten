@@ -4,6 +4,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -115,6 +117,15 @@ public class Model extends JSplitPane {
 		tree.setCellRenderer(new CellRenderer());
 		TreeListener tl = new TreeListener();
 		tree.addMouseListener(tl);
+		tree.addKeyListener(new KeyAdapter() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					openEntryByTreePath(tree.getSelectionPath());
+				}
+			}
+		});
 
 		JPanel panel2 = new JPanel();
 		panel2.setLayout(new BoxLayout(panel2, 1));
