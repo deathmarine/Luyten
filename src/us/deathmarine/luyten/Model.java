@@ -1,5 +1,6 @@
 package us.deathmarine.luyten;
 
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -165,6 +166,7 @@ public class Model extends JSplitPane {
 		OpenFile open = new OpenFile(name, "*/" + name, theme, mainWindow);
 		open.setContent(contents);
 		hmap.add(open);
+		applyFontSize(open);
 		addOrSwitchToTab(open);
 	}
 
@@ -367,6 +369,7 @@ public class Model extends JSplitPane {
 			open.setInitialNavigationLink(navigatonLink);
 			open.decompile();
 			hmap.add(open);
+			applyFontSize(open);
 			addOrSwitchToTab(open);
 		}
 	}
@@ -426,6 +429,7 @@ public class Model extends JSplitPane {
 			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
 			open.setContent(sb.toString());
 			hmap.add(open);
+			applyFontSize(open);
 			addOrSwitchToTab(open);
 		}
 	}
@@ -851,12 +855,30 @@ public class Model extends JSplitPane {
 			if (in != null) {
 				theme = Theme.load(in);
 				for (OpenFile f : hmap) {
+					// ◊÷ÃÂ…Ë÷√
+					Font font = f.textArea.getFont();
+					font = new Font(font.getName(), font.getStyle(), luytenPrefs.getCodeFontSize());
 					theme.apply(f.textArea);
+					f.textArea.setFont(font);
 				}
 			}
 		} catch (Exception e1) {
 			Luyten.showExceptionDialog("Exception!", e1);
 		}
+	}
+	
+	public void changeCodeFontSize(int newSize) {
+		for (OpenFile f : hmap) {
+			Font font = f.textArea.getFont();
+			font = new Font(font.getName(), font.getStyle(), newSize);
+			f.textArea.setFont(font);
+		}
+	}
+	
+	private void applyFontSize(OpenFile f) {
+		Font font = f.textArea.getFont();
+		font = new Font(font.getName(), font.getStyle(), luytenPrefs.getCodeFontSize());
+		f.textArea.setFont(font);
 	}
 
 	public File getOpenedFile() {

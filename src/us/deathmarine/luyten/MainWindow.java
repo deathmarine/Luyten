@@ -128,6 +128,8 @@ public class MainWindow extends JFrame {
 				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
 			model.startWarmUpThread();
 		}
+		
+		setQuitOnWindowClosing();
 	}
 
 	public void onOpenFileMenu() {
