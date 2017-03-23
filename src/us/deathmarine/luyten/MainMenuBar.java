@@ -118,7 +118,6 @@ public class MainMenuBar extends JMenuBar {
 					buildHelpMenu(helpMenu);
 					refreshMenuPopup(helpMenu);
 					
-					// TODO update recent files gui
 					updateRecentFiles();
 				} catch (Exception e) {
 					Luyten.showExceptionDialog("Exception!", e);
@@ -140,7 +139,6 @@ public class MainMenuBar extends JMenuBar {
 		}.start();
 	}
 
-	// TODO update recent files
 	public void updateRecentFiles() {
 		if (RecentFiles.paths.isEmpty()) {
 			recentFiles.setEnabled(false);
@@ -232,7 +230,6 @@ public class MainMenuBar extends JMenuBar {
 		fileMenu.add(menuItem);
 		fileMenu.addSeparator();
 
-		// TODO recent files menu init
 		recentFiles = new JMenu("Recent Files");
 		fileMenu.add(recentFiles);
 		
