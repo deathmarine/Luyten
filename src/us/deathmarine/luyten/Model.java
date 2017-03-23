@@ -73,7 +73,7 @@ public class Model extends JSplitPane {
 	public static MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
 
 	private JTree tree;
-	private JTabbedPane house;
+	public JTabbedPane house;
 	private File file;
 	private DecompilerSettings settings;
 	private DecompilationOptions decompilationOptions;
@@ -193,7 +193,7 @@ public class Model extends JSplitPane {
 		});
 	}
 
-	private void closeOpenTab(int index) {
+	public void closeOpenTab(int index) {
 		RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
 		RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
 		OpenFile open = null;
@@ -607,6 +607,10 @@ public class Model extends JSplitPane {
 		if (open)
 			closeFile();
 		this.file = file;
+		
+		// TODO
+		RecentFiles.add(file.getAbsolutePath());
+		mainWindow.mainMenuBar.updateRecentFiles();
 		loadTree();
 	}
 
