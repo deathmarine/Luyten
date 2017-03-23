@@ -38,7 +38,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 5265556630724988013L;
 
-	private static final String TITLE = "Luyten 2";
+	private static final String TITLE = "Luyten";
 
 	public static Model model;
 	private JProgressBar bar;
