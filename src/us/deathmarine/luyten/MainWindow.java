@@ -38,7 +38,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 5265556630724988013L;
 
-	private static final String TITLE = "Luyten";
+	private static final String TITLE = "Luyten 2";
 
 	public static Model model;
 	private JProgressBar bar;
@@ -50,13 +50,14 @@ public class MainWindow extends JFrame {
 	private LuytenPreferences luytenPrefs;
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
+	public MainMenuBar mainMenuBar;
 
 	public MainWindow(File fileFromCommandLine) {
 		configSaver = ConfigSaver.getLoadedInstance();
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
-
-		MainMenuBar mainMenuBar = new MainMenuBar(this);
+		
+		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
 		this.adjustWindowPositionBySavedState();
@@ -128,12 +129,15 @@ public class MainWindow extends JFrame {
 				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
 			model.startWarmUpThread();
 		}
+		
+		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
 	}
 
 	public void onOpenFileMenu() {
 		File selectedFile = fileDialog.doOpenDialog();
 		if (selectedFile != null) {
 			System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
+			
 			this.getModel().loadFile(selectedFile);
 		}
 	}
