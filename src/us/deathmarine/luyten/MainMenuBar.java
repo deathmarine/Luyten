@@ -155,7 +155,7 @@ public class MainMenuBar extends JMenuBar {
 		
 		while (li.hasPrevious()) {
 			String path = li.previous();
-			File file = new File(path);
+			final File file = new File(path);
 			
 			if (!file.exists()) {
 				rfSaveNeeded = true;
