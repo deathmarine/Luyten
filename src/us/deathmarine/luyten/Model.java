@@ -40,6 +40,8 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -117,6 +119,7 @@ public class Model extends JSplitPane {
 		tree.setCellRenderer(new CellRenderer());
 		TreeListener tl = new TreeListener();
 		tree.addMouseListener(tl);
+		tree.addTreeExpansionListener(new FurtherExpandingTreeExpansionListener());
 		tree.addKeyListener(new KeyAdapter() {
 
 			@Override
@@ -243,6 +246,35 @@ public class Model extends JSplitPane {
 					openEntryByTreePath(trp);
 				}
 			}.start();
+		}
+	}
+
+	private class FurtherExpandingTreeExpansionListener implements TreeExpansionListener {
+		@Override
+		public void treeExpanded(final TreeExpansionEvent event) {
+			final TreePath treePath = event.getPath();
+
+			final Object expandedTreePathObject = treePath.getLastPathComponent();
+			if (!(expandedTreePathObject instanceof TreeNode)) {
+				return;
+			}
+
+			final TreeNode expandedTreeNode = (TreeNode) expandedTreePathObject;
+			if (expandedTreeNode.getChildCount() == 1) {
+				final TreeNode descendantTreeNode = expandedTreeNode.getChildAt(0);
+
+				if (descendantTreeNode.isLeaf()) {
+					return;
+				}
+
+				final TreePath nextTreePath = treePath.pathByAddingChild(descendantTreeNode);
+				tree.expandPath(nextTreePath);
+			}
+		}
+
+		@Override
+		public void treeCollapsed(final TreeExpansionEvent event) {
+
 		}
 	}
 
