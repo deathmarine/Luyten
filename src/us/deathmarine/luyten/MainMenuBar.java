@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -302,6 +303,28 @@ public class MainMenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				mainWindow.onFindMenu();
+			}
+		});
+		editMenu.add(menuItem);
+		
+		menuItem = new JMenuItem("Find Next");
+		menuItem.setAccelerator(
+				KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(true);
+			}
+		});
+		editMenu.add(menuItem);
+		
+		menuItem = new JMenuItem("Find Previous");
+		menuItem.setAccelerator(
+				KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK));
+		menuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(false);
 			}
 		});
 		editMenu.add(menuItem);

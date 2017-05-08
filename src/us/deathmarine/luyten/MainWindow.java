@@ -43,7 +43,7 @@ public class MainWindow extends JFrame {
 	public static Model model;
 	private JProgressBar bar;
 	private JLabel label;
-	private FindBox findBox;
+	FindBox findBox;
 	private FindAllBox findAllBox;
 	private ConfigSaver configSaver;
 	private WindowPosition windowPosition;

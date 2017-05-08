@@ -3,6 +3,7 @@ package us.deathmarine.luyten;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -26,12 +27,12 @@ import org.fife.ui.rtextarea.SearchEngine;
 public class FindBox extends JDialog {
 	private static final long serialVersionUID = -4125409760166690462L;
 
-	private JCheckBox mcase;
-	private JCheckBox regex;
-	private JCheckBox wholew;
-	private JCheckBox reverse;
+	JCheckBox mcase;
+	JCheckBox regex;
+	JCheckBox wholew;
+	JCheckBox reverse;
 	private JButton findButton;
-	private JTextField textField;
+	JTextField textField;
 	private MainWindow mainWindow;
 
 	public void showFindBox() {
@@ -44,7 +45,7 @@ public class FindBox extends JDialog {
 		this.setVisible(false);
 	}
 
-	public FindBox(MainWindow mainWindow) {
+	public FindBox(final MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setHideOnEscapeButton();
@@ -64,6 +65,14 @@ public class FindBox extends JDialog {
 		findButton = new JButton("Find");
 		findButton.addActionListener(new FindButton());
 		this.getRootPane().setDefaultButton(findButton);
+		
+		KeyStroke funcF3 = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0, false);
+		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(funcF3, "FindNext");
+		this.getRootPane().getActionMap().put("FindNext", new FindExploreAction(true));
+		
+		KeyStroke sfuncF3 = KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK, false);
+		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(sfuncF3, "FindPrevious");
+		this.getRootPane().getActionMap().put("FindPrevious", new FindExploreAction(false));
 
 		mcase.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		regex.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -169,5 +178,40 @@ public class FindBox extends JDialog {
 				windowPosition.readPositionFromDialog(FindBox.this);
 			}
 		});
+	}
+	
+	public void fireExploreAction(boolean direction){
+		new FindExploreAction(direction).actionPerformed(null);
+	}
+	class FindExploreAction extends AbstractAction{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4391670062679240573L;
+		boolean direction;
+		public FindExploreAction(boolean forward){
+			direction = forward;
+		}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (textField.getText().length() == 0)
+				return;
+			RSyntaxTextArea pane = mainWindow.getModel().getCurrentTextArea();
+			if (pane == null)
+				return;
+			SearchContext context = new SearchContext();
+			context.setSearchFor(textField.getText());
+			context.setMatchCase(mcase.isSelected());
+			context.setRegularExpression(regex.isSelected());
+			context.setSearchForward(direction);
+			context.setWholeWord(wholew.isSelected());
+
+			if (!SearchEngine.find(pane, context).wasFound()) {
+				pane.setSelectionStart(0);
+				pane.setSelectionEnd(0);
+			}
+			
+		}
+		
 	}
 }
