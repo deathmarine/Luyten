@@ -63,15 +63,15 @@ public class FindBox extends JDialog {
 		wholew = new JCheckBox("Whole Words");
 		reverse = new JCheckBox("Search Backwards");
 		wrap = new JCheckBox("Wrap");
-		
+
 		findButton = new JButton("Find");
 		findButton.addActionListener(new FindButton());
 		this.getRootPane().setDefaultButton(findButton);
-		
+
 		KeyStroke funcF3 = KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0, false);
 		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(funcF3, "FindNext");
 		this.getRootPane().getActionMap().put("FindNext", new FindExploreAction(true));
-		
+
 		KeyStroke sfuncF3 = KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK, false);
 		this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(sfuncF3, "FindPrevious");
 		this.getRootPane().getActionMap().put("FindPrevious", new FindExploreAction(false));
@@ -144,10 +144,10 @@ public class FindBox extends JDialog {
 			context.setWholeWord(wholew.isSelected());
 
 			if (!SearchEngine.find(pane, context).wasFound()) {
-				if(wrap.isSelected()){
+				if (wrap.isSelected()) {
 					pane.setSelectionStart(0);
 					pane.setSelectionEnd(0);
-				}else{
+				} else {
 					mainWindow.getLabel().setText("Search Complete");
 				}
 			}
@@ -187,19 +187,22 @@ public class FindBox extends JDialog {
 			}
 		});
 	}
-	
-	public void fireExploreAction(boolean direction){
+
+	public void fireExploreAction(boolean direction) {
 		new FindExploreAction(direction).actionPerformed(null);
 	}
-	class FindExploreAction extends AbstractAction{
+
+	class FindExploreAction extends AbstractAction {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = -4391670062679240573L;
 		boolean direction;
-		public FindExploreAction(boolean forward){
+
+		public FindExploreAction(boolean forward) {
 			direction = forward;
 		}
+
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (textField.getText().length() == 0)
@@ -215,15 +218,15 @@ public class FindBox extends JDialog {
 			context.setWholeWord(wholew.isSelected());
 
 			if (!SearchEngine.find(pane, context).wasFound()) {
-				if(wrap.isSelected()){
+				if (wrap.isSelected()) {
 					pane.setSelectionStart(0);
 					pane.setSelectionEnd(0);
-				}else{
+				} else {
 					mainWindow.getLabel().setText("Search Complete");
 				}
 			}
-			
+
 		}
-		
+
 	}
 }

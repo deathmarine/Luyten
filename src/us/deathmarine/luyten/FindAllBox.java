@@ -19,12 +19,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
@@ -36,7 +40,12 @@ public class FindAllBox extends JDialog {
 
 	private JButton findButton;
 	private JTextField textField;
+	private JCheckBox mcase;
+	private JCheckBox regex;
+	private JCheckBox wholew;
+	private JList<String> list;
 	private JProgressBar progressBar;
+
 	private JLabel statusLabel = new JLabel("");
 
 	private DefaultListModel<String> classesList = new DefaultListModel<String>();
@@ -54,9 +63,13 @@ public class FindAllBox extends JDialog {
 		findButton = new JButton("Find");
 		findButton.addActionListener(new FindButton());
 
+		mcase = new JCheckBox("Match Case");
+		regex = new JCheckBox("Regex");
+		wholew = new JCheckBox("Whole Words");
+
 		this.getRootPane().setDefaultButton(findButton);
 
-		JList<String> list = new JList<String>(classesList);
+		list = new JList<String>(classesList);
 		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL_WRAP);
 		list.setVisibleRowCount(-1);
@@ -68,18 +81,36 @@ public class FindAllBox extends JDialog {
 					int index = list.locationToIndex(evt.getPoint());
 					String entryName = (String) list.getModel().getElementAt(index);
 					String[] array = entryName.split("/");
-					String internalName = StringUtilities.removeRight(entryName, ".class");
-					TypeReference type = Model.metadataSystem.lookupType(internalName);
-					try {
-						mainWindow.getModel().extractClassToTextPane(type, array[array.length - 1], entryName, null);
-					} catch (Exception e) {
-						Luyten.showExceptionDialog("Exception!", e);
+					if (entryName.toLowerCase().endsWith(".class")) {
+						String internalName = StringUtilities.removeRight(entryName, ".class");
+						TypeReference type = Model.metadataSystem.lookupType(internalName);
+						try {
+							mainWindow.getModel().extractClassToTextPane(type, array[array.length - 1], entryName,
+									null);
+						} catch (Exception e) {
+							Luyten.showExceptionDialog("Exception!", e);
+						}
+
+					} else {
+						try {
+							JarFile jfile = new JarFile(MainWindow.model.getOpenedFile());
+							mainWindow.getModel().extractSimpleFileEntryToTextPane(
+									jfile.getInputStream(jfile.getEntry(entryName)), array[array.length - 1],
+									entryName);
+							jfile.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 
 				}
 			}
 		});
-		JScrollPane listScroller = new JScrollPane(list);
+		list.setLayoutOrientation(JList.VERTICAL);
+		JScrollPane listScroller = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		final Dimension center = new Dimension((int) (screenSize.width * 0.35), 500);
@@ -95,11 +126,17 @@ public class FindAllBox extends JDialog {
 
 		layout.setHorizontalGroup(
 				layout.createSequentialGroup().addComponent(label)
-						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(statusLabel)
-								.addComponent(textField)
-								.addGroup(layout.createSequentialGroup()
-										.addGroup(layout.createParallelGroup(Alignment.LEADING)
-												.addComponent(listScroller).addComponent(progressBar))))
+						.addGroup(
+								layout.createParallelGroup(Alignment.LEADING).addComponent(statusLabel)
+										.addComponent(textField)
+										.addGroup(layout.createSequentialGroup()
+												.addGroup(layout.createParallelGroup(Alignment.LEADING)
+														.addComponent(mcase))
+										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(wholew))
+										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)))
+				.addGroup(layout.createSequentialGroup()
+						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(listScroller)
+								.addComponent(progressBar))))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton))
 
 		);
@@ -108,6 +145,8 @@ public class FindAllBox extends JDialog {
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(label).addComponent(textField)
 						.addComponent(findButton))
+				.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(mcase).addComponent(wholew)
+						.addComponent(regex))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(listScroller))))
@@ -149,6 +188,7 @@ public class FindAllBox extends JDialog {
 								JarEntry entry = ent.nextElement();
 								String name = entry.getName();
 								setStatus(name);
+								System.out.println(entry.getName());
 								if (filter && name.contains("$"))
 									continue;
 								if (entry.getName().endsWith(".class")) {
@@ -169,11 +209,30 @@ public class FindAllBox extends JDialog {
 												decompilationOptions.getSettings().isUnicodeOutputEnabled());
 										settings.getLanguage().decompileType(resolvedType, plainTextOutput,
 												decompilationOptions);
-										String decompiledSource = stringwriter.toString().toLowerCase();
-										if (decompiledSource.contains(textField.getText().toLowerCase())) {
+										if (search(stringwriter.toString()))
 											addClassName(entry.getName());
+									}
+								} else {
+
+									StringBuilder sb = new StringBuilder();
+									long nonprintableCharactersCount = 0;
+									try (InputStreamReader inputStreamReader = new InputStreamReader(
+											jfile.getInputStream(entry));
+											BufferedReader reader = new BufferedReader(inputStreamReader);) {
+										String line;
+										while ((line = reader.readLine()) != null) {
+											sb.append(line).append("\n");
+
+											for (byte nextByte : line.getBytes()) {
+												if (nextByte <= 0) {
+													nonprintableCharactersCount++;
+												}
+											}
+
 										}
 									}
+									if (nonprintableCharactersCount < 5 && search(sb.toString()))
+										addClassName(entry.getName());
 								}
 							}
 							setSearching(false);
@@ -193,6 +252,22 @@ public class FindAllBox extends JDialog {
 
 		}
 
+	}
+
+	private boolean search(String bulk) {
+		String a = textField.getText();
+		String b = bulk;
+		if (regex.isSelected())
+			return Pattern.matches(a, b);
+		if (wholew.isSelected())
+			a = " " + a + " ";
+		if (!mcase.isSelected()) {
+			a = a.toLowerCase();
+			b = b.toLowerCase();
+		}
+		if (b.contains(a))
+			return true;
+		return false;
 	}
 
 	private void setHideOnEscapeButton() {
