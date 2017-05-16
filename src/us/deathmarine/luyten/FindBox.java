@@ -31,6 +31,7 @@ public class FindBox extends JDialog {
 	JCheckBox regex;
 	JCheckBox wholew;
 	JCheckBox reverse;
+	JCheckBox wrap;
 	private JButton findButton;
 	JTextField textField;
 	private MainWindow mainWindow;
@@ -61,7 +62,8 @@ public class FindBox extends JDialog {
 		regex = new JCheckBox("Regex");
 		wholew = new JCheckBox("Whole Words");
 		reverse = new JCheckBox("Search Backwards");
-
+		wrap = new JCheckBox("Wrap");
+		
 		findButton = new JButton("Find");
 		findButton.addActionListener(new FindButton());
 		this.getRootPane().setDefaultButton(findButton);
@@ -78,6 +80,7 @@ public class FindBox extends JDialog {
 		regex.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		wholew.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 		reverse.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		wrap.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		final Dimension center = new Dimension((int) (screenSize.width * 0.35),
@@ -96,7 +99,7 @@ public class FindBox extends JDialog {
 				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(textField)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(mcase)
-										.addComponent(wholew))
+										.addComponent(wholew).addComponent(wrap))
 						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)
 								.addComponent(reverse))))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton)));
@@ -110,7 +113,8 @@ public class FindBox extends JDialog {
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(mcase)
 										.addComponent(regex))
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(wholew)
-										.addComponent(reverse)))));
+										.addComponent(reverse))
+								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(wrap)))));
 
 		this.adjustWindowPositionBySavedState();
 		this.setSaveWindowPositionOnClosing();
@@ -140,8 +144,12 @@ public class FindBox extends JDialog {
 			context.setWholeWord(wholew.isSelected());
 
 			if (!SearchEngine.find(pane, context).wasFound()) {
-				pane.setSelectionStart(0);
-				pane.setSelectionEnd(0);
+				if(wrap.isSelected()){
+					pane.setSelectionStart(0);
+					pane.setSelectionEnd(0);
+				}else{
+					mainWindow.getLabel().setText("Search Complete");
+				}
 			}
 		}
 
@@ -207,8 +215,12 @@ public class FindBox extends JDialog {
 			context.setWholeWord(wholew.isSelected());
 
 			if (!SearchEngine.find(pane, context).wasFound()) {
-				pane.setSelectionStart(0);
-				pane.setSelectionEnd(0);
+				if(wrap.isSelected()){
+					pane.setSelectionStart(0);
+					pane.setSelectionEnd(0);
+				}else{
+					mainWindow.getLabel().setText("Search Complete");
+				}
 			}
 			
 		}
