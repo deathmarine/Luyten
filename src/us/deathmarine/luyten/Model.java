@@ -4,6 +4,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -27,9 +29,12 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -37,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -61,6 +67,8 @@ import com.strobel.core.VerifyArgument;
 import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
+
+import us.deathmarine.luyten.FindBox.FindExploreAction;
 
 /**
  * Jar-level model
@@ -146,6 +154,20 @@ public class Model extends JSplitPane {
 				}
 			}
 		});
+
+		KeyStroke sfuncF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.CTRL_DOWN_MASK, false);
+		mainWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(sfuncF4, "CloseTab");
+
+		mainWindow.getRootPane().getActionMap().put("CloseTab", new AbstractAction() {
+			private static final long serialVersionUID = -885398399200419492L;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				closeOpenTab(house.getSelectedIndex());
+			}
+
+		});
+		
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, 1));
 		panel.setBorder(BorderFactory.createTitledBorder("Code"));
@@ -639,7 +661,7 @@ public class Model extends JSplitPane {
 		if (open)
 			closeFile();
 		this.file = file;
-		
+
 		RecentFiles.add(file.getAbsolutePath());
 		mainWindow.mainMenuBar.updateRecentFiles();
 		loadTree();
@@ -925,6 +947,7 @@ public class Model extends JSplitPane {
 		RSyntaxTextArea currentTextArea = null;
 		try {
 			int pos = house.getSelectedIndex();
+			System.out.println(pos);
 			if (pos >= 0) {
 				RTextScrollPane co = (RTextScrollPane) house.getComponentAt(pos);
 				currentTextArea = (RSyntaxTextArea) co.getViewport().getView();
