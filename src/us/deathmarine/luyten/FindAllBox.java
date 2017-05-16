@@ -43,8 +43,10 @@ public class FindAllBox extends JDialog {
 	private JCheckBox mcase;
 	private JCheckBox regex;
 	private JCheckBox wholew;
+	private JCheckBox classname;
 	private JList<String> list;
 	private JProgressBar progressBar;
+	boolean locked;
 
 	private JLabel statusLabel = new JLabel("");
 
@@ -66,6 +68,7 @@ public class FindAllBox extends JDialog {
 		mcase = new JCheckBox("Match Case");
 		regex = new JCheckBox("Regex");
 		wholew = new JCheckBox("Whole Words");
+		classname = new JCheckBox("Classnames");
 
 		this.getRootPane().setDefaultButton(findButton);
 
@@ -133,7 +136,8 @@ public class FindAllBox extends JDialog {
 												.addGroup(layout.createParallelGroup(Alignment.LEADING)
 														.addComponent(mcase))
 										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(wholew))
-										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)))
+										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex))
+										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(classname)))
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(listScroller)
 								.addComponent(progressBar))))
@@ -146,7 +150,7 @@ public class FindAllBox extends JDialog {
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(label).addComponent(textField)
 						.addComponent(findButton))
 				.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(mcase).addComponent(wholew)
-						.addComponent(regex))
+						.addComponent(regex).addComponent(classname))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(listScroller))))
@@ -171,6 +175,7 @@ public class FindAllBox extends JDialog {
 							tmp_thread.interrupt();
 						setStatus("Stopped.");
 						findButton.setText("Find");
+						locked = false;
 					} else {
 						findButton.setText("Stop");
 						classesList.clear();
@@ -188,59 +193,66 @@ public class FindAllBox extends JDialog {
 								JarEntry entry = ent.nextElement();
 								String name = entry.getName();
 								setStatus(name);
-								System.out.println(entry.getName());
 								if (filter && name.contains("$"))
 									continue;
-								if (entry.getName().endsWith(".class")) {
-									synchronized (settings) {
-										String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-										TypeReference type = Model.metadataSystem.lookupType(internalName);
-										TypeDefinition resolvedType = null;
-										if (type == null || ((resolvedType = type.resolve()) == null)) {
-											throw new Exception("Unable to resolve type.");
+								if(locked || classname.isSelected()){
+									locked = true;
+									if(search(entry.getName()))
+										addClassName(entry.getName());
+								}else{
+									if (entry.getName().endsWith(".class")) {
+										synchronized (settings) {
+											String internalName = StringUtilities.removeRight(entry.getName(), ".class");
+											TypeReference type = Model.metadataSystem.lookupType(internalName);
+											TypeDefinition resolvedType = null;
+											if (type == null || ((resolvedType = type.resolve()) == null)) {
+												throw new Exception("Unable to resolve type.");
+											}
+											StringWriter stringwriter = new StringWriter();
+											DecompilationOptions decompilationOptions;
+											decompilationOptions = new DecompilationOptions();
+											decompilationOptions.setSettings(settings);
+											decompilationOptions.setFullDecompilation(true);
+											PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+											plainTextOutput.setUnicodeOutputEnabled(
+													decompilationOptions.getSettings().isUnicodeOutputEnabled());
+											settings.getLanguage().decompileType(resolvedType, plainTextOutput,
+													decompilationOptions);
+											if (search(stringwriter.toString()))
+												addClassName(entry.getName());
 										}
-										StringWriter stringwriter = new StringWriter();
-										DecompilationOptions decompilationOptions;
-										decompilationOptions = new DecompilationOptions();
-										decompilationOptions.setSettings(settings);
-										decompilationOptions.setFullDecompilation(true);
-										PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
-										plainTextOutput.setUnicodeOutputEnabled(
-												decompilationOptions.getSettings().isUnicodeOutputEnabled());
-										settings.getLanguage().decompileType(resolvedType, plainTextOutput,
-												decompilationOptions);
-										if (search(stringwriter.toString()))
+									} else {
+
+										StringBuilder sb = new StringBuilder();
+										long nonprintableCharactersCount = 0;
+										try (InputStreamReader inputStreamReader = new InputStreamReader(
+												jfile.getInputStream(entry));
+												BufferedReader reader = new BufferedReader(inputStreamReader);) {
+											String line;
+											while ((line = reader.readLine()) != null) {
+												sb.append(line).append("\n");
+
+												for (byte nextByte : line.getBytes()) {
+													if (nextByte <= 0) {
+														nonprintableCharactersCount++;
+													}
+												}
+
+											}
+										}
+										if (nonprintableCharactersCount < 5 && search(sb.toString()))
 											addClassName(entry.getName());
 									}
-								} else {
-
-									StringBuilder sb = new StringBuilder();
-									long nonprintableCharactersCount = 0;
-									try (InputStreamReader inputStreamReader = new InputStreamReader(
-											jfile.getInputStream(entry));
-											BufferedReader reader = new BufferedReader(inputStreamReader);) {
-										String line;
-										while ((line = reader.readLine()) != null) {
-											sb.append(line).append("\n");
-
-											for (byte nextByte : line.getBytes()) {
-												if (nextByte <= 0) {
-													nonprintableCharactersCount++;
-												}
-											}
-
-										}
-									}
-									if (nonprintableCharactersCount < 5 && search(sb.toString()))
-										addClassName(entry.getName());
 								}
 							}
 							setSearching(false);
 							if (findButton.getText().equals("Stop")) {
 								setStatus("Done.");
 								findButton.setText("Find");
+								locked = false;
 							}
 							jfile.close();
+							locked = false;
 						} catch (Exception e) {
 							Luyten.showExceptionDialog("Exception!", e);
 						}
