@@ -68,8 +68,6 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 
-import us.deathmarine.luyten.FindBox.FindExploreAction;
-
 /**
  * Jar-level model
  */
