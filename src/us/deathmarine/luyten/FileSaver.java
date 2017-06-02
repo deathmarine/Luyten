@@ -323,9 +323,9 @@ public class FileSaver {
 		long lap = System.currentTimeMillis() - time;
 		lap = lap / 1000;
 		StringBuilder sb = new StringBuilder();
-		int hour = (int) ((lap / 60) / 60);
-		int min = (int) ((lap - (hour * 60 * 60)) / 60);
-		int sec = (int) ((lap - (hour * 60 * 60) - (min * 60)) / 60);
+		long hour =  ((lap / 60) / 60);
+		long min = ((lap - (hour * 60 * 60)) / 60);
+		long sec = ((lap - (hour * 60 * 60) - (min * 60)));
 		if (hour > 0)
 			sb.append("Hour:").append(hour).append(" ");
 		sb.append("Min(s): ").append(min).append(" Sec: ").append(sec);
