@@ -33,9 +33,20 @@ import java.util.regex.Pattern;
 import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
 
+/**
+ * 
+ * this is the Find All Dialog
+ * <p>
+ * Change with 1.1
+ * Adjust the find all box width
+ * </p>
+ * 
+ * @author clevertension
+ * @version 1.1
+ */
 public class FindAllBox extends JDialog {
 	private static final long serialVersionUID = -4125409760166690462L;
-
+	private static final int MIN_WIDTH = 640;
 	private boolean searching;
 
 	private JButton findButton;
@@ -116,7 +127,11 @@ public class FindAllBox extends JDialog {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		final Dimension center = new Dimension((int) (screenSize.width * 0.35), 500);
+		int width = (int) (screenSize.width * 0.35);
+		if (width < MIN_WIDTH) {
+		    width = MIN_WIDTH;
+		}
+		final Dimension center = new Dimension(width, 500);
 		final int x = (int) (center.width * 0.2);
 		final int y = (int) (center.height * 0.2);
 		this.setBounds(x, y, center.width, center.height);
