@@ -4,7 +4,14 @@
 	<groupId>us.deathmarine</groupId>
 	<artifactId>luyten</artifactId>
 	<version>0.5.3</version>
+
+
 	<dependencies>
+		<dependency>
+			<groupId>com.github.MinnDevelopment</groupId>
+			<artifactId>java-discord-rpc</artifactId>
+			<version>v2.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
 			<artifactId>rsyntaxtextarea</artifactId>
@@ -15,7 +22,7 @@
 			<artifactId>AppleJavaExtensions</artifactId>
 			<version>LATEST</version>
 		</dependency>
-		<dependency> 
+		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-core</artifactId> 
 			<version>LATEST</version> 
@@ -52,7 +59,13 @@
 			<name>Central Repository</name>
 			<url>http://repo.maven.apache.org/maven2</url>
 		</repository>
+
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<finalName>${project.artifactId}-${project.version}-lib</finalName>

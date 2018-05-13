@@ -70,6 +70,8 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBox exitByEscEnabled;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
+	private JCheckBox
+			discordIntegration;
 
 	public MainMenuBar(MainWindow mainWnd) {
 		this.mainWindow = mainWnd;
@@ -378,6 +380,24 @@ public class MainMenuBar extends JMenuBar {
 
 	private void buildOperationMenu(JMenu operationMenu) {
 		operationMenu.removeAll();
+		discordIntegration = new JCheckBox("    Discord Integration");
+		discordIntegration.setSelected(luytenPrefs.isDiscordIntegrationEnabled());
+		discordIntegration.setContentAreaFilled(false);
+		discordIntegration.setFocusable(false);
+		discordIntegration.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setDiscordIntegration(discordIntegration.isSelected());
+
+				if (luytenPrefs.isDiscordIntegrationEnabled()) {
+					DiscordIntegration.init();
+				} else {
+					DiscordIntegration.stopRPC();
+				}
+			}
+		});
+		operationMenu.add(discordIntegration);
+
 		packageExplorerStyle = new JCheckBox("    Package Explorer Style");
 		packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
 		packageExplorerStyle.setContentAreaFilled(false);
