@@ -73,6 +73,9 @@ public class OpenFile implements SyntaxConstants {
 	RSyntaxTextArea textArea;
 	String name;
 	String path;
+	
+	private ConfigSaver configSaver;
+	private LuytenPreferences luytenPrefs;
 
 	// decompiler and type references (not needed for text files)
 	private MetadataSystem metadataSystem;
@@ -84,6 +87,10 @@ public class OpenFile implements SyntaxConstants {
 		this.name = name;
 		this.path = path;
 		this.mainWindow = mainWindow;
+
+		configSaver = ConfigSaver.getLoadedInstance();
+		luytenPrefs = configSaver.getLuytenPreferences();
+		
 		textArea = new RSyntaxTextArea(25, 70);
 		textArea.setCaretPosition(0);
 		textArea.requestFocusInWindow();
@@ -149,15 +156,19 @@ public class OpenFile implements SyntaxConstants {
 				fontChooser.setSelectedFont(textArea.getFont());
 				fontChooser.setSelectedFontSize(textArea.getFont().getSize());
 				int result = fontChooser.showDialog(mainWindow);
-				if (result == JFontChooser.OK_OPTION)
+				if (result == JFontChooser.OK_OPTION) {
 					textArea.setFont(fontChooser.getSelectedFont());
+					luytenPrefs.setFont_size(fontChooser.getSelectedFontSize());
+				}
 			}
 		});
 		pop.add(item);
 		textArea.setPopupMenu(pop);
-
+		
 		theme.apply(textArea);
 
+		textArea.setFont(new Font(textArea.getFont().getName(), textArea.getFont().getStyle(), luytenPrefs.getFont_size()));
+		
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		final JScrollBar verticalScrollbar = scrollPane.getVerticalScrollBar();
 		if (verticalScrollbar != null) {
@@ -225,6 +236,7 @@ public class OpenFile implements SyntaxConstants {
 					} else {
 						textArea.setFont(new Font(font.getName(), font.getStyle(), ++size));
 					}
+					luytenPrefs.setFont_size(size);
 				} else {
 					if (scrollPane.isWheelScrollingEnabled() && e.getWheelRotation() != 0) {
 						JScrollBar toScroll = scrollPane.getVerticalScrollBar();
@@ -373,6 +385,7 @@ public class OpenFile implements SyntaxConstants {
 						}
 					}
 				}
+
 				e.consume();
 			}
 		});
