@@ -54,19 +54,24 @@ public class FileSaver {
 		this.label = label;
 		final JPopupMenu menu = new JPopupMenu("Cancel");
 		final JMenuItem item = new JMenuItem("Cancel");
-		item.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				setCancel(true);
-			}
-		});
-		menu.add(item);
-		this.label.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent ev) {
-				if (SwingUtilities.isRightMouseButton(ev) && isExtracting())
-					menu.show(ev.getComponent(), ev.getX(), ev.getY());
-			}
-		});
+		
+		//Adjustments for CLI 
+		if(bar!=null && label!=null) {
+			item.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					setCancel(true);
+				}
+			});
+			menu.add(item);
+			this.label.addMouseListener(new MouseAdapter() {
+				public void mouseClicked(MouseEvent ev) {
+					if (SwingUtilities.isRightMouseButton(ev) && isExtracting())
+						menu.show(ev.getComponent(), ev.getX(), ev.getY());
+				}
+			});
+		}
+		
 	}
 
 	public void saveText(final String text, final File file) {
@@ -108,13 +113,7 @@ public class FileSaver {
 					System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 					String inFileName = inFile.getName().toLowerCase();
 
-					if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
-						doSaveJarDecompiled(inFile, outFile);
-					} else if (inFileName.endsWith(".class")) {
-						doSaveClassDecompiled(inFile, outFile);
-					} else {
-						doSaveUnknownFile(inFile, outFile);
-					}
+					performSaveOperation(inFileName,inFile,outFile);
 					if (cancel) {
 						label.setText("Cancelled");
 						outFile.delete();
@@ -132,14 +131,51 @@ public class FileSaver {
 			}
 		}).start();
 	}
+	
+	public void saveAllDecompiledCli(final File inFile, final File outFile) {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				long time = System.currentTimeMillis();
+				try {
 
+					System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
+					String inFileName = inFile.getName().toLowerCase();
+					performSaveOperation(inFileName,inFile,outFile);
+					if (cancel) {
+					
+					} else {
+						System.out.println("Completed: " + getTime(time));
+						System.exit(0);
+					}
+				} catch (Exception e1) {
+					System.out.println("Cannot save file: " + outFile.getName());
+					//Luyten.showExceptionDialog("Unable to save file!\n", e1);
+				} finally {
+					outFile.delete();
+				}
+			}
+		}).start();
+	}
+	private void performSaveOperation(String inFileName,File inFile,File outFile) throws Exception {
+		if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
+			doSaveJarDecompiled(inFile, outFile);
+		} else if (inFileName.endsWith(".class")) {
+			doSaveClassDecompiled(inFile, outFile);
+		} else {
+			doSaveUnknownFile(inFile, outFile);
+		}
+	}
 	private void doSaveJarDecompiled(File inFile, File outFile) throws Exception {
 		try (JarFile jfile = new JarFile(inFile);
 				FileOutputStream dest = new FileOutputStream(outFile);
 				BufferedOutputStream buffDest = new BufferedOutputStream(dest);
 				ZipOutputStream out = new ZipOutputStream(buffDest);) {
-			bar.setMinimum(0);
-			bar.setMaximum(jfile.size());
+			if(bar!=null) {
+				bar.setMinimum(0);
+				bar.setMaximum(jfile.size());	
+			}
+		
 			byte data[] = new byte[1024];
 			DecompilerSettings settings = cloneSettings();
 			LuytenTypeLoader typeLoader = new LuytenTypeLoader();
@@ -164,15 +200,22 @@ public class FileSaver {
 			Set<String> history = new HashSet<String>();
 			int tick = 0;
 			while (ent.hasMoreElements() && !cancel) {
+				if(bar!=null) {
 				bar.setValue(++tick);
+				}
 				JarEntry entry = ent.nextElement();
 				if (!mass.contains(entry.getName()))
 					continue;
+				if(bar!=null) {
 				label.setText("Extracting: " + entry.getName());
 				bar.setVisible(true);
+				}
 				if (entry.getName().endsWith(".class")) {
 					JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
-					label.setText("Extracting: " + etn.getName());
+					if(bar!=null) {
+						label.setText("Extracting: " + etn.getName());
+					}
+			
 					System.out.println("[SaveAll]: " + etn.getName() + " -> " + outFile.getName());
 
 					if (history.add(etn.getName())) {
@@ -192,8 +235,10 @@ public class FileSaver {
 							settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 							writer.flush();
 						} catch (Exception e) {
+							if(bar!=null) {
 							label.setText("Cannot decompile file: " + entry.getName());
 							Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...", e);
+							}
 						} finally {
 							out.closeEntry();
 						}
