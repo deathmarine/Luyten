@@ -6,7 +6,7 @@
 	<artifactId>luyten</artifactId>
 	<version>0.5.3</version>
 	<properties>
-		<spring.version>3.1.2.RELEASE</spring.version>
+		<procyon.version>0.5.32</procyon.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -22,22 +22,22 @@
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
 			<artifactId>procyon-core</artifactId>
-			<version>LATEST</version>
+			<version>${procyon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
 			<artifactId>procyon-expressions</artifactId>
-			<version>LATEST</version>
+			<version>${procyon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
 			<artifactId>procyon-reflection</artifactId>
-			<version>LATEST</version>
+			<version>${procyon.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
 			<artifactId>procyon-compilertools</artifactId>
-			<version>LATEST</version>
+			<version>${procyon.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.sourceforge.argparse4j/argparse4j -->
 		<dependency>
@@ -46,8 +46,6 @@
 			<version>0.8.1</version>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.bitbucket.mstrobel</groupId> <artifactId>procyon</artifactId> 
-			<version>0.5.27</version> </dependency> -->
 	</dependencies>
 	<repositories>
 		<repository>
