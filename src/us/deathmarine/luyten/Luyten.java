@@ -72,7 +72,7 @@ public class Luyten {
 		try {
 			res = parser.parseArgs(args);
 
-			String fileToOpen = res.getString("filea");
+			String fileToOpen = res.getString("file");
 
 			final File fileFromCommandLine = getFileFromCommandLine(fileToOpen);
 
