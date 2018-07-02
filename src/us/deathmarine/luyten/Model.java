@@ -153,7 +153,7 @@ public class Model extends JSplitPane {
 			}
 		});
 
-		KeyStroke sfuncF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.CTRL_DOWN_MASK, false);
+		KeyStroke sfuncF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, Keymap.ctrlDownModifier(), false);
 		mainWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(sfuncF4, "CloseTab");
 
 		mainWindow.getRootPane().getActionMap().put("CloseTab", new AbstractAction() {

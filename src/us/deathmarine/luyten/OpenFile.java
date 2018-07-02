@@ -188,7 +188,7 @@ public class OpenFile implements SyntaxConstants {
 		}
 
 		textArea.setHyperlinksEnabled(true);
-		textArea.setLinkScanningMask(InputEvent.CTRL_DOWN_MASK);
+		textArea.setLinkScanningMask(Keymap.ctrlDownModifier());
 
 		textArea.setLinkGenerator(new LinkGenerator() {
 			@Override
@@ -228,7 +228,7 @@ public class OpenFile implements SyntaxConstants {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
 
-				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+				if ((e.getModifiersEx() & Keymap.ctrlDownModifier()) != 0) {
 					Font font = textArea.getFont();
 					int size = font.getSize();
 					if (e.getWheelRotation() > 0) {
@@ -398,7 +398,7 @@ public class OpenFile implements SyntaxConstants {
 			public synchronized void mouseMoved(MouseEvent e) {
 				String linkText = null;
 				boolean isLinkLabel = false;
-				boolean isCtrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+				boolean isCtrlDown = (e.getModifiersEx() & Keymap.ctrlDownModifier()) != 0;
 				if (isCtrlDown) {
 					linkText = createLinkLabel(e);
 					isLinkLabel = linkText != null;
