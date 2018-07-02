@@ -227,6 +227,13 @@ public class OpenFile implements SyntaxConstants {
 		scrollPane.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
+				if (e.getWheelRotation() == 0) {
+					// Nothing to do here. This happens when scroll event is delivered from a touchbar
+					// or MagicMouse. There's getPreciseWheelRotation, however it looks like there's no
+					// trivial and consistent way to use that
+					// See https://github.com/JetBrains/intellij-community/blob/21c99af7c78fc82aefc4d05646389f4991b08b38/bin/idea.properties#L133-L156
+					return;
+				}
 
 				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
 					Font font = textArea.getFont();
