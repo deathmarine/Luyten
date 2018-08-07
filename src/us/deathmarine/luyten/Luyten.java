@@ -16,6 +16,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -33,6 +34,16 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.DefaultEditorKit;
 
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.helper.HelpScreenException;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.Argument;
+import net.sourceforge.argparse4j.inf.ArgumentAction;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
+import us.deathmarine.luyten.LuytenCLI.OpenAndExtractAction;
+
 /**
  * Starter, the main class
  */
@@ -49,23 +60,51 @@ public class Luyten {
 			e.printStackTrace();
 		}
 
-		// for TotalCommander External Viewer setting:
-		// javaw -jar "c:\Program Files\Luyten\luyten.jar"
-		// (TC will not complain about temporary file when opening .class from
-		// .zip or .jar)
-		final File fileFromCommandLine = getFileFromCommandLine(args);
+		ArgumentParser parser = ArgumentParsers.newFor("Luyten").build().defaultHelp(true).description("Java Decompiler")
+				.epilog("").version(getVersion());
+		parser.addArgument("-v", "--version").action(Arguments.version());
+		parser.addArgument("-f", "--file").help("File to open").action(Arguments.store());
+		OpenAndExtractAction openAndExtractAction = new OpenAndExtractAction();
+		parser.addArgument("-e", "--extract-as").help("Extract files to zip. (File-> Save as) Ex. foo-bar.zip").action(openAndExtractAction);
 
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
-					// Already set - so add the files to open
-					openFileInInstance(fileFromCommandLine);
+		Namespace res;
+		final int length = args.length;
+		try {
+			res = parser.parseArgs(args);
+
+			String fileToOpen = res.getString("file");
+
+			final File fileFromCommandLine = getFileFromCommandLine(fileToOpen);
+
+			// for TotalCommander External Viewer setting:
+			// javaw -jar "c:\Program Files\Luyten\luyten.jar"
+			// (TC will not complain about temporary file when opening .class from
+			// .zip or .jar)
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					//System.out.println(length);
+			
+					if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
+						// Already set - so add the files to open
+						openFileInInstance(fileFromCommandLine);
+					}
+					processPendingFiles();
+					//
+					mainWindowRef.get().setVisible(!(length>2));
+		
 				}
-				processPendingFiles();
-				mainWindowRef.get().setVisible(true);
-			}
-		});
+			});
+
+		} catch (ArgumentParserException e) {
+			parser.handleError(e);
+	
+			//
+			// System.exit(1);
+		} catch(Exception e) {
+			Luyten.showExceptionDialog("Exception!", e);
+		}
+
 	}
 
 	// Private function which processes all pending files - synchronized on the
@@ -114,6 +153,23 @@ public class Luyten {
 		return fileFromCommandLine;
 	}
 
+	public static File getFileFromCommandLine(String fileName) {
+		File fileFromCommandLine = null;
+		try {
+			if (fileName != null) {
+				File file = new File(fileName);
+				if (file != null) {
+					String realFileName = new File(fileName).getCanonicalPath();
+					fileFromCommandLine = new File(realFileName);
+				}
+
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fileFromCommandLine;
+	}
+
 	public static String getVersion() {
 		String result = "";
 		try {
@@ -133,8 +189,8 @@ public class Luyten {
 	}
 
 	/**
-	 * Method allows for users to copy the stacktrace for reporting any issues.
-	 * Add Cool Hyperlink Enhanced for mouse users.
+	 * Method allows for users to copy the stacktrace for reporting any issues. Add
+	 * Cool Hyperlink Enhanced for mouse users.
 	 * 
 	 * @param message
 	 * @param e
