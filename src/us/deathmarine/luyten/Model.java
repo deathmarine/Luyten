@@ -107,13 +107,13 @@ public class Model extends JSplitPane {
 
 		try {
 			String themeXml = luytenPrefs.getThemeXml();
-			theme = Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml));
+			setTheme(Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml)));
 		} catch (Exception e1) {
 			try {
 				Luyten.showExceptionDialog("Exception!", e1);
 				String themeXml = LuytenPreferences.DEFAULT_THEME_XML;
 				luytenPrefs.setThemeXml(themeXml);
-				theme = Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml));
+				setTheme(Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml)));
 			} catch (Exception e2) {
 				Luyten.showExceptionDialog("Exception!", e2);
 			}
@@ -185,7 +185,7 @@ public class Model extends JSplitPane {
 	}
 
 	public void show(String name, String contents) {
-		OpenFile open = new OpenFile(name, "*/" + name, theme, mainWindow);
+		OpenFile open = new OpenFile(name, "*/" + name, getTheme(), mainWindow);
 		open.setContent(contents);
 		hmap.add(open);
 		addOrSwitchToTab(open);
@@ -416,7 +416,7 @@ public class Model extends JSplitPane {
 			sameTitledOpen.decompile();
 			addOrSwitchToTab(sameTitledOpen);
 		} else {
-			OpenFile open = new OpenFile(tabTitle, path, theme, mainWindow);
+			OpenFile open = new OpenFile(tabTitle, path, getTheme(), mainWindow);
 			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
 			open.setType(resolvedType);
 			open.setInitialNavigationLink(navigatonLink);
@@ -477,7 +477,7 @@ public class Model extends JSplitPane {
 			sameTitledOpen.setContent(sb.toString());
 			addOrSwitchToTab(sameTitledOpen);
 		} else {
-			OpenFile open = new OpenFile(tabTitle, path, theme, mainWindow);
+			OpenFile open = new OpenFile(tabTitle, path, getTheme(), mainWindow);
 			open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
 			open.setContent(sb.toString());
 			hmap.add(open);
@@ -910,9 +910,9 @@ public class Model extends JSplitPane {
 		InputStream in = getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + xml);
 		try {
 			if (in != null) {
-				theme = Theme.load(in);
+				setTheme(Theme.load(in));
 				for (OpenFile f : hmap) {
-					theme.apply(f.textArea);
+					getTheme().apply(f.textArea);
 				}
 			}
 		} catch (Exception e1) {
@@ -986,7 +986,7 @@ public class Model extends JSplitPane {
 							.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
 					settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
 					String decompiledSource = stringwriter.toString();
-					OpenFile open = new OpenFile(internalName, "*/" + internalName, theme, mainWindow);
+					OpenFile open = new OpenFile(internalName, "*/" + internalName, getTheme(), mainWindow);
 					open.setContent(decompiledSource);
 					JTabbedPane pane = new JTabbedPane();
 					pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -1044,6 +1044,14 @@ public class Model extends JSplitPane {
 
 	public State getState() {
 		return state;
+	}
+
+	public Theme getTheme() {
+		return theme;
+	}
+
+	public void setTheme(Theme theme) {
+		this.theme = theme;
 	}
 
 }

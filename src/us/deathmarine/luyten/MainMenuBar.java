@@ -22,7 +22,7 @@ import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
-import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -49,25 +49,25 @@ public class MainMenuBar extends JMenuBar {
 
 	private JMenu recentFiles;
 	private JMenuItem clearRecentFiles;
-	private JCheckBox flattenSwitchBlocks;
-	private JCheckBox forceExplicitImports;
-	private JCheckBox forceExplicitTypes;
-	private JCheckBox showSyntheticMembers;
-	private JCheckBox excludeNestedTypes;
-	private JCheckBox retainRedundantCasts;
-	private JCheckBox unicodeReplacement;
-	private JCheckBox debugLineNumbers;
-	private JCheckBox showDebugInfo;
-	private JCheckBox bytecodeLineNumbers;
+	private JCheckBoxMenuItem flattenSwitchBlocks;
+	private JCheckBoxMenuItem forceExplicitImports;
+	private JCheckBoxMenuItem forceExplicitTypes;
+	private JCheckBoxMenuItem showSyntheticMembers;
+	private JCheckBoxMenuItem excludeNestedTypes;
+	private JCheckBoxMenuItem retainRedundantCasts;
+	private JCheckBoxMenuItem unicodeReplacement;
+	private JCheckBoxMenuItem debugLineNumbers;
+	private JCheckBoxMenuItem showDebugInfo;
+	private JCheckBoxMenuItem bytecodeLineNumbers;
 	private JRadioButtonMenuItem java;
 	private JRadioButtonMenuItem bytecode;
 	private JRadioButtonMenuItem bytecodeAST;
 	private ButtonGroup languagesGroup;
 	private ButtonGroup themesGroup;
-	private JCheckBox packageExplorerStyle;
-	private JCheckBox filterOutInnerClassEntries;
-	private JCheckBox singleClickOpenEnabled;
-	private JCheckBox exitByEscEnabled;
+	private JCheckBoxMenuItem packageExplorerStyle;
+	private JCheckBoxMenuItem filterOutInnerClassEntries;
+	private JCheckBoxMenuItem singleClickOpenEnabled;
+	private JCheckBoxMenuItem exitByEscEnabled;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
 	private JCheckBox
@@ -398,10 +398,8 @@ public class MainMenuBar extends JMenuBar {
 		});
 		operationMenu.add(discordIntegration);
 
-		packageExplorerStyle = new JCheckBox("    Package Explorer Style");
+		packageExplorerStyle = new JCheckBoxMenuItem("Package Explorer Style");
 		packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
-		packageExplorerStyle.setContentAreaFilled(false);
-		packageExplorerStyle.setFocusable(false);
 		packageExplorerStyle.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -411,10 +409,8 @@ public class MainMenuBar extends JMenuBar {
 		});
 		operationMenu.add(packageExplorerStyle);
 
-		filterOutInnerClassEntries = new JCheckBox("    Filter Out Inner Class Entries");
+		filterOutInnerClassEntries = new JCheckBoxMenuItem("Filter Out Inner Class Entries");
 		filterOutInnerClassEntries.setSelected(luytenPrefs.isFilterOutInnerClassEntries());
-		filterOutInnerClassEntries.setContentAreaFilled(false);
-		filterOutInnerClassEntries.setFocusable(false);
 		filterOutInnerClassEntries.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -424,10 +420,8 @@ public class MainMenuBar extends JMenuBar {
 		});
 		operationMenu.add(filterOutInnerClassEntries);
 
-		singleClickOpenEnabled = new JCheckBox("    Single Click Open");
+		singleClickOpenEnabled = new JCheckBoxMenuItem("Single Click Open");
 		singleClickOpenEnabled.setSelected(luytenPrefs.isSingleClickOpenEnabled());
-		singleClickOpenEnabled.setContentAreaFilled(false);
-		singleClickOpenEnabled.setFocusable(false);
 		singleClickOpenEnabled.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -436,10 +430,8 @@ public class MainMenuBar extends JMenuBar {
 		});
 		operationMenu.add(singleClickOpenEnabled);
 
-		exitByEscEnabled = new JCheckBox("    Exit By Esc");
+		exitByEscEnabled = new JCheckBoxMenuItem("Exit By Esc");
 		exitByEscEnabled.setSelected(luytenPrefs.isExitByEscEnabled());
-		exitByEscEnabled.setContentAreaFilled(false);
-		exitByEscEnabled.setFocusable(false);
 		exitByEscEnabled.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -463,67 +455,49 @@ public class MainMenuBar extends JMenuBar {
 				}.start();
 			}
 		};
-		flattenSwitchBlocks = new JCheckBox("    Flatten Switch Blocks");
+		flattenSwitchBlocks = new JCheckBoxMenuItem("Flatten Switch Blocks");
 		flattenSwitchBlocks.setSelected(settings.getFlattenSwitchBlocks());
-		flattenSwitchBlocks.setContentAreaFilled(false);
-		flattenSwitchBlocks.setFocusable(false);
 		flattenSwitchBlocks.addActionListener(settingsChanged);
 		settingsMenu.add(flattenSwitchBlocks);
 
-		forceExplicitImports = new JCheckBox("    Force Explicit Imports");
+		forceExplicitImports = new JCheckBoxMenuItem("Force Explicit Imports");
 		forceExplicitImports.setSelected(settings.getForceExplicitImports());
-		forceExplicitImports.setContentAreaFilled(false);
-		forceExplicitImports.setFocusable(false);
 		forceExplicitImports.addActionListener(settingsChanged);
 		settingsMenu.add(forceExplicitImports);
 
-		forceExplicitTypes = new JCheckBox("    Force Explicit Types");
+		forceExplicitTypes = new JCheckBoxMenuItem("Force Explicit Types");
 		forceExplicitTypes.setSelected(settings.getForceExplicitTypeArguments());
-		forceExplicitTypes.setContentAreaFilled(false);
-		forceExplicitTypes.setFocusable(false);
 		forceExplicitTypes.addActionListener(settingsChanged);
 		settingsMenu.add(forceExplicitTypes);
 
-		showSyntheticMembers = new JCheckBox("    Show Synthetic Members");
+		showSyntheticMembers = new JCheckBoxMenuItem("Show Synthetic Members");
 		showSyntheticMembers.setSelected(settings.getShowSyntheticMembers());
-		showSyntheticMembers.setContentAreaFilled(false);
-		showSyntheticMembers.setFocusable(false);
 		showSyntheticMembers.addActionListener(settingsChanged);
 		settingsMenu.add(showSyntheticMembers);
 
-		excludeNestedTypes = new JCheckBox("    Exclude Nested Types");
+		excludeNestedTypes = new JCheckBoxMenuItem("Exclude Nested Types");
 		excludeNestedTypes.setSelected(settings.getExcludeNestedTypes());
-		excludeNestedTypes.setContentAreaFilled(false);
-		excludeNestedTypes.setFocusable(false);
 		excludeNestedTypes.addActionListener(settingsChanged);
 		settingsMenu.add(excludeNestedTypes);
 
-		retainRedundantCasts = new JCheckBox("    Retain Redundant Casts");
+		retainRedundantCasts = new JCheckBoxMenuItem("Retain Redundant Casts");
 		retainRedundantCasts.setSelected(settings.getRetainRedundantCasts());
-		retainRedundantCasts.setContentAreaFilled(false);
-		retainRedundantCasts.setFocusable(false);
 		retainRedundantCasts.addActionListener(settingsChanged);
 		settingsMenu.add(retainRedundantCasts);
 
-		unicodeReplacement = new JCheckBox("    Enable Unicode Replacement");
+		unicodeReplacement = new JCheckBoxMenuItem("Enable Unicode Replacement");
 		unicodeReplacement.setSelected(settings.isUnicodeOutputEnabled());
-		unicodeReplacement.setContentAreaFilled(false);
-		unicodeReplacement.setFocusable(false);
 		unicodeReplacement.addActionListener(settingsChanged);
 		settingsMenu.add(unicodeReplacement);
 
-		debugLineNumbers = new JCheckBox("    Show Debug Line Numbers");
+		debugLineNumbers = new JCheckBoxMenuItem("Show Debug Line Numbers");
 		debugLineNumbers.setSelected(settings.getShowDebugLineNumbers());
-		debugLineNumbers.setContentAreaFilled(false);
-		debugLineNumbers.setFocusable(false);
 		debugLineNumbers.addActionListener(settingsChanged);
 		settingsMenu.add(debugLineNumbers);
 
 		JMenu debugSettingsMenu = new JMenu("Debug Settings");
-		showDebugInfo = new JCheckBox("    Include Error Diagnostics");
+		showDebugInfo = new JCheckBoxMenuItem("Include Error Diagnostics");
 		showDebugInfo.setSelected(settings.getIncludeErrorDiagnostics());
-		showDebugInfo.setContentAreaFilled(false);
-		showDebugInfo.setFocusable(false);
 		showDebugInfo.addActionListener(settingsChanged);
 
 		debugSettingsMenu.add(showDebugInfo);
@@ -565,10 +539,8 @@ public class MainMenuBar extends JMenuBar {
 		}
 		settingsMenu.add(debugLanguagesMenu);
 
-		bytecodeLineNumbers = new JCheckBox("    Show Line Numbers In Bytecode");
+		bytecodeLineNumbers = new JCheckBoxMenuItem("Show Line Numbers In Bytecode");
 		bytecodeLineNumbers.setSelected(settings.getIncludeLineNumbersInBytecode());
-		bytecodeLineNumbers.setContentAreaFilled(false);
-		bytecodeLineNumbers.setFocusable(false);
 		bytecodeLineNumbers.addActionListener(settingsChanged);
 		settingsMenu.add(bytecodeLineNumbers);
 	}
