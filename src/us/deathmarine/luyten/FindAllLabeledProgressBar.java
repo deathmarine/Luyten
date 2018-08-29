@@ -3,11 +3,11 @@ package us.deathmarine.luyten;
 import javax.swing.*;
 import java.io.Serializable;
 
-class ExtractedFindAllBox implements Serializable {
+class FindAllLabeledProgressBar implements Serializable {
     private JProgressBar progressBar;
     private JLabel statusLabel = new JLabel("");
 
-    ExtractedFindAllBox() {
+    FindAllLabeledProgressBar() {
     }
 
     JProgressBar getProgressBar() {
