@@ -9,7 +9,7 @@ import javax.swing.filechooser.FileFilter;
  * FileChoosers for Open and Save
  */
 public class FileDialog {
-    private final ExtractedFileDialog extractedFileDialog;
+    private final DirPreferences dirPreferences;
     private ConfigSaver configSaver;
     private Component parent;
 	private JFileChooser fcOpen;
@@ -20,7 +20,7 @@ public class FileDialog {
 		this.parent = parent;
 		configSaver = ConfigSaver.getLoadedInstance();
         LuytenPreferences luytenPrefs = configSaver.getLuytenPreferences();
-        extractedFileDialog = new ExtractedFileDialog(luytenPrefs);
+        dirPreferences = new DirPreferences(luytenPrefs);
 
         new Thread() {
 			public void run() {
@@ -41,9 +41,9 @@ public class FileDialog {
 		File selectedFile = null;
 		initOpenDialog();
 
-        extractedFileDialog.retrieveOpenDialogDir(fcOpen);
+        dirPreferences.retrieveOpenDialogDir(fcOpen);
 		int returnVal = fcOpen.showOpenDialog(parent);
-        extractedFileDialog.saveOpenDialogDir(fcOpen);
+        dirPreferences.saveOpenDialogDir(fcOpen);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcOpen.getSelectedFile();
@@ -55,10 +55,10 @@ public class FileDialog {
 		File selectedFile = null;
 		initSaveDialog();
 
-        extractedFileDialog.retrieveSaveDialogDir(fcSave);
+        dirPreferences.retrieveSaveDialogDir(fcSave);
 		fcSave.setSelectedFile(new File(recommendedFileName));
 		int returnVal = fcSave.showSaveDialog(parent);
-        extractedFileDialog.saveSaveDialogDir(fcSave);
+        dirPreferences.saveSaveDialogDir(fcSave);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcSave.getSelectedFile();
@@ -70,10 +70,10 @@ public class FileDialog {
 		File selectedFile = null;
 		initSaveAllDialog();
 
-        extractedFileDialog.retrieveSaveDialogDir(fcSaveAll);
+        dirPreferences.retrieveSaveDialogDir(fcSaveAll);
 		fcSaveAll.setSelectedFile(new File(recommendedFileName));
 		int returnVal = fcSaveAll.showSaveDialog(parent);
-        extractedFileDialog.saveSaveDialogDir(fcSaveAll);
+        dirPreferences.saveSaveDialogDir(fcSaveAll);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcSaveAll.getSelectedFile();
@@ -84,21 +84,21 @@ public class FileDialog {
 	public synchronized void initOpenDialog() {
 		if (fcOpen == null) {
 			fcOpen = createFileChooser("*.jar", "*.zip", "*.class");
-            extractedFileDialog.retrieveOpenDialogDir(fcOpen);
+            dirPreferences.retrieveOpenDialogDir(fcOpen);
 		}
 	}
 
 	public synchronized void initSaveDialog() {
 		if (fcSave == null) {
 			fcSave = createFileChooser("*.txt", "*.java");
-            extractedFileDialog.retrieveSaveDialogDir(fcSave);
+            dirPreferences.retrieveSaveDialogDir(fcSave);
 		}
 	}
 
 	public synchronized void initSaveAllDialog() {
 		if (fcSaveAll == null) {
 			fcSaveAll = createFileChooser("*.jar", "*.zip");
-            extractedFileDialog.retrieveSaveDialogDir(fcSaveAll);
+            dirPreferences.retrieveSaveDialogDir(fcSaveAll);
 		}
 	}
 

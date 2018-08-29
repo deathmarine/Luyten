@@ -3,10 +3,10 @@ package us.deathmarine.luyten;
 import javax.swing.*;
 import java.io.File;
 
-class ExtractedFileDialog {
+class DirPreferences {
     private LuytenPreferences luytenPrefs;
 
-    public ExtractedFileDialog(LuytenPreferences luytenPrefs) {
+    public DirPreferences(LuytenPreferences luytenPrefs) {
         this.luytenPrefs = luytenPrefs;
     }
 
