@@ -7,10 +7,6 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 
-import us.deathmarine.luyten.ConfigSaver;
-import us.deathmarine.luyten.MainWindow;
-import us.deathmarine.luyten.Model;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -47,7 +43,8 @@ import javax.swing.GroupLayout.Alignment;
 public class FindAllBox extends JDialog {
 	private static final long serialVersionUID = -4125409760166690462L;
 	private static final int MIN_WIDTH = 640;
-	private boolean searching;
+    private final ExtractedFindAllBox extractedFindAllBox = new ExtractedFindAllBox();
+    private boolean searching;
 
 	private JButton findButton;
 	private JTextField textField;
@@ -56,12 +53,9 @@ public class FindAllBox extends JDialog {
 	private JCheckBox wholew;
 	private JCheckBox classname;
 	private JList<String> list;
-	private JProgressBar progressBar;
-	boolean locked;
+    boolean locked;
 
-	private JLabel statusLabel = new JLabel("");
-
-	private DefaultListModel<String> classesList = new DefaultListModel<String>();
+    private DefaultListModel<String> classesList = new DefaultListModel<String>();
 
 	private Thread tmp_thread;
 
@@ -69,7 +63,7 @@ public class FindAllBox extends JDialog {
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setHideOnEscapeButton();
 
-		progressBar = new JProgressBar(0, 100);
+        extractedFindAllBox.setProgressBar(new JProgressBar(0, 100));
 
 		JLabel label = new JLabel("Find What:");
 		textField = new JTextField();
@@ -145,7 +139,7 @@ public class FindAllBox extends JDialog {
 		layout.setHorizontalGroup(
 				layout.createSequentialGroup().addComponent(label)
 						.addGroup(
-								layout.createParallelGroup(Alignment.LEADING).addComponent(statusLabel)
+								layout.createParallelGroup(Alignment.LEADING).addComponent(extractedFindAllBox.getStatusLabel())
 										.addComponent(textField)
 										.addGroup(layout.createSequentialGroup()
 												.addGroup(layout.createParallelGroup(Alignment.LEADING)
@@ -155,7 +149,7 @@ public class FindAllBox extends JDialog {
 										.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(classname)))
 				.addGroup(layout.createSequentialGroup()
 						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(listScroller)
-								.addComponent(progressBar))))
+								.addComponent(extractedFindAllBox.getProgressBar()))))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton))
 
 		);
@@ -169,8 +163,8 @@ public class FindAllBox extends JDialog {
 				.addGroup(layout.createParallelGroup(Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(listScroller))))
-				.addGroup(layout.createParallelGroup(Alignment.LEADING)).addComponent(statusLabel)
-				.addComponent(progressBar));
+				.addGroup(layout.createParallelGroup(Alignment.LEADING)).addComponent(extractedFindAllBox.getStatusLabel())
+				.addComponent(extractedFindAllBox.getProgressBar()));
 		this.adjustWindowPositionBySavedState();
 		this.setSaveWindowPositionOnClosing();
 
@@ -188,7 +182,7 @@ public class FindAllBox extends JDialog {
 					if (findButton.getText().equals("Stop")) {
 						if (tmp_thread != null)
 							tmp_thread.interrupt();
-						setStatus("Stopped.");
+                        extractedFindAllBox.setStatus("Stopped.");
 						findButton.setText("Find");
 						locked = false;
 					} else {
@@ -202,12 +196,12 @@ public class FindAllBox extends JDialog {
 						try {
 							JarFile jfile = new JarFile(inFile);
 							Enumeration<JarEntry> entLength = jfile.entries();
-							initProgressBar(Collections.list(entLength).size());
+                            extractedFindAllBox.initProgressBar(Collections.list(entLength).size());
 							Enumeration<JarEntry> ent = jfile.entries();
 							while (ent.hasMoreElements() && findButton.getText().equals("Stop")) {
 								JarEntry entry = ent.nextElement();
 								String name = entry.getName();
-								setStatus(name);
+                                extractedFindAllBox.setStatus(name);
 								if (filter && name.contains("$"))
 									continue;
 								if(locked || classname.isSelected()){
@@ -262,7 +256,7 @@ public class FindAllBox extends JDialog {
 							}
 							setSearching(false);
 							if (findButton.getText().equals("Stop")) {
-								setStatus("Done.");
+                                extractedFindAllBox.setStatus("Done.");
 								findButton.setText("Find");
 								locked = false;
 							}
@@ -340,24 +334,17 @@ public class FindAllBox extends JDialog {
 	}
 
 	public void setStatus(String text) {
-		if (text.length() > 25) {
-			this.statusLabel.setText("Searching in file: ..." + text.substring(text.length() - 25));
-		} else {
-			this.statusLabel.setText("Searching in file: " + text);
-		}
 
-		progressBar.setValue(progressBar.getValue() + 1);
-	}
+        extractedFindAllBox.setStatus(text);
+    }
 
 	public void addClassName(String className) {
 		this.classesList.addElement(className);
 	}
 
 	public void initProgressBar(Integer length) {
-		progressBar.setMaximum(length);
-		progressBar.setValue(0);
-		progressBar.setStringPainted(true);
-	}
+        extractedFindAllBox.initProgressBar(length);
+    }
 
 	public boolean isSearching() {
 		return searching;
