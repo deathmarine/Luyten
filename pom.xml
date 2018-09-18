@@ -42,6 +42,11 @@
 			<version>0.5.27</version>
 		</dependency>
 		-->
+		<dependency>
+			<groupId>org.apache.ant</groupId>
+			<artifactId>ant-compress</artifactId>
+			<version>LATEST</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -95,8 +100,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -166,8 +171,8 @@
 							</classPath>
 							<icon>luyten.ico</icon>
 							<jre>
-								<minVersion>1.7.0</minVersion>
-								<maxVersion>1.8.0</maxVersion>
+								<minVersion>1.8.0</minVersion>
+								<!--  <maxVersion>1.8.0</maxVersion> -->
 								<initialHeapSize>128</initialHeapSize>
 								<maxHeapSize>1024</maxHeapSize>
 							</jre>

@@ -20,6 +20,9 @@ public class LuytenPreferences {
 	private boolean isFilterOutInnerClassEntries = true;
 	private boolean isSingleClickOpenEnabled = true;
 	private boolean isExitByEscEnabled = false;
+	private boolean isFollowEmbeddedJarFile = true;
+	private boolean isPrepareWarFile = false;
+
 
 	public String getThemeXml() {
 		return themeXml;
@@ -77,6 +80,41 @@ public class LuytenPreferences {
 		this.isExitByEscEnabled = isExitByEscEnabled;
 	}
 
+	/*
+	 * Maybe this makes sense for WAR files only (located in WEB-INF/lib)
+	 * If opened input file is a JAR / ZIP or WAR file and the package contains a JAR file inside
+	 * control what happens with that embedded JAR file
+	 * should be unprocessed and displayed only or opened by accessing them
+	 * isFollowEmbeddedJarFile:
+	 * true  = by selecting the JAR file, it is opened as new input file
+	 * false = do not follow that embedded JAR file, just display in the tree as JAR file and notify user as binary resource file
+	 */
+	public boolean isFollowEmbeddedJarFile() {
+		return isFollowEmbeddedJarFile;
+	}
+
+	public void setFollowEmbeddedJarFile(boolean isFollowEmbeddedJarFile) {
+		this.isFollowEmbeddedJarFile = isFollowEmbeddedJarFile;
+	}
+
+	/*
+	 * For WAR files only: They contain embedded JAR files (located in WEB-INF/lib) which has to be decompiled as well
+	 * This is great to get an overall view to the source code and call hierarchy. Turn the blackbox into a whitebox ;-)
+	 * isPrepareWarFile:
+	 * true = unzip the WAR file and _all_ embedded JAR files with its package file name into temporary directory and create an overall ZIP file from this temporary directory
+	 *        At the end this new zip file is opened and will show _all_ CLASS Files at once
+	 * false  = do not pre-process the WAR file, just display embedded JAR files in the tree as JAR file - in this case maybe check the option isFollowEmbeddedJarFile to go into that JAR file
+	 */
+	public boolean isPrepareWarFile() {
+		return isPrepareWarFile;
+	}
+
+	public void setPrepareWarFile(boolean isPrepareWarFile) {
+		this.isPrepareWarFile = isPrepareWarFile;
+	}
+
+	
+	
 	public int getFont_size() {
 		return font_size;
 	}

@@ -89,7 +89,7 @@ public class MainWindow extends JFrame {
 
 		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
 			private static final long serialVersionUID = 2189946972124687305L;
-			private final int location = 400;
+			private final int location = 800;
 
 			{
 				setDividerLocation(location);
@@ -126,7 +126,8 @@ public class MainWindow extends JFrame {
 		this.setExitOnEscWhenEnabled(model);
 
 		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
-				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".war")) {
 			model.startWarmUpThread();
 		}
 		
@@ -171,6 +172,8 @@ public class MainWindow extends JFrame {
 			fileName = fileName.replace(".class", ".java");
 		} else if (fileName.toLowerCase().endsWith(".jar")) {
 			fileName = "decompiled-" + fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
+		} else if (fileName.toLowerCase().endsWith(".war")) {
+			fileName = "decompiled-war-" + fileName.replaceAll("\\.[wW][aA][rR]", ".zip");
 		} else {
 			fileName = "saved-" + fileName;
 		}
@@ -331,6 +334,8 @@ public class MainWindow extends JFrame {
 
 	private void adjustWindowPositionBySavedState() {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setMinimumSize(new Dimension(800, 600));
+
 		if (!windowPosition.isSavedWindowPositionValid()) {
 			final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
 			final int x = (int) (center.width * 0.2);
