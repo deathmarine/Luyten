@@ -34,6 +34,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+
 import com.strobel.Procyon;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
@@ -573,14 +575,14 @@ public class MainMenuBar extends JMenuBar {
 				link.addMouseListener(new LinkListener(procyon, link));
 				pane.add(link);
 				pane.add(new JLabel("Version: " + Procyon.version()));
-				pane.add(new JLabel("(c) 2016 Mike Strobel"));
+				pane.add(new JLabel("(c) 2018 Mike Strobel"));
 				String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
 				link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
 				link.setCursor(new Cursor(Cursor.HAND_CURSOR));
 				link.addMouseListener(new LinkListener(rsyntax, link));
 				pane.add(link);
-				pane.add(new JLabel("Version: 2.6.1"));
-				pane.add(new JLabel("(c) 2017 Robert Futrell"));
+				pane.add(new JLabel("Version: 3.0.2"));
+				pane.add(new JLabel("(c) 2019 Robert Futrell"));
 				pane.add(new JLabel(" "));
 				JOptionPane.showMessageDialog(null, pane);
 			}

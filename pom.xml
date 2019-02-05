@@ -3,37 +3,37 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>us.deathmarine</groupId>
 	<artifactId>luyten</artifactId>
-	<version>0.5.3</version>
+	<version>0.5.4</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
 			<artifactId>rsyntaxtextarea</artifactId>
-			<version>LATEST</version>
+			<version>3.0.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.apple</groupId>
 			<artifactId>AppleJavaExtensions</artifactId>
-			<version>LATEST</version>
+			<version>1.4</version>
 		</dependency>
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-core</artifactId> 
-			<version>LATEST</version> 
+			<version>0.5.33</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-expressions</artifactId> 
-			<version>LATEST</version> 
+			<version>0.5.33</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-reflection</artifactId> 
-			<version>LATEST</version> 
+			<version>0.5.33</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-compilertools</artifactId> 
-			<version>LATEST</version> 
+			<version>0.5.33</version> 
 		</dependency> 
 		<!--
 		<dependency>
