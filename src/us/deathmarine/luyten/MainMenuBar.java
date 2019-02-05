@@ -34,8 +34,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 
-import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
-
 import com.strobel.Procyon;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
