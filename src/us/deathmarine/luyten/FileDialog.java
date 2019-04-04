@@ -9,9 +9,9 @@ import javax.swing.filechooser.FileFilter;
  * FileChoosers for Open and Save
  */
 public class FileDialog {
-	private ConfigSaver configSaver;
-	private LuytenPreferences luytenPrefs;
-	private Component parent;
+    private final DirPreferences dirPreferences;
+    private ConfigSaver configSaver;
+    private Component parent;
 	private JFileChooser fcOpen;
 	private JFileChooser fcSave;
 	private JFileChooser fcSaveAll;
@@ -19,9 +19,10 @@ public class FileDialog {
 	public FileDialog(Component parent) {
 		this.parent = parent;
 		configSaver = ConfigSaver.getLoadedInstance();
-		luytenPrefs = configSaver.getLuytenPreferences();
+        LuytenPreferences luytenPrefs = configSaver.getLuytenPreferences();
+        dirPreferences = new DirPreferences(luytenPrefs);
 
-		new Thread() {
+        new Thread() {
 			public void run() {
 				try {
 					initOpenDialog();
@@ -40,9 +41,9 @@ public class FileDialog {
 		File selectedFile = null;
 		initOpenDialog();
 
-		retrieveOpenDialogDir(fcOpen);
+        dirPreferences.retrieveOpenDialogDir(fcOpen);
 		int returnVal = fcOpen.showOpenDialog(parent);
-		saveOpenDialogDir(fcOpen);
+        dirPreferences.saveOpenDialogDir(fcOpen);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcOpen.getSelectedFile();
@@ -54,10 +55,10 @@ public class FileDialog {
 		File selectedFile = null;
 		initSaveDialog();
 
-		retrieveSaveDialogDir(fcSave);
+        dirPreferences.retrieveSaveDialogDir(fcSave);
 		fcSave.setSelectedFile(new File(recommendedFileName));
 		int returnVal = fcSave.showSaveDialog(parent);
-		saveSaveDialogDir(fcSave);
+        dirPreferences.saveSaveDialogDir(fcSave);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcSave.getSelectedFile();
@@ -69,10 +70,10 @@ public class FileDialog {
 		File selectedFile = null;
 		initSaveAllDialog();
 
-		retrieveSaveDialogDir(fcSaveAll);
+        dirPreferences.retrieveSaveDialogDir(fcSaveAll);
 		fcSaveAll.setSelectedFile(new File(recommendedFileName));
 		int returnVal = fcSaveAll.showSaveDialog(parent);
-		saveSaveDialogDir(fcSaveAll);
+        dirPreferences.saveSaveDialogDir(fcSaveAll);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			selectedFile = fcSaveAll.getSelectedFile();
@@ -83,21 +84,21 @@ public class FileDialog {
 	public synchronized void initOpenDialog() {
 		if (fcOpen == null) {
 			fcOpen = createFileChooser("*.jar", "*.zip", "*.class");
-			retrieveOpenDialogDir(fcOpen);
+            dirPreferences.retrieveOpenDialogDir(fcOpen);
 		}
 	}
 
 	public synchronized void initSaveDialog() {
 		if (fcSave == null) {
 			fcSave = createFileChooser("*.txt", "*.java");
-			retrieveSaveDialogDir(fcSave);
+            dirPreferences.retrieveSaveDialogDir(fcSave);
 		}
 	}
 
 	public synchronized void initSaveAllDialog() {
 		if (fcSaveAll == null) {
 			fcSaveAll = createFileChooser("*.jar", "*.zip");
-			retrieveSaveDialogDir(fcSaveAll);
+            dirPreferences.retrieveSaveDialogDir(fcSaveAll);
 		}
 	}
 
@@ -131,53 +132,4 @@ public class FileDialog {
 		}
 	}
 
-	private void retrieveOpenDialogDir(JFileChooser fc) {
-		try {
-			String currentDirStr = luytenPrefs.getFileOpenCurrentDirectory();
-			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
-				File currentDir = new File(currentDirStr);
-				if (currentDir.exists() && currentDir.isDirectory()) {
-					fc.setCurrentDirectory(currentDir);
-				}
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
-
-	private void saveOpenDialogDir(JFileChooser fc) {
-		try {
-			File currentDir = fc.getCurrentDirectory();
-			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
-				luytenPrefs.setFileOpenCurrentDirectory(currentDir.getAbsolutePath());
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
-
-	private void retrieveSaveDialogDir(JFileChooser fc) {
-		try {
-			String currentDirStr = luytenPrefs.getFileSaveCurrentDirectory();
-			if (currentDirStr != null && currentDirStr.trim().length() > 0) {
-				File currentDir = new File(currentDirStr);
-				if (currentDir.exists() && currentDir.isDirectory()) {
-					fc.setCurrentDirectory(currentDir);
-				}
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
-
-	private void saveSaveDialogDir(JFileChooser fc) {
-		try {
-			File currentDir = fc.getCurrentDirectory();
-			if (currentDir != null && currentDir.exists() && currentDir.isDirectory()) {
-				luytenPrefs.setFileSaveCurrentDirectory(currentDir.getAbsolutePath());
-			}
-		} catch (Exception e) {
-			Luyten.showExceptionDialog("Exception!", e);
-		}
-	}
 }
