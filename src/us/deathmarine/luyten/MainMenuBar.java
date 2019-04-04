@@ -68,6 +68,8 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBoxMenuItem filterOutInnerClassEntries;
 	private JCheckBoxMenuItem singleClickOpenEnabled;
 	private JCheckBoxMenuItem exitByEscEnabled;
+	private JCheckBoxMenuItem followEmbeddedJarFile;
+	private JCheckBoxMenuItem prepareWarFile;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
 	private JCheckBox
@@ -439,6 +441,27 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		operationMenu.add(exitByEscEnabled);
+		
+		followEmbeddedJarFile = new JCheckBoxMenuItem("Follow Embedded Jar File");
+		followEmbeddedJarFile.setSelected(luytenPrefs.isFollowEmbeddedJarFile());
+		followEmbeddedJarFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setFollowEmbeddedJarFile(followEmbeddedJarFile.isSelected());
+			}
+		});
+		operationMenu.add(followEmbeddedJarFile);
+		
+		prepareWarFile = new JCheckBoxMenuItem("Prepare WAR File (extract all CLASSES from embedded JAR files)");
+		prepareWarFile.setSelected(luytenPrefs.isPrepareWarFile());
+		prepareWarFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setPrepareWarFile(prepareWarFile.isSelected());
+			}
+		});
+		operationMenu.add(prepareWarFile);
+		
 	}
 
 	private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {
