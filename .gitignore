@@ -5,3 +5,7 @@
 /target
 /lib
 /resources
+
+\.idea/
+
+*.iml

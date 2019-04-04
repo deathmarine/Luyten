@@ -1,92 +1,90 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>us.deathmarine</groupId>
-	<artifactId>luyten</artifactId>
-	<version>0.5.4</version>
-	<dependencies>
-		<dependency>
-			<groupId>com.github.MinnDevelopment</groupId>
-			<artifactId>java-discord-rpc</artifactId>
-			<version>v2.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.fifesoft</groupId>
-			<artifactId>rsyntaxtextarea</artifactId>
-			<version>3.0.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.apple</groupId>
-			<artifactId>AppleJavaExtensions</artifactId>
-			<version>1.4</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-core</artifactId> 
-			<version>0.5.33</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-expressions</artifactId> 
-			<version>0.5.33</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-reflection</artifactId> 
-			<version>0.5.33</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-compilertools</artifactId> 
-			<version>0.5.33</version> 
-		</dependency> 
-		<!--
-		<dependency>
-			<groupId>org.bitbucket.mstrobel</groupId>
-			<artifactId>procyon</artifactId>
-			<version>0.5.27</version>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.apache.ant</groupId>
-			<artifactId>ant-compress</artifactId>
-			<version>LATEST</version>
-		</dependency>
-	</dependencies>
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>central</id>
-			<name>Central Repository</name>
-			<url>http://repo.maven.apache.org/maven2</url>
-		</repository>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>us.deathmarine</groupId>
+    <artifactId>luyten</artifactId>
+    <version>0.5.4</version>
 
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+    <properties>
+        <procyon.version>0.5.35</procyon.version>
+    </properties>
 
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<finalName>${project.artifactId}-${project.version}-lib</finalName>
-		<resources>
-			<resource>
-				<directory>src</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-			<resource>
-				<directory>target</directory>
-				<excludes>
-					<exclude>**/*.*</exclude>
-				</excludes>
-			</resource>
-		</resources>
-		<plugins><!--
+    <dependencies>
+        <dependency>
+            <groupId>com.github.MinnDevelopment</groupId>
+            <artifactId>java-discord-rpc</artifactId>
+            <version>v2.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.apple</groupId>
+            <artifactId>AppleJavaExtensions</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.mstrobel</groupId>
+            <artifactId>procyon-core</artifactId>
+            <version>${procyon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.mstrobel</groupId>
+            <artifactId>procyon-expressions</artifactId>
+            <version>${procyon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.mstrobel</groupId>
+            <artifactId>procyon-reflection</artifactId>
+            <version>${procyon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bitbucket.mstrobel</groupId>
+            <artifactId>procyon-compilertools</artifactId>
+            <version>${procyon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-compress</artifactId>
+            <version>LATEST</version>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+        </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <finalName>${project.artifactId}-${project.version}-lib</finalName>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>target</directory>
+                <excludes>
+                    <exclude>**/*.*</exclude>
+                </excludes>
+            </resource>
+        </resources>
+        <plugins><!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
@@ -107,101 +105,102 @@
 					</execution>
 				</executions>
 			</plugin>-->
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-		      <groupId>org.apache.maven.plugins</groupId>
-		      <artifactId>maven-shade-plugin</artifactId>
-		      <version>2.4.2</version>
-		      <executions>
-		        <execution>
-		          <phase>package</phase>
-		          <goals>
-		            <goal>shade</goal>
-		          </goals>
-		           <configuration>
-		           <finalName>${project.artifactId}-${project.version}</finalName>
-		             <transformers>
-		               <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-		                 <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
-		               </transformer>
-		             </transformers>
-		           </configuration>
-		        </execution>
-		      </executions>
-		    </plugin>
-		    <!-- Replaced by maven-shade for Uber-jar
-		    <plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-					<finalName>${project.artifactId}</finalName>
-					<archive>
-						<manifest>
-							<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin> 
-			-->
-			<plugin>
-         		<groupId>com.akathist.maven.plugins.launch4j</groupId>
-        	    <artifactId>launch4j-maven-plugin</artifactId>
-				<version>1.7.4</version>
-				<executions>
-					<execution>
-						<id>l4j-gui</id>
-						<phase>package</phase>
-						<goals>
-							<goal>launch4j</goal>
-						</goals>
-						<configuration>
-							<headerType>gui</headerType>
-							<outfile>target/${project.artifactId}-${project.version}.exe</outfile>
-							<jar>target/${project.artifactId}-${project.version}.jar</jar>
-							<errTitle>App Err</errTitle>
-							<classPath>
-								<mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
-							</classPath>
-							<icon>luyten.ico</icon>
-							<jre>
-								<minVersion>1.8.0</minVersion>
-								<!--  <maxVersion>1.8.0</maxVersion> -->
-								<initialHeapSize>128</initialHeapSize>
-								<maxHeapSize>1024</maxHeapSize>
-							</jre>
-							<versionInfo>
-								<fileVersion>0.${project.version}</fileVersion>
-								<txtFileVersion>0.${project.version}</txtFileVersion>
-								<fileDescription>Java Decompiler</fileDescription>
-								<copyright>2015</copyright>
-								<productVersion>0.${project.version}</productVersion>
-								<txtProductVersion>0.${project.version}</txtProductVersion>
-								<productName>${project.artifactId}</productName>
-								<internalName>${project.artifactId}</internalName>
-								<originalFilename>${project.artifactId}-${project.version}.exe</originalFilename>
-							</versionInfo>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.2</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Replaced by maven-shade for Uber-jar
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptors>
+                        <descriptor>assembly.xml</descriptor>
+                    </descriptors>
+                    <finalName>${project.artifactId}</finalName>
+                    <archive>
+                        <manifest>
+                            <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>com.akathist.maven.plugins.launch4j</groupId>
+                <artifactId>launch4j-maven-plugin</artifactId>
+                <version>1.7.4</version>
+                <executions>
+                    <execution>
+                        <id>l4j-gui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>launch4j</goal>
+                        </goals>
+                        <configuration>
+                            <headerType>gui</headerType>
+                            <outfile>target/${project.artifactId}-${project.version}.exe</outfile>
+                            <jar>target/${project.artifactId}-${project.version}.jar</jar>
+                            <errTitle>App Err</errTitle>
+                            <classPath>
+                                <mainClass>${project.groupId}.${project.artifactId}.Luyten</mainClass>
+                            </classPath>
+                            <icon>luyten.ico</icon>
+                            <jre>
+                                <minVersion>1.8.0</minVersion>
+                                <!--  <maxVersion>1.8.0</maxVersion> -->
+                                <initialHeapSize>128</initialHeapSize>
+                                <maxHeapSize>1024</maxHeapSize>
+                            </jre>
+                            <versionInfo>
+                                <fileVersion>0.${project.version}</fileVersion>
+                                <txtFileVersion>0.${project.version}</txtFileVersion>
+                                <fileDescription>Java Decompiler</fileDescription>
+                                <copyright>2015</copyright>
+                                <productVersion>0.${project.version}</productVersion>
+                                <txtProductVersion>0.${project.version}</txtProductVersion>
+                                <productName>${project.artifactId}</productName>
+                                <internalName>${project.artifactId}</internalName>
+                                <originalFilename>${project.artifactId}-${project.version}.exe</originalFilename>
+                            </versionInfo>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <!-- Download universalJavaApplicationStub for use in the OS X app -->
                 <groupId>com.googlecode.maven-download-plugin</groupId>
@@ -214,121 +213,125 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>https://raw.githubusercontent.com/tofi86/universalJavaApplicationStub/master/src/universalJavaApplicationStub</url>
+                            <url>
+                                https://raw.githubusercontent.com/tofi86/universalJavaApplicationStub/master/src/universalJavaApplicationStub
+                            </url>
                             <outputDirectory>${project.build.directory}/resources</outputDirectory>
                             <!-- Needs to be named with ".sh" extension or OS X 10.11 gets confused -->
                             <outputFileName>universalJavaApplicationStub.sh</outputFileName>
                         </configuration>
                     </execution>
-                </executions>                
+                </executions>
             </plugin>
-			<plugin>
+            <plugin>
                 <!-- Package the jar as an OS X application -->
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<id>jarbundler-gui</id>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<target>
-								<taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" />
-								<chmod file="${project.build.directory}/resources/universalJavaApplicationStub.sh" perm="+x" />
-								<jarbundler dir="${project.build.directory}" name="Luyten" shortname="Luyten" signature="Luyten"
-											jars="${project.build.directory}/${project.artifactId}-${project.version}.jar"
-											stubfile="${project.build.directory}/resources/universalJavaApplicationStub.sh"
-											useJavaXKey="true" workingdirectory="$JAVAROOT"
-											bundleid="${project.groupId}.${project.artifactId}"
-											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
-											version="${project.version}" copyright="2015"
-											icon="${project.build.sourceDirectory}/resources/luyten.icns"
-											jvmversion="1.7+" screenmenu="true" 
-											antialiasedgraphics="true" highresolutioncapable="true" >
-									<documenttype name="Class File" extensions="class" role="Viewer" />
-									<documenttype name="Java File" extensions="java" role="Viewer" />
-									<documenttype name="Jar File" extensions="jar" role="Viewer" />
-									<documenttype name="War File" extensions="war" role="Viewer" />
-									<documenttype name="Ear File" extensions="ear" role="Viewer" />
-									<documenttype name="Zip File" extensions="zip" role="Viewer" />
-								</jarbundler>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>jarbundler-gui</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler"/>
+                                <chmod file="${project.build.directory}/resources/universalJavaApplicationStub.sh"
+                                       perm="+x"/>
+                                <jarbundler dir="${project.build.directory}" name="Luyten" shortname="Luyten"
+                                            signature="Luyten"
+                                            jars="${project.build.directory}/${project.artifactId}-${project.version}.jar"
+                                            stubfile="${project.build.directory}/resources/universalJavaApplicationStub.sh"
+                                            useJavaXKey="true" workingdirectory="$JAVAROOT"
+                                            bundleid="${project.groupId}.${project.artifactId}"
+                                            mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
+                                            version="${project.version}" copyright="2015"
+                                            icon="${project.build.sourceDirectory}/resources/luyten.icns"
+                                            jvmversion="1.7+" screenmenu="true"
+                                            antialiasedgraphics="true" highresolutioncapable="true">
+                                    <documenttype name="Class File" extensions="class" role="Viewer"/>
+                                    <documenttype name="Java File" extensions="java" role="Viewer"/>
+                                    <documenttype name="Jar File" extensions="jar" role="Viewer"/>
+                                    <documenttype name="War File" extensions="war" role="Viewer"/>
+                                    <documenttype name="Ear File" extensions="ear" role="Viewer"/>
+                                    <documenttype name="Zip File" extensions="zip" role="Viewer"/>
+                                </jarbundler>
                                 <!-- Produce a zip file of the application for distribution -->
                                 <zip destfile="${project.build.directory}/${project.artifactId}-OSX-${project.version}.zip">
-                                     <zipfileset dir="${project.build.directory}" 
-                                                 includes="Luyten.app/**" excludes="Luyten.app/Contents/MacOS/*" />
-                                     <zipfileset dir="${project.build.directory}" 
-                                                 includes="Luyten.app/Contents/MacOS/*" filemode="755" />
+                                    <zipfileset dir="${project.build.directory}"
+                                                includes="Luyten.app/**" excludes="Luyten.app/Contents/MacOS/*"/>
+                                    <zipfileset dir="${project.build.directory}"
+                                                includes="Luyten.app/Contents/MacOS/*" filemode="755"/>
                                 </zip>
-							</target>									
-						</configuration>
-					</execution>
-				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>com.ultramixer.jarbundler</groupId>
-						<artifactId>jarbundler-core</artifactId>
-						<version>3.3.0</version>
-					</dependency>
-				</dependencies>
-			</plugin>
-		</plugins>
-		
-		<pluginManagement>
-			<plugins>
-				<!--This plugin does nothing in maven, it is only to appease Eclipse and remove red squigglys.-->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-install-plugin
-										</artifactId>
-										<versionRange>
-											[2.4,)
-										</versionRange>
-										<goals>
-											<goal>install-file</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											com.googlecode.maven-download-plugin
-										</groupId>
-										<artifactId>
-											download-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.3.0,)
-										</versionRange>
-										<goals>
-											<goal>wget</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-		
-	</build>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.ultramixer.jarbundler</groupId>
+                        <artifactId>jarbundler-core</artifactId>
+                        <version>3.3.0</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <!--This plugin does nothing in maven, it is only to appease Eclipse and remove red squigglys.-->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            org.apache.maven.plugins
+                                        </groupId>
+                                        <artifactId>
+                                            maven-install-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [2.4,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>install-file</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>
+                                            com.googlecode.maven-download-plugin
+                                        </groupId>
+                                        <artifactId>
+                                            download-maven-plugin
+                                        </artifactId>
+                                        <versionRange>
+                                            [1.3.0,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>wget</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore/>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
 </project>
