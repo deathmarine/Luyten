@@ -1,12 +1,12 @@
 package us.deathmarine.luyten;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.prefs.Preferences;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
 import com.strobel.decompiler.languages.Languages;
 import com.strobel.decompiler.languages.java.JavaFormattingOptions;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.prefs.Preferences;
 
 public class ConfigSaver {
 
@@ -91,6 +91,7 @@ public class ConfigSaver {
 			mainWindowPosition = loadWindowPosition(prefs, MAIN_WINDOW_ID_PREFIX);
 			findWindowPosition = loadWindowPosition(prefs, FIND_WINDOW_ID_PREFIX);
 			luytenPreferences = loadLuytenPreferences(prefs);
+
 		} catch (Exception e) {
 			Luyten.showExceptionDialog("Exception!", e);
 		}
@@ -109,6 +110,7 @@ public class ConfigSaver {
 	// load preferences by their java variable names
 	private LuytenPreferences loadLuytenPreferences(Preferences prefs) throws Exception {
 		LuytenPreferences newLuytenPrefs = new LuytenPreferences();
+
 		for (Field field : LuytenPreferences.class.getDeclaredFields()) {
 			if (Modifier.isStatic(field.getModifiers()))
 				continue;

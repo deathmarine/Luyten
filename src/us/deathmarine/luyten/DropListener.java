@@ -60,7 +60,7 @@ public class DropListener implements DropTargetListener {
 						String line = null;
 						while ((line = br.readLine()) != null) {
 							try {
-								if (new String("" + (char) 0).equals(line))
+								if (("" + (char) 0).equals(line))
 									continue;
 								File file = new File(new URI(line));
 								list.add(file);

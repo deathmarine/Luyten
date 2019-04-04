@@ -32,10 +32,7 @@ public class Selection implements Comparable<Selection> {
 			return false;
 		Selection other = (Selection) obj;
 		if (from == null) {
-			if (other.from != null)
-				return false;
-		} else if (!from.equals(other.from))
-			return false;
-		return true;
+			return other.from == null;
+		} else return from.equals(other.from);
 	}
 }

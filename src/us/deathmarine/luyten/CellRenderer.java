@@ -2,7 +2,6 @@ package us.deathmarine.luyten;
 
 import java.awt.Component;
 import java.awt.Toolkit;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
@@ -26,10 +25,10 @@ public class CellRenderer extends DefaultTreeCellRenderer {
 		this.file_image = new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/file.png")));
 	}
-	
+
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf,
-			int row, boolean hasFocus) {
+												  int row, boolean hasFocus) {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
 		if (node.getChildCount() > 0) {

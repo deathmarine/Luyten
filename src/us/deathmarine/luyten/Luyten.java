@@ -14,10 +14,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -38,7 +37,7 @@ import javax.swing.text.DefaultEditorKit;
  */
 public class Luyten {
 
-	private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
+	public static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
 	private static final List<File> pendingFiles = new ArrayList<>();
 
 	public static void main(String[] args) {
@@ -48,6 +47,7 @@ public class Luyten {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 
 		// for TotalCommander External Viewer setting:
 		// javaw -jar "c:\Program Files\Luyten\luyten.jar"
@@ -64,6 +64,9 @@ public class Luyten {
 				}
 				processPendingFiles();
 				mainWindowRef.get().setVisible(true);
+
+				DiscordIntegration.init();
+				DiscordIntegration.updateRPC(null, null);
 			}
 		});
 	}
@@ -96,6 +99,8 @@ public class Luyten {
 	// Function which exits the application if it's running
 	public static void quitInstance() {
 		final MainWindow mainWindow = mainWindowRef.get();
+		DiscordIntegration.stopRPC();
+
 		if (mainWindow != null) {
 			mainWindow.onExitMenu();
 		}
@@ -135,7 +140,7 @@ public class Luyten {
 	/**
 	 * Method allows for users to copy the stacktrace for reporting any issues.
 	 * Add Cool Hyperlink Enhanced for mouse users.
-	 * 
+	 *
 	 * @param message
 	 * @param e
 	 */

@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Vector;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -29,7 +28,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 /**
@@ -47,7 +45,7 @@ public class MainWindow extends JFrame {
 	private FindAllBox findAllBox;
 	private ConfigSaver configSaver;
 	private WindowPosition windowPosition;
-	private LuytenPreferences luytenPrefs;
+	LuytenPreferences luytenPrefs;
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
 	public MainMenuBar mainMenuBar;
@@ -56,7 +54,8 @@ public class MainWindow extends JFrame {
 		configSaver = ConfigSaver.getLoadedInstance();
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
-		
+
+
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
@@ -89,7 +88,7 @@ public class MainWindow extends JFrame {
 
 		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
 			private static final long serialVersionUID = 2189946972124687305L;
-			private final int location = 400;
+			private final int location = 800;
 
 			{
 				setDividerLocation(location);
@@ -126,18 +125,19 @@ public class MainWindow extends JFrame {
 		this.setExitOnEscWhenEnabled(model);
 
 		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
-				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".war")) {
 			model.startWarmUpThread();
 		}
-		
-		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
+
+		if (RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
 	}
 
 	public void onOpenFileMenu() {
 		File selectedFile = fileDialog.doOpenDialog();
 		if (selectedFile != null) {
 			System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
-			
+
 			this.getModel().loadFile(selectedFile);
 		}
 	}
@@ -171,6 +171,8 @@ public class MainWindow extends JFrame {
 			fileName = fileName.replace(".class", ".java");
 		} else if (fileName.toLowerCase().endsWith(".jar")) {
 			fileName = "decompiled-" + fileName.replaceAll("\\.[jJ][aA][rR]", ".zip");
+		} else if (fileName.toLowerCase().endsWith(".war")) {
+			fileName = "decompiled-war-" + fileName.replaceAll("\\.[wW][aA][rR]", ".zip");
 		} else {
 			fileName = "saved-" + fileName;
 		}
@@ -246,7 +248,7 @@ public class MainWindow extends JFrame {
 			bar.setIndeterminate(true);
 			while (myCL != null) {
 				sb.append("ClassLoader: " + myCL + "\n");
-				for (Iterator<?> iter = list(myCL); iter.hasNext();) {
+				for (Iterator<?> iter = list(myCL); iter.hasNext(); ) {
 					sb.append("\t" + iter.next() + "\n");
 				}
 				myCL = myCL.getParent();
@@ -331,6 +333,8 @@ public class MainWindow extends JFrame {
 
 	private void adjustWindowPositionBySavedState() {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setMinimumSize(new Dimension(800, 600));
+
 		if (!windowPosition.isSavedWindowPositionValid()) {
 			final Dimension center = new Dimension((int) (screenSize.width * 0.75), (int) (screenSize.height * 0.75));
 			final int x = (int) (center.width * 0.2);
@@ -396,6 +400,7 @@ public class MainWindow extends JFrame {
 	}
 
 	private void quit() {
+		DiscordIntegration.stopRPC();
 		try {
 			windowPosition.readPositionFromWindow(this);
 			configSaver.saveConfig();

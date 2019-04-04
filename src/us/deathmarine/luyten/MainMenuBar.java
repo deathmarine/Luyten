@@ -1,5 +1,9 @@
 package us.deathmarine.luyten;
 
+import com.strobel.Procyon;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.languages.Language;
+import com.strobel.decompiler.languages.Languages;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
@@ -16,7 +20,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
-
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -33,11 +36,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
-
-import com.strobel.Procyon;
-import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.languages.Language;
-import com.strobel.decompiler.languages.Languages;
 
 /**
  * Main menu (only MainWindow should be called from here)
@@ -68,8 +66,11 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBoxMenuItem filterOutInnerClassEntries;
 	private JCheckBoxMenuItem singleClickOpenEnabled;
 	private JCheckBoxMenuItem exitByEscEnabled;
+	private JCheckBoxMenuItem followEmbeddedJarFile;
+	private JCheckBoxMenuItem prepareWarFile;
 	private DecompilerSettings settings;
 	private LuytenPreferences luytenPrefs;
+	private JCheckBoxMenuItem discordIntegration;
 
 	public MainMenuBar(MainWindow mainWnd) {
 		this.mainWindow = mainWnd;
@@ -118,7 +119,7 @@ public class MainMenuBar extends JMenuBar {
 
 					buildHelpMenu(helpMenu);
 					refreshMenuPopup(helpMenu);
-					
+
 					updateRecentFiles();
 				} catch (Exception e) {
 					Luyten.showExceptionDialog("Exception!", e);
@@ -149,20 +150,20 @@ public class MainMenuBar extends JMenuBar {
 			recentFiles.setEnabled(true);
 			clearRecentFiles.setEnabled(true);
 		}
-		
+
 		recentFiles.removeAll();
 		ListIterator<String> li = RecentFiles.paths.listIterator(RecentFiles.paths.size());
 		boolean rfSaveNeeded = false;
-		
+
 		while (li.hasPrevious()) {
 			String path = li.previous();
 			final File file = new File(path);
-			
+
 			if (!file.exists()) {
 				rfSaveNeeded = true;
 				continue;
 			}
-			
+
 			JMenuItem menuItem = new JMenuItem(path);
 			menuItem.addActionListener(new ActionListener() {
 				@Override
@@ -172,10 +173,10 @@ public class MainMenuBar extends JMenuBar {
 			});
 			recentFiles.add(menuItem);
 		}
-		
+
 		if (rfSaveNeeded) RecentFiles.save();
 	}
-	
+
 	private void buildFileMenu(final JMenu fileMenu) {
 		fileMenu.removeAll();
 		JMenuItem menuItem = new JMenuItem("Open File...");
@@ -197,7 +198,7 @@ public class MainMenuBar extends JMenuBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTabbedPane house = mainWindow.getModel().house;
-				
+
 				if (e.getModifiers() != 2 || house.getTabCount() == 0)
 					mainWindow.onCloseFileMenu();
 				else {
@@ -233,7 +234,7 @@ public class MainMenuBar extends JMenuBar {
 
 		recentFiles = new JMenu("Recent Files");
 		fileMenu.add(recentFiles);
-		
+
 		clearRecentFiles = new JMenuItem("Clear Recent Files");
 		clearRecentFiles.addActionListener(new ActionListener() {
 			@Override
@@ -244,12 +245,12 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		fileMenu.add(clearRecentFiles);
-		
+
 		fileMenu.addSeparator();
 
 		// Only add the exit command for non-OS X. OS X handles its close
 		// automatically
-		if (!("true".equals(System.getProperty("us.deathmarine.luyten.Luyten.running_in_osx")))) {
+		if (!Boolean.getBoolean("apple.laf.useScreenMenuBar")) {
 			menuItem = new JMenuItem("Exit");
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
 			menuItem.addActionListener(new ActionListener() {
@@ -306,25 +307,25 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		editMenu.add(menuItem);
-		
+
 		menuItem = new JMenuItem("Find Next");
 		menuItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
 		menuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(true);
+				if (mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(true);
 			}
 		});
 		editMenu.add(menuItem);
-		
+
 		menuItem = new JMenuItem("Find Previous");
 		menuItem.setAccelerator(
 				KeyStroke.getKeyStroke(KeyEvent.VK_F3, InputEvent.SHIFT_DOWN_MASK));
 		menuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(false);
+				if (mainWindow.findBox != null) mainWindow.findBox.fireExploreAction(false);
 			}
 		});
 		editMenu.add(menuItem);
@@ -378,6 +379,24 @@ public class MainMenuBar extends JMenuBar {
 
 	private void buildOperationMenu(JMenu operationMenu) {
 		operationMenu.removeAll();
+		discordIntegration = new JCheckBoxMenuItem("Discord Integration");
+		discordIntegration.setSelected(luytenPrefs.isDiscordIntegrationEnabled());
+		discordIntegration.setContentAreaFilled(false);
+		discordIntegration.setFocusable(false);
+		discordIntegration.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setDiscordIntegration(discordIntegration.isSelected());
+
+				if (luytenPrefs.isDiscordIntegrationEnabled()) {
+					DiscordIntegration.init();
+				} else {
+					DiscordIntegration.stopRPC();
+				}
+			}
+		});
+		operationMenu.add(discordIntegration);
+
 		packageExplorerStyle = new JCheckBoxMenuItem("Package Explorer Style");
 		packageExplorerStyle.setSelected(luytenPrefs.isPackageExplorerStyle());
 		packageExplorerStyle.addActionListener(new ActionListener() {
@@ -419,6 +438,27 @@ public class MainMenuBar extends JMenuBar {
 			}
 		});
 		operationMenu.add(exitByEscEnabled);
+
+		followEmbeddedJarFile = new JCheckBoxMenuItem("Follow Embedded Jar File");
+		followEmbeddedJarFile.setSelected(luytenPrefs.isFollowEmbeddedJarFile());
+		followEmbeddedJarFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setFollowEmbeddedJarFile(followEmbeddedJarFile.isSelected());
+			}
+		});
+		operationMenu.add(followEmbeddedJarFile);
+
+		prepareWarFile = new JCheckBoxMenuItem("Prepare WAR File (extract all CLASSES from embedded JAR files)");
+		prepareWarFile.setSelected(luytenPrefs.isPrepareWarFile());
+		prepareWarFile.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				luytenPrefs.setPrepareWarFile(prepareWarFile.isSelected());
+			}
+		});
+		operationMenu.add(prepareWarFile);
+
 	}
 
 	private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {

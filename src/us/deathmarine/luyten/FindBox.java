@@ -100,8 +100,8 @@ public class FindBox extends JDialog {
 						.addGroup(layout.createSequentialGroup()
 								.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(mcase)
 										.addComponent(wholew).addComponent(wrap))
-						.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)
-								.addComponent(reverse))))
+								.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(regex)
+										.addComponent(reverse))))
 				.addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton)));
 
 		layout.linkSize(SwingConstants.HORIZONTAL, findButton);
@@ -194,7 +194,7 @@ public class FindBox extends JDialog {
 
 	class FindExploreAction extends AbstractAction {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -4391670062679240573L;
 		boolean direction;

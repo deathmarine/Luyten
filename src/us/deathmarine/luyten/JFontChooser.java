@@ -46,37 +46,36 @@ import javax.swing.text.Position;
  * The <code>JFontChooser</code> class is a swing component for font selection.
  * This class has <code>JFileChooser</code> like APIs. The following code pops
  * up a font chooser dialog.
- * 
  **/
 public class JFontChooser extends JComponent {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8856126034081661L;
 	// class variables
 	/**
 	 * Return value from <code>showDialog()</code>.
-	 * 
+	 *
 	 * @see #showDialog
 	 **/
 	public static final int OK_OPTION = 0;
 	/**
 	 * Return value from <code>showDialog()</code>.
-	 * 
+	 *
 	 * @see #showDialog
 	 **/
 	public static final int CANCEL_OPTION = 1;
 	/**
 	 * Return value from <code>showDialog()</code>.
-	 * 
+	 *
 	 * @see #showDialog
 	 **/
 	public static final int ERROR_OPTION = -1;
 	private static final Font DEFAULT_SELECTED_FONT = new Font("Serif", Font.PLAIN, 12);
 	private static final Font DEFAULT_FONT = new Font("Dialog", Font.PLAIN, 10);
-	private static final int[] FONT_STYLE_CODES = { Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC };
-	private static final String[] DEFAULT_FONT_SIZE_STRINGS = { "8", "9", "10", "11", "12", "14", "16", "18", "20",
-			"22", "24", "26", "28", "36", "48", "72", };
+	private static final int[] FONT_STYLE_CODES = {Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD | Font.ITALIC};
+	private static final String[] DEFAULT_FONT_SIZE_STRINGS = {"8", "9", "10", "11", "12", "14", "16", "18", "20",
+			"22", "24", "26", "28", "36", "48", "72",};
 
 	// instance variables
 	protected int dialogResultValue = ERROR_OPTION;
@@ -108,9 +107,8 @@ public class JFontChooser extends JComponent {
 	/**
 	 * Constructs a <code>JFontChooser</code> object using the given font size
 	 * array.
-	 * 
-	 * @param fontSizeStrings
-	 *            the array of font size string.
+	 *
+	 * @param fontSizeStrings the array of font size string.
 	 **/
 	public JFontChooser(String[] fontSizeStrings) {
 		if (fontSizeStrings == null) {
@@ -183,12 +181,12 @@ public class JFontChooser extends JComponent {
 			// Draw Fonts
 			fontNameList.setCellRenderer(new DefaultListCellRenderer() {
 				/**
-				 * 
+				 *
 				 */
 				private static final long serialVersionUID = -6753380853569310954L;
 
 				public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-						boolean isSelected, boolean cellHasFocus) {
+															  boolean isSelected, boolean cellHasFocus) {
 
 					JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
 							isSelected, cellHasFocus);
@@ -216,12 +214,12 @@ public class JFontChooser extends JComponent {
 			fontStyleList.setFocusable(false);
 			fontStyleList.setCellRenderer(new DefaultListCellRenderer() {
 				/**
-				 * 
+				 *
 				 */
 				private static final long serialVersionUID = -3904668242514776943L;
 
 				public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-						boolean isSelected, boolean cellHasFocus) {
+															  boolean isSelected, boolean cellHasFocus) {
 
 					JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
 							isSelected, cellHasFocus);
@@ -254,9 +252,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Get the family name of the selected font.
-	 * 
-	 * @return the font family of the selected font.
 	 *
+	 * @return the font family of the selected font.
 	 * @see #setSelectedFontFamily
 	 **/
 	public String getSelectedFontFamily() {
@@ -266,11 +263,10 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Get the style of the selected font.
-	 * 
-	 * @return the style of the selected font. <code>Font.PLAIN</code>,
-	 *         <code>Font.BOLD</code>, <code>Font.ITALIC</code>,
-	 *         <code>Font.BOLD|Font.ITALIC</code>
 	 *
+	 * @return the style of the selected font. <code>Font.PLAIN</code>,
+	 * <code>Font.BOLD</code>, <code>Font.ITALIC</code>,
+	 * <code>Font.BOLD|Font.ITALIC</code>
 	 * @see java.awt.Font#PLAIN
 	 * @see java.awt.Font#BOLD
 	 * @see java.awt.Font#ITALIC
@@ -283,9 +279,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Get the size of the selected font.
-	 * 
-	 * @return the size of the selected font
 	 *
+	 * @return the size of the selected font
 	 * @see #setSelectedFontSize
 	 **/
 	public int getSelectedFontSize() {
@@ -306,9 +301,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Get the selected font.
-	 * 
-	 * @return the selected font
 	 *
+	 * @return the selected font
 	 * @see #setSelectedFont
 	 * @see java.awt.Font
 	 **/
@@ -319,10 +313,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Set the family name of the selected font.
-	 * 
-	 * @param name
-	 *            the family name of the selected font.
 	 *
+	 * @param name the family name of the selected font.
 	 * @see getSelectedFontFamily
 	 **/
 	public void setSelectedFontFamily(String name) {
@@ -338,12 +330,10 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Set the style of the selected font.
-	 * 
-	 * @param style
-	 *            the size of the selected font. <code>Font.PLAIN</code>,
-	 *            <code>Font.BOLD</code>, <code>Font.ITALIC</code>, or
-	 *            <code>Font.BOLD|Font.ITALIC</code>.
 	 *
+	 * @param style the size of the selected font. <code>Font.PLAIN</code>,
+	 *              <code>Font.BOLD</code>, <code>Font.ITALIC</code>, or
+	 *              <code>Font.BOLD|Font.ITALIC</code>.
 	 * @see java.awt.Font#PLAIN
 	 * @see java.awt.Font#BOLD
 	 * @see java.awt.Font#ITALIC
@@ -361,10 +351,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Set the size of the selected font.
-	 * 
-	 * @param size
-	 *            the size of the selected font
 	 *
+	 * @param size the size of the selected font
 	 * @see #getSelectedFontSize
 	 **/
 	public void setSelectedFontSize(int size) {
@@ -381,10 +369,8 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Set the selected font.
-	 * 
-	 * @param font
-	 *            the selected font
 	 *
+	 * @param font the selected font
 	 * @see #getSelectedFont
 	 * @see java.awt.Font
 	 **/
@@ -400,11 +386,9 @@ public class JFontChooser extends JComponent {
 
 	/**
 	 * Show font selection dialog.
-	 * 
-	 * @param parent
-	 *            Dialog's Parent component.
-	 * @return OK_OPTION, CANCEL_OPTION or ERROR_OPTION
 	 *
+	 * @param parent Dialog's Parent component.
+	 * @return OK_OPTION, CANCEL_OPTION or ERROR_OPTION
 	 * @see #OK_OPTION
 	 * @see #CANCEL_OPTION
 	 * @see #ERROR_OPTION
@@ -476,23 +460,23 @@ public class JFontChooser extends JComponent {
 		public void keyPressed(KeyEvent e) {
 			int i = targetList.getSelectedIndex();
 			switch (e.getKeyCode()) {
-			case KeyEvent.VK_UP:
-				i = targetList.getSelectedIndex() - 1;
-				if (i < 0) {
-					i = 0;
-				}
-				targetList.setSelectedIndex(i);
-				break;
-			case KeyEvent.VK_DOWN:
-				int listSize = targetList.getModel().getSize();
-				i = targetList.getSelectedIndex() + 1;
-				if (i >= listSize) {
-					i = listSize - 1;
-				}
-				targetList.setSelectedIndex(i);
-				break;
-			default:
-				break;
+				case KeyEvent.VK_UP:
+					i = targetList.getSelectedIndex() - 1;
+					if (i < 0) {
+						i = 0;
+					}
+					targetList.setSelectedIndex(i);
+					break;
+				case KeyEvent.VK_DOWN:
+					int listSize = targetList.getModel().getSize();
+					i = targetList.getSelectedIndex() + 1;
+					if (i >= listSize) {
+						i = listSize - 1;
+					}
+					targetList.setSelectedIndex(i);
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -556,7 +540,7 @@ public class JFontChooser extends JComponent {
 
 	protected class DialogOKAction extends AbstractAction {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = 1618273732543947323L;
 		protected static final String ACTION_NAME = "OK";
@@ -577,7 +561,7 @@ public class JFontChooser extends JComponent {
 
 	protected class DialogCancelAction extends AbstractAction {
 		/**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -4941763616565382601L;
 		protected static final String ACTION_NAME = "Cancel";
