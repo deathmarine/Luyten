@@ -5,18 +5,18 @@ import java.util.Set;
 
 public interface LinkProvider {
 
-	public void generateContent();
+	void generateContent();
 
-	public String getTextContent();
+	String getTextContent();
 
-	public void processLinks();
+	void processLinks();
 
-	public Map<String, Selection> getDefinitionToSelectionMap();
+	Map<String, Selection> getDefinitionToSelectionMap();
 
-	public Map<String, Set<Selection>> getReferenceToSelectionsMap();
+	Map<String, Set<Selection>> getReferenceToSelectionsMap();
 
-	public boolean isLinkNavigable(String uniqueStr);
+	boolean isLinkNavigable(String uniqueStr);
 
-	public String getLinkDescription(String uniqueStr);
+	String getLinkDescription(String uniqueStr);
 
 }

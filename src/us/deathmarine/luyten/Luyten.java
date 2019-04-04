@@ -1,7 +1,5 @@
 package us.deathmarine.luyten;
 
-import club.minnced.discord.rpc.DiscordRPC;
-
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
@@ -16,10 +14,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -143,7 +140,7 @@ public class Luyten {
 	/**
 	 * Method allows for users to copy the stacktrace for reporting any issues.
 	 * Add Cool Hyperlink Enhanced for mouse users.
-	 * 
+	 *
 	 * @param message
 	 * @param e
 	 */

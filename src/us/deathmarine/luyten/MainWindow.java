@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Vector;
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -29,7 +28,6 @@ import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
-
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 /**
@@ -57,7 +55,7 @@ public class MainWindow extends JFrame {
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
 
-		
+
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
@@ -131,15 +129,15 @@ public class MainWindow extends JFrame {
 				|| fileFromCommandLine.getName().toLowerCase().endsWith(".war")) {
 			model.startWarmUpThread();
 		}
-		
-		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
+
+		if (RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
 	}
 
 	public void onOpenFileMenu() {
 		File selectedFile = fileDialog.doOpenDialog();
 		if (selectedFile != null) {
 			System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
-			
+
 			this.getModel().loadFile(selectedFile);
 		}
 	}
@@ -250,7 +248,7 @@ public class MainWindow extends JFrame {
 			bar.setIndeterminate(true);
 			while (myCL != null) {
 				sb.append("ClassLoader: " + myCL + "\n");
-				for (Iterator<?> iter = list(myCL); iter.hasNext();) {
+				for (Iterator<?> iter = list(myCL); iter.hasNext(); ) {
 					sb.append("\t" + iter.next() + "\n");
 				}
 				myCL = myCL.getParent();

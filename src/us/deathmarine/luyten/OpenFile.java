@@ -1,5 +1,11 @@
 package us.deathmarine.luyten;
 
+import com.strobel.assembler.metadata.MetadataSystem;
+import com.strobel.assembler.metadata.TypeDefinition;
+import com.strobel.decompiler.DecompilationOptions;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.PlainTextOutput;
+import com.strobel.decompiler.languages.Languages;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -9,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
@@ -21,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -38,13 +42,6 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
-import com.strobel.assembler.metadata.MetadataSystem;
-import com.strobel.assembler.metadata.TypeDefinition;
-import com.strobel.decompiler.DecompilationOptions;
-import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.PlainTextOutput;
-import com.strobel.decompiler.languages.Languages;
 
 public class OpenFile implements SyntaxConstants {
 
@@ -73,7 +70,7 @@ public class OpenFile implements SyntaxConstants {
 	RSyntaxTextArea textArea;
 	String name;
 	String path;
-	
+
 	private ConfigSaver configSaver;
 	private LuytenPreferences luytenPrefs;
 
@@ -90,7 +87,7 @@ public class OpenFile implements SyntaxConstants {
 
 		configSaver = ConfigSaver.getLoadedInstance();
 		luytenPrefs = configSaver.getLuytenPreferences();
-		
+
 		textArea = new RSyntaxTextArea(25, 70);
 		textArea.setCaretPosition(0);
 		textArea.requestFocusInWindow();
@@ -99,7 +96,7 @@ public class OpenFile implements SyntaxConstants {
 		textArea.setEditable(false);
 		textArea.setAntiAliasingEnabled(true);
 		textArea.setCodeFoldingEnabled(true);
-		
+
 		if (name.toLowerCase().endsWith(".class") || name.toLowerCase().endsWith(".java"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVA);
 		else if (name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".rss")
@@ -169,11 +166,11 @@ public class OpenFile implements SyntaxConstants {
 		});
 		pop.add(item);
 		textArea.setPopupMenu(pop);
-		
+
 		theme.apply(textArea);
 
 		textArea.setFont(new Font(textArea.getFont().getName(), textArea.getFont().getStyle(), luytenPrefs.getFont_size()));
-		
+
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		final JScrollBar verticalScrollbar = scrollPane.getVerticalScrollBar();
 		if (verticalScrollbar != null) {
@@ -228,7 +225,6 @@ public class OpenFile implements SyntaxConstants {
 		for (MouseWheelListener listeners : scrollPane.getMouseWheelListeners()) {
 			scrollPane.removeMouseWheelListener(listeners);
 		}
-		;
 		scrollPane.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
@@ -635,9 +631,7 @@ public class OpenFile implements SyntaxConstants {
 		String uniqueStr = getUniqueStrForOffset(offset);
 		if (uniqueStr != null) {
 			String description = this.getLinkDescription(uniqueStr);
-			if (description != null) {
-				return description;
-			}
+			return description;
 		}
 		return null;
 	}
@@ -756,7 +750,7 @@ public class OpenFile implements SyntaxConstants {
 	}
 
 	public void setDecompilerReferences(MetadataSystem metadataSystem, DecompilerSettings settings,
-			DecompilationOptions decompilationOptions) {
+										DecompilationOptions decompilationOptions) {
 		this.metadataSystem = metadataSystem;
 		this.settings = settings;
 		this.decompilationOptions = decompilationOptions;
@@ -834,11 +828,8 @@ public class OpenFile implements SyntaxConstants {
 			return false;
 		OpenFile other = (OpenFile) obj;
 		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
+			return other.name == null;
+		} else return name.equals(other.name);
 	}
 
 }

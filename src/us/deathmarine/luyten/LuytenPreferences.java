@@ -122,8 +122,6 @@ public class LuytenPreferences {
 		this.isPrepareWarFile = isPrepareWarFile;
 	}
 
-	
-	
 	public int getFont_size() {
 		return font_size;
 	}

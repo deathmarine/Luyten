@@ -1,12 +1,12 @@
 package us.deathmarine.luyten;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.prefs.Preferences;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.languages.Language;
 import com.strobel.decompiler.languages.Languages;
 import com.strobel.decompiler.languages.java.JavaFormattingOptions;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.prefs.Preferences;
 
 public class ConfigSaver {
 

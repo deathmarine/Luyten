@@ -9,6 +9,26 @@
         <procyon.version>0.5.35</procyon.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com</url>
+            <name>jcenter-bintray</name>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.github.MinnDevelopment</groupId>
@@ -51,21 +71,6 @@
             <version>LATEST</version>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>http://repo.maven.apache.org/maven2</url>
-        </repository>
-
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
 
     <build>
         <sourceDirectory>src</sourceDirectory>

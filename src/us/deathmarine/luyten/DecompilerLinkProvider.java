@@ -1,11 +1,5 @@
 package us.deathmarine.luyten;
 
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import com.strobel.assembler.metadata.FieldDefinition;
 import com.strobel.assembler.metadata.FieldReference;
 import com.strobel.assembler.metadata.MetadataSystem;
@@ -17,6 +11,12 @@ import com.strobel.core.StringUtilities;
 import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DecompilerLinkProvider implements LinkProvider {
 
@@ -229,13 +229,9 @@ public class DecompilerLinkProvider implements LinkProvider {
 
 		// check linked field/method exists
 		if (uniqueStr.startsWith("method")) {
-			if (findMethodInType(typeDef, uniqueStr) == null) {
-				return false;
-			}
+			return findMethodInType(typeDef, uniqueStr) != null;
 		} else if (uniqueStr.startsWith("field")) {
-			if (findFieldInType(typeDef, uniqueStr) == null) {
-				return false;
-			}
+			return findFieldInType(typeDef, uniqueStr) != null;
 		}
 		return true;
 	}
@@ -372,7 +368,7 @@ public class DecompilerLinkProvider implements LinkProvider {
 	}
 
 	public void setDecompilerReferences(MetadataSystem metadataSystem, DecompilerSettings settings,
-			DecompilationOptions decompilationOptions) {
+										DecompilationOptions decompilationOptions) {
 		this.metadataSystem = metadataSystem;
 		this.settings = settings;
 		this.decompilationOptions = decompilationOptions;

@@ -1,12 +1,22 @@
 package us.deathmarine.luyten;
 
+import com.strobel.assembler.InputTypeLoader;
+import com.strobel.assembler.metadata.ITypeLoader;
+import com.strobel.assembler.metadata.JarTypeLoader;
+import com.strobel.assembler.metadata.MetadataSystem;
+import com.strobel.assembler.metadata.TypeDefinition;
+import com.strobel.assembler.metadata.TypeReference;
+import com.strobel.core.StringUtilities;
+import com.strobel.core.VerifyArgument;
+import com.strobel.decompiler.DecompilationOptions;
+import com.strobel.decompiler.DecompilerSettings;
+import com.strobel.decompiler.PlainTextOutput;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -34,7 +44,6 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -59,7 +68,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.apache.ant.compress.taskdefs.Unzip;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Zip;
@@ -67,18 +75,6 @@ import org.apache.tools.ant.types.FileSet;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
-
-import com.strobel.assembler.InputTypeLoader;
-import com.strobel.assembler.metadata.ITypeLoader;
-import com.strobel.assembler.metadata.JarTypeLoader;
-import com.strobel.assembler.metadata.MetadataSystem;
-import com.strobel.assembler.metadata.TypeDefinition;
-import com.strobel.assembler.metadata.TypeReference;
-import com.strobel.core.StringUtilities;
-import com.strobel.core.VerifyArgument;
-import com.strobel.decompiler.DecompilationOptions;
-import com.strobel.decompiler.DecompilerSettings;
-import com.strobel.decompiler.PlainTextOutput;
 
 /**
  * Jar-level model
@@ -154,7 +150,7 @@ public class Model extends JSplitPane {
 		panel2.setBorder(BorderFactory.createTitledBorder("Structure"));
 		panel2.add(new JScrollPane(tree));
 
-		UIManager.put("TabbedPane.selected", Color.WHITE);		// highlight the currently selected tab
+		UIManager.put("TabbedPane.selected", Color.WHITE);        // highlight the currently selected tab
 		house = new JTabbedPane();
 		house.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 		house.addChangeListener(new TabChangeListener());
@@ -179,7 +175,7 @@ public class Model extends JSplitPane {
 			}
 
 		});
-		
+
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, 1));
 		panel.setBorder(BorderFactory.createTitledBorder("Code"));
@@ -238,7 +234,7 @@ public class Model extends JSplitPane {
 		for (OpenFile file : hmap)
 			if (pane.equals(file.textArea))
 				open = file;
-		if (open != null && hmap.contains(open))
+		if (open != null)
 			hmap.remove(open);
 		house.remove(co);
 		if (open != null)
@@ -360,19 +356,19 @@ public class Model extends JSplitPane {
 						// A JAR file within a WAR file is selected
 						if (luytenPrefs.isFollowEmbeddedJarFile()) {
 							//Jetzt die tempFileLocation einlesen und alle JAR Dateien holen
-							if (file.getName().endsWith(".war")) {	// initial loaded file is a WAR file
+							if (file.getName().endsWith(".war")) {    // initial loaded file is a WAR file
 								getLabel().setText("Extract embedded JAR file " + entryName + " from " + tempFileLocation + " ...");
 								try (Stream<Path> paths = Files.walk(tempFileLocation)) {
-							        paths.filter(Files::isRegularFile)
-							                .filter(embeddedFile -> embeddedFile.toString().endsWith(entryName.substring(entryName.lastIndexOf('/') + 1)))
-							                .forEach((Path filePath) -> {
-							                	// This will open the selected JAR file from tempFileLocation
-							                	// and will close the initial opened WAR file
-							                	loadFile(filePath.toFile());
-							                });
-							    } catch (Exception e) {
-							    	Luyten.showExceptionDialog("Exception!", e);
-							    }
+									paths.filter(Files::isRegularFile)
+											.filter(embeddedFile -> embeddedFile.toString().endsWith(entryName.substring(entryName.lastIndexOf('/') + 1)))
+											.forEach((Path filePath) -> {
+												// This will open the selected JAR file from tempFileLocation
+												// and will close the initial opened WAR file
+												loadFile(filePath.toFile());
+											});
+								} catch (Exception e) {
+									Luyten.showExceptionDialog("Exception!", e);
+								}
 							}
 						} else {
 							getLabel().setText("Binary resource: " + entryName + " / You may activate option 'Follow Embedded Jar File'");
@@ -380,7 +376,7 @@ public class Model extends JSplitPane {
 						}
 					} else {
 						getLabel().setText("Opening: " + name);
-						try (InputStream in = state.jarFile.getInputStream(entry);) {
+						try (InputStream in = state.jarFile.getInputStream(entry)) {
 							extractSimpleFileEntryToTextPane(in, name, path);
 						}
 					}
@@ -397,7 +393,7 @@ public class Model extends JSplitPane {
 					extractClassToTextPane(type, name, path, null);
 				} else {
 					getLabel().setText("Opening: " + name);
-					try (InputStream in = new FileInputStream(file);) {
+					try (InputStream in = new FileInputStream(file)) {
 						extractSimpleFileEntryToTextPane(in, name, path);
 					}
 				}
@@ -485,7 +481,7 @@ public class Model extends JSplitPane {
 		StringBuilder sb = new StringBuilder();
 		long nonprintableCharactersCount = 0;
 		try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-				BufferedReader reader = new BufferedReader(inputStreamReader);) {
+			 BufferedReader reader = new BufferedReader(inputStreamReader)) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				sb.append(line).append("\n");
@@ -727,75 +723,75 @@ public class Model extends JSplitPane {
 						throw new TooLargeFileException(file.length());
 					}
 					getLabel().setText("Starting ...");
-					
-					/* 
+
+					/*
 					 * Known limitations of processing WAR files
-					 * + The WAR file is unzipped into temp folder directory, this takes some time on bigger files 
+					 * + The WAR file is unzipped into temp folder directory, this takes some time on bigger files
 					 * + There is no DeleteOnExit of that temp folder directory. Do this manually by now!
 					 * + All embedded JAR files needs to be unzipped and a final ZIP file is create, this takes some times due to file system I/O
 					 */
 					if (file.getName().endsWith(".war")) {
-						tempFileLocation = Files.createTempDirectory("luyten_", new FileAttribute<?>[0]);
+						tempFileLocation = Files.createTempDirectory("luyten_");
 						getLabel().setText("Unpacking file to temp " + tempFileLocation.getFileName() + " ...");
 						Unzip unzipper = new Unzip();
 						unzipper.setEncoding("UTF-8");
 						unzipper.setSrc(file);
 						unzipper.setDest(tempFileLocation.toFile());
 						unzipper.execute();
-						
+
 						if (luytenPrefs.isPrepareWarFile()) {
 							if (file.getName().endsWith(".war")) {
 								//Jetzt die tempFileLocation einlesen und alle JAR Dateien direkt entpacken
-									getLabel().setText("Processing embedded JAR files ...");
-									final List<Path> embeddedPackageFiles = new ArrayList<>();
+								getLabel().setText("Processing embedded JAR files ...");
+								final List<Path> embeddedPackageFiles = new ArrayList<>();
 
-								    try (Stream<Path> paths = Files.walk(tempFileLocation)) {
-										getLabel().setText("scanning tempFileLocation for JAR files: "+tempFileLocation);
-								        paths.filter(Files::isRegularFile)
-								                .filter(file -> (file.toString().endsWith(".jar")))
-								                .forEach((Path filePath) -> {
-													getLabel().setText("adding JAR file: "+filePath);
-													embeddedPackageFiles.add(filePath);
-								                });
-								    } catch (Exception e) {
-								    	Luyten.showExceptionDialog("Exception!", e);
-								    }
-								    
-									for (Path singleJar : embeddedPackageFiles) {
-										getLabel().setText("Unpacking " + singleJar.getFileName() + " to temp " + tempFileLocation.getFileName() + " ...");
-										unzipper.setSrc(singleJar.toFile());
-										unzipper.setDest(new File(singleJar.getParent().toString()+"/"+singleJar.getFileName().toString().substring(0, singleJar.getFileName().toString().length() - 4)));
-									    try {
-									    	unzipper.execute();
-									    	singleJar.toFile().delete();
-									    } catch (Exception e) {
-									    	Luyten.showExceptionDialog("Exception!", e);
-									    }
-									}
-									
-									Project project = new Project();
-									FileSet fileSet = new FileSet();
-								    fileSet.setDir(tempFileLocation.toFile());
-								    fileSet.setProject(project);
-
-									File destTempZipFile = new File(tempFileLocation.getParent().toString()+"/"+file.getName().substring(0, file.getName().length() - 4)+".zip");
-									
-									getLabel().setText("Packing files back to ZIP file  to temp " + destTempZipFile.getName() + " ...");
-
-									Zip zipper = new Zip();
-									zipper.setProject(project);
-									zipper.setEncoding("UTF-8");
-									// do not really compress to save time in that process step
-									zipper.setCompress(false);
-									zipper.addFileset(fileSet);
-									zipper.setDestFile(destTempZipFile);
-									zipper.execute();
-									
-									file = destTempZipFile;
+								try (Stream<Path> paths = Files.walk(tempFileLocation)) {
+									getLabel().setText("scanning tempFileLocation for JAR files: " + tempFileLocation);
+									paths.filter(Files::isRegularFile)
+											.filter(file -> (file.toString().endsWith(".jar")))
+											.forEach((Path filePath) -> {
+												getLabel().setText("adding JAR file: " + filePath);
+												embeddedPackageFiles.add(filePath);
+											});
+								} catch (Exception e) {
+									Luyten.showExceptionDialog("Exception!", e);
 								}
+
+								for (Path singleJar : embeddedPackageFiles) {
+									getLabel().setText("Unpacking " + singleJar.getFileName() + " to temp " + tempFileLocation.getFileName() + " ...");
+									unzipper.setSrc(singleJar.toFile());
+									unzipper.setDest(new File(singleJar.getParent().toString() + "/" + singleJar.getFileName().toString().substring(0, singleJar.getFileName().toString().length() - 4)));
+									try {
+										unzipper.execute();
+										singleJar.toFile().delete();
+									} catch (Exception e) {
+										Luyten.showExceptionDialog("Exception!", e);
+									}
+								}
+
+								Project project = new Project();
+								FileSet fileSet = new FileSet();
+								fileSet.setDir(tempFileLocation.toFile());
+								fileSet.setProject(project);
+
+								File destTempZipFile = new File(tempFileLocation.getParent().toString() + "/" + file.getName().substring(0, file.getName().length() - 4) + ".zip");
+
+								getLabel().setText("Packing files back to ZIP file  to temp " + destTempZipFile.getName() + " ...");
+
+								Zip zipper = new Zip();
+								zipper.setProject(project);
+								zipper.setEncoding("UTF-8");
+								// do not really compress to save time in that process step
+								zipper.setCompress(false);
+								zipper.addFileset(fileSet);
+								zipper.setDestFile(destTempZipFile);
+								zipper.execute();
+
+								file = destTempZipFile;
+							}
 						}
 					}
-					
+
 					if (file.getName().endsWith(".zip")
 							|| file.getName().endsWith(".jar")
 							|| file.getName().endsWith(".war")) {
@@ -811,9 +807,9 @@ public class Model extends JSplitPane {
 						} else {
 							mass.addAll(jarEntryFilter.getAllEntriesFromJar());
 						}
-						
-	                	getLabel().setText("Building tree information from "+ mass.size() +" entries ...");
-	                	Thread.sleep(1000);
+
+						getLabel().setText("Building tree information from " + mass.size() + " entries ...");
+						Thread.sleep(1000);
 						buildTreeFromMass(mass);
 
 						if (state == null) {
@@ -836,7 +832,8 @@ public class Model extends JSplitPane {
 							public void run() {
 								TreePath trp = new TreePath(top.getPath());
 								openEntryByTreePath(trp);
-							};
+							}
+
 						}.start();
 					}
 
@@ -887,7 +884,7 @@ public class Model extends JSplitPane {
 				set.add(m.substring(0, m.lastIndexOf("/") + 1));
 			}
 		}
-		List<String> packs = Arrays.asList(set.toArray(new String[] {}));
+		List<String> packs = Arrays.asList(set.toArray(new String[]{}));
 		Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);
 		Collections.sort(packs, new Comparator<String>() {
 			public int compare(String o1, String o2) {
@@ -960,7 +957,7 @@ public class Model extends JSplitPane {
 				}
 			}
 		}
-		
+
 
 		// real packages: path starts with a classContainingPackageRoot -> flat
 		for (String packagePath : packages.keySet()) {
