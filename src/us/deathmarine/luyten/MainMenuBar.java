@@ -249,7 +249,7 @@ public class MainMenuBar extends JMenuBar {
 
 		// Only add the exit command for non-OS X. OS X handles its close
 		// automatically
-		if (!("true".equals(System.getProperty("us.deathmarine.luyten.Luyten.running_in_osx")))) {
+		if (!Boolean.getBoolean("apple.laf.useScreenMenuBar")) {
 			menuItem = new JMenuItem("Exit");
 			menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
 			menuItem.addActionListener(new ActionListener() {
