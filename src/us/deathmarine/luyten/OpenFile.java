@@ -49,7 +49,7 @@ import com.strobel.decompiler.languages.Languages;
 public class OpenFile implements SyntaxConstants {
 
 	public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(
-			Arrays.asList(".java", ".xml", ".rss", ".project", ".classpath", ".h", ".sql", ".js", ".php", ".php5",
+			Arrays.asList(".java", ".xml", ".rss", ".project", ".classpath", ".h", ".c", ".cpp", ".yaml", ".yml", ".ini", ".sql", ".js", ".php", ".php5",
 					".phtml", ".html", ".htm", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".css", ".json", ".txt",
 					".rb", ".make", ".mak", ".py", ".properties", ".prop"));
 
@@ -99,13 +99,16 @@ public class OpenFile implements SyntaxConstants {
 		textArea.setEditable(false);
 		textArea.setAntiAliasingEnabled(true);
 		textArea.setCodeFoldingEnabled(true);
+		
 		if (name.toLowerCase().endsWith(".class") || name.toLowerCase().endsWith(".java"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVA);
 		else if (name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".rss")
 				|| name.toLowerCase().endsWith(".project") || name.toLowerCase().endsWith(".classpath"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_XML);
-		else if (name.toLowerCase().endsWith(".h"))
+		else if (name.toLowerCase().endsWith(".h") || name.toLowerCase().endsWith(".c"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_C);
+		else if (name.toLowerCase().endsWith(".cpp"))
+			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_CPLUSPLUS);
 		else if (name.toLowerCase().endsWith(".sql"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_SQL);
 		else if (name.toLowerCase().endsWith(".js"))
@@ -130,8 +133,10 @@ public class OpenFile implements SyntaxConstants {
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_CSS);
 		else if (name.toLowerCase().endsWith(".json"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JSON);
-		else if (name.toLowerCase().endsWith(".txt"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
+		else if (name.toLowerCase().endsWith(".ini"))
+			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_INI);
+		else if (name.toLowerCase().endsWith(".yaml") || name.toLowerCase().endsWith(".yml"))
+			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_YAML);
 		else if (name.toLowerCase().endsWith(".rb"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_RUBY);
 		else if (name.toLowerCase().endsWith(".make") || name.toLowerCase().endsWith(".mak"))
@@ -139,7 +144,7 @@ public class OpenFile implements SyntaxConstants {
 		else if (name.toLowerCase().endsWith(".py"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PYTHON);
 		else
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PROPERTIES_FILE);
+			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
 		scrollPane = new RTextScrollPane(textArea, true);
 
 		scrollPane.setIconRowHeaderEnabled(true);
@@ -188,7 +193,7 @@ public class OpenFile implements SyntaxConstants {
 		}
 
 		textArea.setHyperlinksEnabled(true);
-		textArea.setLinkScanningMask(InputEvent.CTRL_DOWN_MASK);
+		textArea.setLinkScanningMask(Keymap.ctrlDownModifier());
 
 		textArea.setLinkGenerator(new LinkGenerator() {
 			@Override
@@ -235,7 +240,7 @@ public class OpenFile implements SyntaxConstants {
 					return;
 				}
 
-				if ((e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0) {
+				if ((e.getModifiersEx() & Keymap.ctrlDownModifier()) != 0) {
 					Font font = textArea.getFont();
 					int size = font.getSize();
 					if (e.getWheelRotation() > 0) {
@@ -405,7 +410,7 @@ public class OpenFile implements SyntaxConstants {
 			public synchronized void mouseMoved(MouseEvent e) {
 				String linkText = null;
 				boolean isLinkLabel = false;
-				boolean isCtrlDown = (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) != 0;
+				boolean isCtrlDown = (e.getModifiersEx() & Keymap.ctrlDownModifier()) != 0;
 				if (isCtrlDown) {
 					linkText = createLinkLabel(e);
 					isLinkLabel = linkText != null;

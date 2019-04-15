@@ -86,8 +86,8 @@ import com.strobel.decompiler.PlainTextOutput;
 public class Model extends JSplitPane {
 	private static final long serialVersionUID = 6896857630400910200L;
 
-	private static final long MAX_JAR_FILE_SIZE_BYTES = 1_000_000_000;
-	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 200_000_000;
+	private static final long MAX_JAR_FILE_SIZE_BYTES = 10_000_000_000L;
+	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 10_000_000L;
 
 	private static LuytenTypeLoader typeLoader = new LuytenTypeLoader();
 	public static MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
@@ -167,7 +167,7 @@ public class Model extends JSplitPane {
 			}
 		});
 
-		KeyStroke sfuncF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.CTRL_DOWN_MASK, false);
+		KeyStroke sfuncF4 = KeyStroke.getKeyStroke(KeyEvent.VK_F4, Keymap.ctrlDownModifier(), false);
 		mainWindow.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(sfuncF4, "CloseTab");
 
 		mainWindow.getRootPane().getActionMap().put("CloseTab", new AbstractAction() {
