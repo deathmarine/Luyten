@@ -218,23 +218,38 @@ public class FindAllBox extends JDialog {
 									if (entry.getName().endsWith(".class")) {
 										synchronized (settings) {
 											String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-											TypeReference type = Model.metadataSystem.lookupType(internalName);
-											TypeDefinition resolvedType = null;
-											if (type == null || ((resolvedType = type.resolve()) == null)) {
-												throw new Exception("Unable to resolve type.");
+											TypeReference type = null;
+											try {
+												type = Model.metadataSystem.lookupType(internalName);
+												TypeDefinition resolvedType = null;
+												if (type != null && ((resolvedType = type.resolve()) != null)) {
+													StringWriter stringwriter = new StringWriter();
+													DecompilationOptions decompilationOptions;
+													decompilationOptions = new DecompilationOptions();
+													decompilationOptions.setSettings(settings);
+													decompilationOptions.setFullDecompilation(true);
+													PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+													plainTextOutput.setUnicodeOutputEnabled(
+															decompilationOptions.getSettings().isUnicodeOutputEnabled());
+													settings.getLanguage().decompileType(resolvedType, plainTextOutput,
+															decompilationOptions);
+													if (search(stringwriter.toString()))
+														addClassName(entry.getName());
+												}
+											} catch (IllegalStateException ise) {
+												if (ise.getMessage().toString().contains("Invalid BootstrapMethods attribute entry: 2 additional arguments required for method java/lang/invoke/StringConcatFactory.makeConcatWithConstants, but only 1 specified.")) {
+													// Known issue of Procyon <= 0.5.35 and fix not yet released, refer to https://bitbucket.org/mstrobel/procyon/issues/336/
+													// Searching in a WAR or JAR file could pop-up a lot of error dialogs for a lot of class files, we simply say nothing here
+													addClassName(entry.getName() + "  (search failed due to known Exception in Procyon <= 0.5.35. Opening file will fail too)");
+												} else {
+													// all other IllegalStateException cases
+													addClassName(entry.getName() + "  (search failed due to Exception. Opening file will fail too)");
+													Luyten.showExceptionDialog("Caught Exception on: " + entry.getName(), ise);
+												}
+											} catch (Exception e) {
+												addClassName(entry.getName() + "  (search failed due to Exception. Opening file will fail too)");
+												Luyten.showExceptionDialog("Caught Exception on: " + entry.getName(), e);
 											}
-											StringWriter stringwriter = new StringWriter();
-											DecompilationOptions decompilationOptions;
-											decompilationOptions = new DecompilationOptions();
-											decompilationOptions.setSettings(settings);
-											decompilationOptions.setFullDecompilation(true);
-											PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
-											plainTextOutput.setUnicodeOutputEnabled(
-													decompilationOptions.getSettings().isUnicodeOutputEnabled());
-											settings.getLanguage().decompileType(resolvedType, plainTextOutput,
-													decompilationOptions);
-											if (search(stringwriter.toString()))
-												addClassName(entry.getName());
 										}
 									} else {
 
