@@ -18,22 +18,22 @@
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-core</artifactId> 
-			<version>0.5.35</version> 
+			<version>0.5.36</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-expressions</artifactId> 
-			<version>0.5.35</version> 
+			<version>0.5.36</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-reflection</artifactId> 
-			<version>0.5.35</version> 
+			<version>0.5.36</version> 
 		</dependency> 
 		<dependency> 
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-compilertools</artifactId> 
-			<version>0.5.35</version> 
+			<version>0.5.36</version> 
 		</dependency> 
 		<!--
 		<dependency>
