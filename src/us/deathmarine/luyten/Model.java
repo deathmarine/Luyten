@@ -1,5 +1,6 @@
 package us.deathmarine.luyten;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -198,15 +199,25 @@ public class Model extends JSplitPane {
 				try {
 					final String title = open.name;
 					RTextScrollPane rTextScrollPane = open.scrollPane;
-					if (house.indexOfTab(title) < 0) {
+					int index = house.indexOfTab(title);
+					if (index > -1 && house.getTabComponentAt(index) != open.scrollPane) {
+						index = -1;
+						for (int i = 0; i < house.getTabCount(); i++) {
+							if (house.getComponentAt(i) == open.scrollPane) {
+								index = i;
+								break;
+							}
+						}
+					}
+					if (index < 0) {
 						house.addTab(title, rTextScrollPane);
-						house.setSelectedIndex(house.indexOfTab(title));
-						int index = house.indexOfTab(title);
+						index = house.indexOfComponent(rTextScrollPane);
+						house.setSelectedIndex(index);
 						Tab ct = new Tab(title);
 						ct.getButton().addMouseListener(new CloseTab(title));
 						house.setTabComponentAt(index, ct);
 					} else {
-						house.setSelectedIndex(house.indexOfTab(title));
+						house.setSelectedIndex(index);
 					}
 					open.onAddedToScreen();
 				} catch (Exception e) {
@@ -384,13 +395,12 @@ public class Model extends JSplitPane {
 		}
 		OpenFile sameTitledOpen = null;
 		for (OpenFile nextOpen : hmap) {
-			if (tabTitle.equals(nextOpen.name)) {
+			if (tabTitle.equals(nextOpen.name) && path.equals(nextOpen.path) && type.equals(nextOpen.getType())) {
 				sameTitledOpen = nextOpen;
 				break;
 			}
 		}
-		if (sameTitledOpen != null && path.equals(sameTitledOpen.path) && type.equals(sameTitledOpen.getType())
-				&& sameTitledOpen.isContentValid()) {
+		if (sameTitledOpen != null && sameTitledOpen.isContentValid()) {
 			sameTitledOpen.setInitialNavigationLink(navigatonLink);
 			addOrSwitchToTab(sameTitledOpen);
 			return;
@@ -430,12 +440,12 @@ public class Model extends JSplitPane {
 		}
 		OpenFile sameTitledOpen = null;
 		for (OpenFile nextOpen : hmap) {
-			if (tabTitle.equals(nextOpen.name)) {
+			if (tabTitle.equals(nextOpen.name) && path.equals(nextOpen.path)) {
 				sameTitledOpen = nextOpen;
 				break;
 			}
 		}
-		if (sameTitledOpen != null && path.equals(sameTitledOpen.path)) {
+		if (sameTitledOpen != null) {
 			addOrSwitchToTab(sameTitledOpen);
 			return;
 		}
