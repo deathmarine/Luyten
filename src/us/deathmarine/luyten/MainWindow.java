@@ -47,7 +47,7 @@ public class MainWindow extends JFrame {
 	private FindAllBox findAllBox;
 	private ConfigSaver configSaver;
 	private WindowPosition windowPosition;
-	private LuytenPreferences luytenPrefs;
+	LuytenPreferences luytenPrefs;
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
 	public MainMenuBar mainMenuBar;
@@ -56,6 +56,7 @@ public class MainWindow extends JFrame {
 		configSaver = ConfigSaver.getLoadedInstance();
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
+
 		
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
@@ -396,6 +397,7 @@ public class MainWindow extends JFrame {
 	}
 
 	private void quit() {
+		DiscordIntegration.stopRPC();
 		try {
 			windowPosition.readPositionFromWindow(this);
 			configSaver.saveConfig();

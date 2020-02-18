@@ -220,6 +220,7 @@ public class Model extends JSplitPane {
 						house.setSelectedIndex(index);
 					}
 					open.onAddedToScreen();
+					updateRPC();
 				} catch (Exception e) {
 					Luyten.showExceptionDialog("Exception!", e);
 				}
@@ -239,6 +240,7 @@ public class Model extends JSplitPane {
 		house.remove(co);
 		if (open != null)
 			open.close();
+		updateRPC();
 	}
 
 	private String getName(String path) {
@@ -277,6 +279,7 @@ public class Model extends JSplitPane {
 					openEntryByTreePath(trp);
 				}
 			}.start();
+			updateRPC();
 		}
 	}
 
@@ -668,6 +671,7 @@ public class Model extends JSplitPane {
 	public void loadFile(File file) {
 		if (open)
 			closeFile();
+
 		this.file = file;
 
 		RecentFiles.add(file.getAbsolutePath());
@@ -751,6 +755,7 @@ public class Model extends JSplitPane {
 				} finally {
 					mainWindow.onFileLoadEnded(file, open);
 					bar.setVisible(false);
+					updateRPC();
 				}
 			}
 
@@ -908,6 +913,7 @@ public class Model extends JSplitPane {
 		treeExpansionState = null;
 		open = false;
 		mainWindow.onFileLoadEnded(file, open);
+		updateRPC();
 	}
 
 	public void changeTheme(String xml) {
@@ -922,6 +928,10 @@ public class Model extends JSplitPane {
 		} catch (Exception e1) {
 			Luyten.showExceptionDialog("Exception!", e1);
 		}
+	}
+
+	public void updateRPC() {
+		DiscordIntegration.updateRPC(file == null ? null : file.getName(), house.getSelectedIndex() == -1 ? null : house.getTitleAt(house.getSelectedIndex()));
 	}
 
 	public File getOpenedFile() {

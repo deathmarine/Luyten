@@ -5,6 +5,11 @@
 	<version>0.5.4</version>
 	<dependencies>
 		<dependency>
+			<groupId>com.github.MinnDevelopment</groupId>
+			<artifactId>java-discord-rpc</artifactId>
+			<version>v2.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fifesoft</groupId>
 			<artifactId>rsyntaxtextarea</artifactId>
 			<version>3.0.2</version>
@@ -14,7 +19,7 @@
 			<artifactId>AppleJavaExtensions</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency> 
+		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId> 
 			<artifactId>procyon-core</artifactId> 
 			<version>0.5.36</version> 
@@ -51,7 +56,13 @@
 			<name>Central Repository</name>
 			<url>https://repo.maven.apache.org/maven2</url>
 		</repository>
+
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
 	</repositories>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<finalName>${project.artifactId}-${project.version}-lib</finalName>

@@ -20,6 +20,7 @@ public class LuytenPreferences {
 	private boolean isFilterOutInnerClassEntries = true;
 	private boolean isSingleClickOpenEnabled = true;
 	private boolean isExitByEscEnabled = false;
+	private boolean isDiscordIntegrationEnabled = false;
 
 	public String getThemeXml() {
 		return themeXml;
@@ -53,6 +54,10 @@ public class LuytenPreferences {
 		this.isPackageExplorerStyle = isPackageExplorerStyle;
 	}
 
+	public void setDiscordIntegration(boolean isDiscordIntegrationEnabled) {
+		this.isDiscordIntegrationEnabled = isDiscordIntegrationEnabled;
+	}
+
 	public boolean isFilterOutInnerClassEntries() {
 		return isFilterOutInnerClassEntries;
 	}
@@ -67,6 +72,10 @@ public class LuytenPreferences {
 
 	public void setSingleClickOpenEnabled(boolean isSingleClickOpenEnabled) {
 		this.isSingleClickOpenEnabled = isSingleClickOpenEnabled;
+	}
+
+	public boolean isDiscordIntegrationEnabled() {
+		return isDiscordIntegrationEnabled;
 	}
 
 	public boolean isExitByEscEnabled() {
