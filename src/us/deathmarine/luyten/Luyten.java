@@ -75,7 +75,7 @@ public class Luyten {
 		if (mainWindow != null) {
 			synchronized (pendingFiles) {
 				for (File f : pendingFiles) {
-					mainWindow.getModel().loadFile(f);
+					mainWindow.loadNewFile(f);
 				}
 				pendingFiles.clear();
 			}

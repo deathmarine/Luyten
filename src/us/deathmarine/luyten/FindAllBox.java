@@ -65,11 +65,14 @@ public class FindAllBox extends JDialog {
 
 	private Thread tmp_thread;
 
+	private MainWindow mainWindow;
+
 	public FindAllBox(final MainWindow mainWindow) {
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
 		this.setHideOnEscapeButton();
 
 		progressBar = new JProgressBar(0, 100);
+		this.mainWindow = mainWindow;
 
 		JLabel label = new JLabel("Find What:");
 		textField = new JTextField();
@@ -99,7 +102,7 @@ public class FindAllBox extends JDialog {
 						String internalName = StringUtilities.removeRight(entryName, ".class");
 						TypeReference type = Model.metadataSystem.lookupType(internalName);
 						try {
-							mainWindow.getModel().extractClassToTextPane(type, array[array.length - 1], entryName,
+							mainWindow.getSelectedModel().extractClassToTextPane(type, array[array.length - 1], entryName,
 									null);
 						} catch (Exception e) {
 							Luyten.showExceptionDialog("Exception!", e);
@@ -107,8 +110,8 @@ public class FindAllBox extends JDialog {
 
 					} else {
 						try {
-							JarFile jfile = new JarFile(MainWindow.model.getOpenedFile());
-							mainWindow.getModel().extractSimpleFileEntryToTextPane(
+							JarFile jfile = new JarFile(mainWindow.getSelectedModel().getOpenedFile());
+							mainWindow.getSelectedModel().extractSimpleFileEntryToTextPane(
 									jfile.getInputStream(jfile.getEntry(entryName)), array[array.length - 1],
 									entryName);
 							jfile.close();
@@ -196,7 +199,7 @@ public class FindAllBox extends JDialog {
 						classesList.clear();
 						ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
 						DecompilerSettings settings = configSaver.getDecompilerSettings();
-						File inFile = MainWindow.model.getOpenedFile();
+						File inFile = mainWindow.getSelectedModel().getOpenedFile();
 						boolean filter = ConfigSaver.getLoadedInstance().getLuytenPreferences()
 								.isFilterOutInnerClassEntries();
 						try {

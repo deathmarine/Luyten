@@ -167,7 +167,7 @@ public class MainMenuBar extends JMenuBar {
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					mainWindow.getModel().loadFile(file);
+					mainWindow.loadNewFile(file);
 				}
 			});
 			recentFiles.add(menuItem);
@@ -196,12 +196,12 @@ public class MainMenuBar extends JMenuBar {
 		menuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTabbedPane house = mainWindow.getModel().house;
+				JTabbedPane house = mainWindow.getSelectedModel().house;
 				
 				if (e.getModifiers() != 2 || house.getTabCount() == 0)
 					mainWindow.onCloseFileMenu();
 				else {
-					mainWindow.getModel().closeOpenTab(house.getSelectedIndex());
+					mainWindow.getSelectedModel().closeOpenTab(house.getSelectedIndex());
 				}
 			}
 		});
