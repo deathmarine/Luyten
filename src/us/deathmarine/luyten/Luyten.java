@@ -7,13 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URI;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.ArrayList;
@@ -40,8 +38,20 @@ public class Luyten {
 
 	private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
 	private static final List<File> pendingFiles = new ArrayList<>();
+	private static ServerSocket lockSocket = null;
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if (lockSocket != null) {
+						lockSocket.close();
+					}
+				} catch (IOException e) {
+				}
+			}
+		}));
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -55,12 +65,41 @@ public class Luyten {
 		// .zip or .jar)
 		final File fileFromCommandLine = getFileFromCommandLine(args);
 
+		try {
+			launchMainInstance(fileFromCommandLine);
+		} catch (Exception e) {
+			// Instance already exists. Open new file in running instance
+			try {
+				Socket socket = new Socket("localhost", 3456);
+				DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+				dos.writeUTF(args[0]);
+				dos.flush();
+				dos.close();
+				socket.close();
+			} catch (IOException ex) {
+				showExceptionDialog("Exception", e);
+			}
+		}
+	}
+
+	private static void launchMainInstance(final File fileFromCommandLine) throws IOException {
+		lockSocket = new ServerSocket(3456);
+		launchSession(fileFromCommandLine);
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				launchServer();
+			}
+		}).start();
+	}
+
+	private static void launchSession(final File fileFromCommandLine) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
 					// Already set - so add the files to open
-					openFileInInstance(fileFromCommandLine);
+					addToPendingFiles(fileFromCommandLine);
 				}
 				processPendingFiles();
 				mainWindowRef.get().setVisible(true);
@@ -68,9 +107,24 @@ public class Luyten {
 		});
 	}
 
+	private static void launchServer() {
+		try { // Server
+			while (true) {
+				Socket socket = lockSocket.accept();
+				DataInputStream dis = new DataInputStream(socket.getInputStream());
+				addToPendingFiles(getFileFromCommandLine(dis.readUTF()));
+				processPendingFiles();
+				dis.close();
+				socket.close();
+			}
+		} catch (IOException e) { // Client
+			showExceptionDialog("Exception", e);
+		}
+	}
+
 	// Private function which processes all pending files - synchronized on the
 	// list of pending files
-	private static void processPendingFiles() {
+	public static void processPendingFiles() {
 		final MainWindow mainWindow = mainWindowRef.get();
 		if (mainWindow != null) {
 			synchronized (pendingFiles) {
@@ -84,13 +138,12 @@ public class Luyten {
 
 	// Function which opens the given file in the instance, if it's running -
 	// and if not, it processes the files
-	public static void openFileInInstance(File fileToOpen) {
+	public static void addToPendingFiles(File fileToOpen) {
 		synchronized (pendingFiles) {
 			if (fileToOpen != null) {
 				pendingFiles.add(fileToOpen);
 			}
 		}
-		processPendingFiles();
 	}
 
 	// Function which exits the application if it's running
@@ -101,7 +154,7 @@ public class Luyten {
 		}
 	}
 
-	public static File getFileFromCommandLine(String[] args) {
+	public static File getFileFromCommandLine(String... args) {
 		File fileFromCommandLine = null;
 		try {
 			if (args.length > 0) {
