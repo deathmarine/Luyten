@@ -36,7 +36,6 @@ public class MainWindow extends JFrame {
 	private static final String TITLE = "Luyten";
 	private static final String DEFAULT_TAB = "#DEFAULT";
 
-	public static Model model;
 	private JProgressBar bar;
 	private JLabel label;
 	FindBox findBox;
@@ -83,7 +82,6 @@ public class MainWindow extends JFrame {
 		panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
 		panel2.add(bar);
 
-		model = new Model(this);
 		jarsTabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
 		jarsTabbedPane.setUI(new BasicTabbedPaneUI() {
 			@Override
@@ -94,7 +92,7 @@ public class MainWindow extends JFrame {
 					return 0;
 			}
 		});
-		jarsTabbedPane.addTab("#DEFAULT", model);
+		jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
 		this.getContentPane().add(jarsTabbedPane);
 
 		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
@@ -118,8 +116,9 @@ public class MainWindow extends JFrame {
 		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
 		this.add(spt, BorderLayout.SOUTH);
+		Model jarModel = null;
 		if (fileFromCommandLine != null) {
-			model.loadFile(fileFromCommandLine);
+			jarModel = loadNewFile(fileFromCommandLine);
 		}
 
 		try {
@@ -133,11 +132,13 @@ public class MainWindow extends JFrame {
 		fileDialog = new FileDialog(this);
 		fileSaver = new FileSaver(bar, label);
 
-		this.setExitOnEscWhenEnabled(model);
+		if (jarModel != null) {
+			this.setExitOnEscWhenEnabled(jarModel);
+		}
 
-		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
-				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
-			model.startWarmUpThread();
+		if (jarModel != null && (fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip"))) {
+			jarModel.startWarmUpThread();
 		}
 		
 		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
@@ -159,7 +160,7 @@ public class MainWindow extends JFrame {
 		}
 	}
 	
-	public void loadNewFile(final File file) {
+	public Model loadNewFile(final File file) {
 		Model jarModel = new Model(this);
 		jarModel.loadFile(file);
 		jarModels.add(jarModel);
@@ -170,7 +171,7 @@ public class MainWindow extends JFrame {
 		int index = jarsTabbedPane.indexOfTab(tabName);
 		Model.Tab tabUI = new Model.Tab(tabName, new Callable<Void>() {
 			@Override
-			public Void call() throws Exception {
+			public Void call() {
 				int index = jarsTabbedPane.indexOfTab(tabName);
 				jarsTabbedPane.remove(index);
 				if (jarsTabbedPane.getTabCount() == 0) {
@@ -183,6 +184,7 @@ public class MainWindow extends JFrame {
 		if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) != -1 && jarsTabbedPane.getTabCount() > 1) {
 			removeDefaultTab();
 		}
+		return jarModel;
 	}
 
 	public void onCloseFileMenu() {
