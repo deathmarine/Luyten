@@ -15,10 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.swing.*;
@@ -46,7 +43,7 @@ public class MainWindow extends JFrame {
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
 	private JTabbedPane jarsTabbedPane;
-	private List<Model> jarModels;
+	private Map<String, Model> jarModels;
 	public MainMenuBar mainMenuBar;
 
 	public MainWindow(File fileFromCommandLine) {
@@ -54,7 +51,7 @@ public class MainWindow extends JFrame {
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
 
-		jarModels = new ArrayList<>();
+		jarModels = new HashMap<String, Model>();
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
@@ -161,9 +158,17 @@ public class MainWindow extends JFrame {
 	}
 	
 	public Model loadNewFile(final File file) {
+		// In case we open the same file again
+		// we remove the old entry to force a refresh
+		if (jarModels.containsKey(file.getAbsolutePath())) {
+			jarModels.remove(file.getAbsolutePath());
+			int index = jarsTabbedPane.indexOfTab(file.getName());
+			jarsTabbedPane.remove(index);
+		}
+
 		Model jarModel = new Model(this);
 		jarModel.loadFile(file);
-		jarModels.add(jarModel);
+		jarModels.put(file.getAbsolutePath(), jarModel);
 		jarsTabbedPane.addTab(file.getName(), jarModel);
 		jarsTabbedPane.setSelectedComponent(jarModel);
 
@@ -173,6 +178,7 @@ public class MainWindow extends JFrame {
 			@Override
 			public Void call() {
 				int index = jarsTabbedPane.indexOfTab(tabName);
+				jarModels.remove(file.getAbsolutePath());
 				jarsTabbedPane.remove(index);
 				if (jarsTabbedPane.getTabCount() == 0) {
 					createDefaultTab();
@@ -341,20 +347,20 @@ public class MainWindow extends JFrame {
 	}
 
 	public void onThemesChanged() {
-		for (Model jarModel : jarModels) {
+		for (Model jarModel : jarModels.values()) {
 			jarModel.changeTheme(luytenPrefs.getThemeXml());
 			luytenPrefs.setFont_size(jarModel.getTheme().baseFont.getSize());
 		}
 	}
 
 	public void onSettingsChanged() {
-		for (Model jarModel : jarModels) {
+		for (Model jarModel : jarModels.values()) {
 			jarModel.updateOpenClasses();
 		}
 	}
 
 	public void onTreeSettingsChanged() {
-		for (Model jarModel : jarModels) {
+		for (Model jarModel : jarModels.values()) {
 			jarModel.updateTree();
 		}
 	}
