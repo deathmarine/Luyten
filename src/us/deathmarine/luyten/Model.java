@@ -655,9 +655,9 @@ public class Model extends JSplitPane {
 
 	@SuppressWarnings("unchecked")
 	public DefaultMutableTreeNode getChild(DefaultMutableTreeNode node, TreeNodeUserObject name) {
-		Enumeration<DefaultMutableTreeNode> entry = node.children();
+		Enumeration<TreeNode> entry = node.children();
 		while (entry.hasMoreElements()) {
-			DefaultMutableTreeNode nods = entry.nextElement();
+			DefaultMutableTreeNode nods = (DefaultMutableTreeNode) entry.nextElement();
 			if (((TreeNodeUserObject) nods.getUserObject()).getOriginalName().equals(name.getOriginalName())) {
 				return nods;
 			}
