@@ -228,7 +228,7 @@
 											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
 											version="${project.version}" copyright="2015"
 											icon="${project.build.sourceDirectory}/resources/luyten.icns"
-											jvmversion="1.7+" screenmenu="true" 
+											jvmversion="1.7;1.8*" screenmenu="true" 
 											antialiasedgraphics="true" highresolutioncapable="true" >
 									<documenttype name="Class File" extensions="class" role="Viewer" />
 									<documenttype name="Java File" extensions="java" role="Viewer" />
