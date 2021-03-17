@@ -15,20 +15,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.Callable;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSplitPane;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
@@ -39,8 +31,8 @@ public class MainWindow extends JFrame {
 	private static final long serialVersionUID = 5265556630724988013L;
 
 	private static final String TITLE = "Luyten";
+	private static final String DEFAULT_TAB = "#DEFAULT";
 
-	public static Model model;
 	private JProgressBar bar;
 	private JLabel label;
 	FindBox findBox;
@@ -50,13 +42,16 @@ public class MainWindow extends JFrame {
 	private LuytenPreferences luytenPrefs;
 	private FileDialog fileDialog;
 	private FileSaver fileSaver;
+	private JTabbedPane jarsTabbedPane;
+	private Map<String, Model> jarModels;
 	public MainMenuBar mainMenuBar;
 
 	public MainWindow(File fileFromCommandLine) {
 		configSaver = ConfigSaver.getLoadedInstance();
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
-		
+
+		jarModels = new HashMap<String, Model>();
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
@@ -84,8 +79,18 @@ public class MainWindow extends JFrame {
 		panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
 		panel2.add(bar);
 
-		model = new Model(this);
-		this.getContentPane().add(model);
+		jarsTabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+		jarsTabbedPane.setUI(new BasicTabbedPaneUI() {
+			@Override
+			protected int calculateTabAreaHeight(int tab_placement, int run_count, int max_tab_height) {
+				if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) == -1)
+					return super.calculateTabAreaHeight(tab_placement, run_count, max_tab_height);
+				else
+					return 0;
+			}
+		});
+		jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
+		this.getContentPane().add(jarsTabbedPane);
 
 		JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
 			private static final long serialVersionUID = 2189946972124687305L;
@@ -108,8 +113,9 @@ public class MainWindow extends JFrame {
 		spt.setBorder(new BevelBorder(BevelBorder.LOWERED));
 		spt.setPreferredSize(new Dimension(this.getWidth(), 24));
 		this.add(spt, BorderLayout.SOUTH);
+		Model jarModel = null;
 		if (fileFromCommandLine != null) {
-			model.loadFile(fileFromCommandLine);
+			jarModel = loadNewFile(fileFromCommandLine);
 		}
 
 		try {
@@ -123,34 +129,80 @@ public class MainWindow extends JFrame {
 		fileDialog = new FileDialog(this);
 		fileSaver = new FileSaver(bar, label);
 
-		this.setExitOnEscWhenEnabled(model);
+		if (jarModel != null) {
+			this.setExitOnEscWhenEnabled(jarModel);
+		}
 
-		if (fileFromCommandLine == null || fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
-				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip")) {
-			model.startWarmUpThread();
+		if (jarModel != null && (fileFromCommandLine.getName().toLowerCase().endsWith(".jar")
+				|| fileFromCommandLine.getName().toLowerCase().endsWith(".zip"))) {
+			jarModel.startWarmUpThread();
 		}
 		
 		if(RecentFiles.load() > 0) mainMenuBar.updateRecentFiles();
+	}
+
+	private void createDefaultTab() {
+		jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
+	}
+
+	private void removeDefaultTab() {
+		jarsTabbedPane.remove(jarsTabbedPane.indexOfTab(DEFAULT_TAB));
 	}
 
 	public void onOpenFileMenu() {
 		File selectedFile = fileDialog.doOpenDialog();
 		if (selectedFile != null) {
 			System.out.println("[Open]: Opening " + selectedFile.getAbsolutePath());
-			
-			this.getModel().loadFile(selectedFile);
+			this.loadNewFile(selectedFile);
 		}
+	}
+	
+	public Model loadNewFile(final File file) {
+		// In case we open the same file again
+		// we remove the old entry to force a refresh
+		if (jarModels.containsKey(file.getAbsolutePath())) {
+			jarModels.remove(file.getAbsolutePath());
+			int index = jarsTabbedPane.indexOfTab(file.getName());
+			jarsTabbedPane.remove(index);
+		}
+
+		Model jarModel = new Model(this);
+		jarModel.loadFile(file);
+		jarModels.put(file.getAbsolutePath(), jarModel);
+		jarsTabbedPane.addTab(file.getName(), jarModel);
+		jarsTabbedPane.setSelectedComponent(jarModel);
+
+		final String tabName = file.getName();
+		int index = jarsTabbedPane.indexOfTab(tabName);
+		Model.Tab tabUI = new Model.Tab(tabName, new Callable<Void>() {
+			@Override
+			public Void call() {
+				int index = jarsTabbedPane.indexOfTab(tabName);
+				jarModels.remove(file.getAbsolutePath());
+				jarsTabbedPane.remove(index);
+				if (jarsTabbedPane.getTabCount() == 0) {
+					createDefaultTab();
+				}
+				return null;
+			}
+		});
+		jarsTabbedPane.setTabComponentAt(index, tabUI);
+		if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) != -1 && jarsTabbedPane.getTabCount() > 1) {
+			removeDefaultTab();
+		}
+		return jarModel;
 	}
 
 	public void onCloseFileMenu() {
-		this.getModel().closeFile();
+		this.getSelectedModel().closeFile();
+		jarModels.remove(getSelectedModel());
 	}
 
 	public void onSaveAsMenu() {
-		RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+		RSyntaxTextArea pane = this.getSelectedModel().getCurrentTextArea();
 		if (pane == null)
 			return;
-		String tabTitle = this.getModel().getCurrentTabTitle();
+		String tabTitle = this.getSelectedModel().getCurrentTabTitle();
 		if (tabTitle == null)
 			return;
 
@@ -162,7 +214,7 @@ public class MainWindow extends JFrame {
 	}
 
 	public void onSaveAllMenu() {
-		File openedFile = this.getModel().getOpenedFile();
+		File openedFile = this.getSelectedModel().getOpenedFile();
 		if (openedFile == null)
 			return;
 
@@ -187,7 +239,7 @@ public class MainWindow extends JFrame {
 
 	public void onSelectAllMenu() {
 		try {
-			RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+			RSyntaxTextArea pane = this.getSelectedModel().getCurrentTextArea();
 			if (pane != null) {
 				pane.requestFocusInWindow();
 				pane.setSelectionStart(0);
@@ -200,7 +252,7 @@ public class MainWindow extends JFrame {
 
 	public void onFindMenu() {
 		try {
-			RSyntaxTextArea pane = this.getModel().getCurrentTextArea();
+			RSyntaxTextArea pane = this.getSelectedModel().getCurrentTextArea();
 			if (pane != null) {
 				if (findBox == null)
 					findBox = new FindBox(this);
@@ -229,7 +281,7 @@ public class MainWindow extends JFrame {
 					bar.setVisible(true);
 					bar.setIndeterminate(true);
 					String legalStr = getLegalStr();
-					MainWindow.this.getModel().showLegal(legalStr);
+					getSelectedModel().showLegal(legalStr);
 				} finally {
 					bar.setIndeterminate(false);
 					bar.setVisible(false);
@@ -251,7 +303,7 @@ public class MainWindow extends JFrame {
 				}
 				myCL = myCL.getParent();
 			}
-			MainWindow.this.getModel().show("Debug", sb.toString());
+			this.getSelectedModel().show("Debug", sb.toString());
 		} finally {
 			bar.setIndeterminate(false);
 			bar.setVisible(false);
@@ -295,21 +347,27 @@ public class MainWindow extends JFrame {
 	}
 
 	public void onThemesChanged() {
-		this.getModel().changeTheme(luytenPrefs.getThemeXml());
-		luytenPrefs.setFont_size(this.getModel().getTheme().baseFont.getSize());
+		for (Model jarModel : jarModels.values()) {
+			jarModel.changeTheme(luytenPrefs.getThemeXml());
+			luytenPrefs.setFont_size(jarModel.getTheme().baseFont.getSize());
+		}
 	}
 
 	public void onSettingsChanged() {
-		this.getModel().updateOpenClasses();
+		for (Model jarModel : jarModels.values()) {
+			jarModel.updateOpenClasses();
+		}
 	}
 
 	public void onTreeSettingsChanged() {
-		this.getModel().updateTree();
+		for (Model jarModel : jarModels.values()) {
+			jarModel.updateTree();
+		}
 	}
 
 	public void onFileDropped(File file) {
 		if (file != null) {
-			this.getModel().loadFile(file);
+			this.loadNewFile(file);
 		}
 	}
 
@@ -326,7 +384,7 @@ public class MainWindow extends JFrame {
 	}
 
 	public void onNavigationRequest(String uniqueStr) {
-		this.getModel().navigateTo(uniqueStr);
+		this.getSelectedModel().navigateTo(uniqueStr);
 	}
 
 	private void adjustWindowPositionBySavedState() {
@@ -426,8 +484,8 @@ public class MainWindow extends JFrame {
 		mainComponent.getActionMap().put("ESCAPE", escapeAction);
 	}
 
-	public Model getModel() {
-		return model;
+	public Model getSelectedModel() {
+		return (Model) jarsTabbedPane.getSelectedComponent();
 	}
 
 	public JProgressBar getBar() {

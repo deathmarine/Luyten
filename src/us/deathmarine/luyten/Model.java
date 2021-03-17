@@ -5,12 +5,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -213,8 +209,14 @@ public class Model extends JSplitPane {
 						house.addTab(title, rTextScrollPane);
 						index = house.indexOfComponent(rTextScrollPane);
 						house.setSelectedIndex(index);
-						Tab ct = new Tab(title);
-						ct.getButton().addMouseListener(new CloseTab(title));
+						Tab ct = new Tab(title, new Callable<Void>() {
+							@Override
+							public Void call() throws Exception {
+								int index = house.indexOfTab(title);
+								closeOpenTab(index);
+								return null;
+							}
+						});
 						house.setTabComponentAt(index, ct);
 					} else {
 						house.setSelectedIndex(index);
@@ -586,25 +588,28 @@ public class Model extends JSplitPane {
 		}
 	}
 
-	private class Tab extends JPanel {
-		private static final long serialVersionUID = -514663009333644974L;
+	public static class Tab extends JPanel {
+		private JLabel tabTitle;
 		private JLabel closeButton = new JLabel(new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/icon_close.png"))));
-		private JLabel tabTitle = new JLabel();
-		private String title = "";
 
-		public Tab(String t) {
+		public Tab(String title, final Callable<Void> onCloseTabAction) {
 			super(new GridBagLayout());
 			this.setOpaque(false);
-
-			this.title = t;
 			this.tabTitle = new JLabel(title);
-
 			this.createTab();
-		}
-
-		public JLabel getButton() {
-			return this.closeButton;
+			closeButton.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					try {
+						if (onCloseTabAction != null) {
+							onCloseTabAction.call();
+						}
+					} catch (Exception ex) {
+						Luyten.showExceptionDialog("Exception!", ex);
+					}
+				}
+			});
 		}
 
 		public void createTab() {
