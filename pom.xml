@@ -3,6 +3,11 @@
 	<groupId>us.deathmarine</groupId>
 	<artifactId>luyten</artifactId>
 	<version>0.7.0</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
@@ -14,26 +19,26 @@
 			<artifactId>AppleJavaExtensions</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-core</artifactId> 
-			<version>0.5.36</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-expressions</artifactId> 
-			<version>0.5.36</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-reflection</artifactId> 
-			<version>0.5.36</version> 
-		</dependency> 
-		<dependency> 
-			<groupId>org.bitbucket.mstrobel</groupId> 
-			<artifactId>procyon-compilertools</artifactId> 
-			<version>0.5.36</version> 
-		</dependency> 
+		<dependency>
+			<groupId>org.bitbucket.mstrobel</groupId>
+			<artifactId>procyon-core</artifactId>
+			<version>0.5.36</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bitbucket.mstrobel</groupId>
+			<artifactId>procyon-expressions</artifactId>
+			<version>0.5.36</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bitbucket.mstrobel</groupId>
+			<artifactId>procyon-reflection</artifactId>
+			<version>0.5.36</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bitbucket.mstrobel</groupId>
+			<artifactId>procyon-compilertools</artifactId>
+			<version>0.5.36</version>
+		</dependency>
 		<!--
 		<dependency>
 			<groupId>org.bitbucket.mstrobel</groupId>
@@ -142,7 +147,7 @@
 						</manifest>
 					</archive>
 				</configuration>
-			</plugin> 
+			</plugin>
 			-->
 			<plugin>
          		<groupId>com.akathist.maven.plugins.launch4j</groupId>
@@ -203,7 +208,7 @@
                             <outputFileName>universalJavaApplicationStub.sh</outputFileName>
                         </configuration>
                     </execution>
-                </executions>                
+                </executions>
             </plugin>
 			<plugin>
                 <!-- Package the jar as an OS X application -->
@@ -239,12 +244,12 @@
 								</jarbundler>
                                 <!-- Produce a zip file of the application for distribution -->
                                 <zip destfile="${project.build.directory}/${project.artifactId}-OSX-${project.version}.zip">
-                                     <zipfileset dir="${project.build.directory}" 
+                                     <zipfileset dir="${project.build.directory}"
                                                  includes="Luyten.app/**" excludes="Luyten.app/Contents/MacOS/*" />
-                                     <zipfileset dir="${project.build.directory}" 
+                                     <zipfileset dir="${project.build.directory}"
                                                  includes="Luyten.app/Contents/MacOS/*" filemode="755" />
                                 </zip>
-							</target>									
+							</target>
 						</configuration>
 					</execution>
 				</executions>
@@ -257,7 +262,7 @@
 				</dependencies>
 			</plugin>
 		</plugins>
-		
+
 		<pluginManagement>
 			<plugins>
 				<!--This plugin does nothing in maven, it is only to appease Eclipse and remove red squigglys.-->
@@ -312,6 +317,6 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-		
+
 	</build>
 </project>
