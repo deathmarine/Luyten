@@ -35,13 +35,7 @@ public class DropListener implements DropTargetListener {
 				try {
 					if (flavor.isFlavorJavaFileListType()) {
 						List<File> files = (List<File>) transferable.getTransferData(flavor);
-						if (files.size() > 1) {
-							event.rejectDrop();
-							return;
-						}
-						if (files.size() == 1) {
-							mainWindow.onFileDropped(files.get(0));
-						}
+						mainWindow.onFilesDropped(files);
 					}
 				} catch (Exception e) {
 					Luyten.showExceptionDialog("Exception!", e);

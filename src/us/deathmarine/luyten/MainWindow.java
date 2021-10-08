@@ -365,6 +365,14 @@ public class MainWindow extends JFrame {
 		}
 	}
 
+	public void onFilesDropped(List<File> files) {
+		if (files != null) {
+			for (File file : files) {
+				this.loadNewFile(file);
+			}
+		}
+	}
+
 	public void onFileDropped(File file) {
 		if (file != null) {
 			this.loadNewFile(file);
