@@ -2,12 +2,13 @@ package us.deathmarine.luyten;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 public class RecentFiles {
 
-	public static ArrayList<String> paths = new ArrayList<>();
-	private static Preferences prefs = Preferences.userNodeForPackage(RecentFiles.class);
+	public static List<String> paths = new ArrayList<>();
+	private static final Preferences prefs = Preferences.userNodeForPackage(RecentFiles.class);
 	
 	public static int load() {
 		boolean saveNeeded = false;

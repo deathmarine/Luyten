@@ -260,8 +260,7 @@ public class JFontChooser extends JComponent {
 	 * @see #setSelectedFontFamily
 	 **/
 	public String getSelectedFontFamily() {
-		String fontName = (String) getFontFamilyList().getSelectedValue();
-		return fontName;
+		return (String) getFontFamilyList().getSelectedValue();
 	}
 
 	/**
@@ -289,7 +288,7 @@ public class JFontChooser extends JComponent {
 	 * @see #setSelectedFontSize
 	 **/
 	public int getSelectedFontSize() {
-		int fontSize = 1;
+		int fontSize;
 		String fontSizeString = getFontSizeTextField().getText();
 		while (true) {
 			try {
@@ -313,8 +312,7 @@ public class JFontChooser extends JComponent {
 	 * @see java.awt.Font
 	 **/
 	public Font getSelectedFont() {
-		Font font = new Font(getSelectedFontFamily(), getSelectedFontStyle(), getSelectedFontSize());
-		return font;
+		return new Font(getSelectedFontFamily(), getSelectedFontStyle(), getSelectedFontSize());
 	}
 
 	/**
@@ -323,12 +321,12 @@ public class JFontChooser extends JComponent {
 	 * @param name
 	 *            the family name of the selected font.
 	 *
-	 * @see getSelectedFontFamily
+	 * @see #getSelectedFontFamily
 	 **/
 	public void setSelectedFontFamily(String name) {
 		String[] names = getFontFamilies();
 		for (int i = 0; i < names.length; i++) {
-			if (names[i].toLowerCase().equals(name.toLowerCase())) {
+			if (names[i].equalsIgnoreCase(name)) {
 				getFontFamilyList().setSelectedIndex(i);
 				break;
 			}
@@ -420,20 +418,19 @@ public class JFontChooser extends JComponent {
 
 		dialog.setVisible(true);
 		dialog.dispose();
-		dialog = null;
 
 		return dialogResultValue;
 	}
 
 	protected class ListSelectionHandler implements ListSelectionListener {
-		private JTextComponent textComponent;
+		private final JTextComponent textComponent;
 
 		ListSelectionHandler(JTextComponent textComponent) {
 			this.textComponent = textComponent;
 		}
 
 		public void valueChanged(ListSelectionEvent e) {
-			if (e.getValueIsAdjusting() == false) {
+			if (!e.getValueIsAdjusting()) {
 				JList<?> list = (JList<?>) e.getSource();
 				String selectedValue = (String) list.getSelectedValue();
 
@@ -450,7 +447,7 @@ public class JFontChooser extends JComponent {
 	}
 
 	protected class TextFieldFocusHandlerForTextSelection extends FocusAdapter {
-		private JTextComponent textComponent;
+		private final JTextComponent textComponent;
 
 		public TextFieldFocusHandlerForTextSelection(JTextComponent textComponent) {
 			this.textComponent = textComponent;
@@ -466,15 +463,15 @@ public class JFontChooser extends JComponent {
 		}
 	}
 
-	protected class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter {
-		private JList<?> targetList;
+	protected static class TextFieldKeyHandlerForListSelectionUpDown extends KeyAdapter {
+		private final JList<?> targetList;
 
 		public TextFieldKeyHandlerForListSelectionUpDown(JList<?> list) {
 			this.targetList = list;
 		}
 
 		public void keyPressed(KeyEvent e) {
-			int i = targetList.getSelectedIndex();
+			int i;
 			switch (e.getKeyCode()) {
 			case KeyEvent.VK_UP:
 				i = targetList.getSelectedIndex() - 1;
@@ -497,7 +494,7 @@ public class JFontChooser extends JComponent {
 		}
 	}
 
-	protected class ListSearchTextFieldDocumentHandler implements DocumentListener {
+	protected static class ListSearchTextFieldDocumentHandler implements DocumentListener {
 		JList<?> targetList;
 
 		public ListSearchTextFieldDocumentHandler(JList<?> targetList) {
@@ -542,7 +539,7 @@ public class JFontChooser extends JComponent {
 		}
 
 		public class ListSelector implements Runnable {
-			private int index;
+			private final int index;
 
 			public ListSelector(int index) {
 				this.index = index;
@@ -560,7 +557,7 @@ public class JFontChooser extends JComponent {
 		 */
 		private static final long serialVersionUID = 1618273732543947323L;
 		protected static final String ACTION_NAME = "OK";
-		private JDialog dialog;
+		private final JDialog dialog;
 
 		protected DialogOKAction(JDialog dialog) {
 			this.dialog = dialog;
@@ -581,7 +578,7 @@ public class JFontChooser extends JComponent {
 		 */
 		private static final long serialVersionUID = -4941763616565382601L;
 		protected static final String ACTION_NAME = "Cancel";
-		private JDialog dialog;
+		private final JDialog dialog;
 
 		protected DialogCancelAction(JDialog dialog) {
 			this.dialog = dialog;

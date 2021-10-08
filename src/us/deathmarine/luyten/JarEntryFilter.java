@@ -34,15 +34,15 @@ public class JarEntryFilter {
 	public List<String> getEntriesWithoutInnerClasses() {
 		List<String> mass = new ArrayList<>();
 		Enumeration<JarEntry> entries = jfile.entries();
-		Set<String> possibleInnerClasses = new HashSet<String>();
-		Set<String> baseClasses = new HashSet<String>();
+		Set<String> possibleInnerClasses = new HashSet<>();
+		Set<String> baseClasses = new HashSet<>();
 
 		while (entries.hasMoreElements()) {
 			JarEntry e = entries.nextElement();
 			if (!e.isDirectory()) {
 				String entryName = e.getName();
 
-				if (entryName != null && entryName.trim().length() > 0) {
+				if (entryName.trim().length() > 0) {
 					entryName = entryName.trim();
 
 					if (!entryName.endsWith(".class")) {

@@ -11,7 +11,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class Luyten {
 					if (lockSocket != null) {
 						lockSocket.close();
 					}
-				} catch (IOException e) {
+				} catch (IOException ignored) {
 				}
 			}
 		}));

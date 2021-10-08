@@ -3,13 +3,11 @@ package us.deathmarine.luyten;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
-import java.awt.Panel;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
@@ -55,8 +53,8 @@ public class OpenFile implements SyntaxConstants {
 
 	// navigation links
 	private TreeMap<Selection, String> selectionToUniqueStrTreeMap = new TreeMap<>();
-	private Map<String, Boolean> isNavigableCache = new ConcurrentHashMap<>();
-	private Map<String, String> readableLinksCache = new ConcurrentHashMap<>();
+	private final Map<String, Boolean> isNavigableCache = new ConcurrentHashMap<>();
+	private final Map<String, String> readableLinksCache = new ConcurrentHashMap<>();
 
 	private volatile boolean isContentValid = false;
 	private volatile boolean isNavigationLinksValid = false;
@@ -69,13 +67,12 @@ public class OpenFile implements SyntaxConstants {
 
 	MainWindow mainWindow;
 	RTextScrollPane scrollPane;
-	Panel image_pane;
 	RSyntaxTextArea textArea;
 	String name;
 	String path;
 	
-	private ConfigSaver configSaver;
-	private LuytenPreferences luytenPrefs;
+	private final ConfigSaver configSaver;
+	private final LuytenPreferences luytenPrefs;
 
 	// decompiler and type references (not needed for text files)
 	private MetadataSystem metadataSystem;
@@ -119,8 +116,6 @@ public class OpenFile implements SyntaxConstants {
 		else if (name.toLowerCase().endsWith(".html") || name.toLowerCase().endsWith(".htm")
 				|| name.toLowerCase().endsWith(".xhtm") || name.toLowerCase().endsWith(".xhtml"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_HTML);
-		else if (name.toLowerCase().endsWith(".js"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
 		else if (name.toLowerCase().endsWith(".lua"))
 			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_LUA);
 		else if (name.toLowerCase().endsWith(".bat"))
@@ -228,7 +223,7 @@ public class OpenFile implements SyntaxConstants {
 		for (MouseWheelListener listeners : scrollPane.getMouseWheelListeners()) {
 			scrollPane.removeMouseWheelListener(listeners);
 		}
-		;
+
 		scrollPane.addMouseWheelListener(new MouseWheelListener() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) {
@@ -316,7 +311,7 @@ public class OpenFile implements SyntaxConstants {
 													break;
 												}
 											}
-										} else if ((leftToRight && direction > 0) || (!leftToRight && direction < 0)) {
+										} else {
 											viewRect.x += unitIncr;
 											if (leftToRight) {
 												if (viewRect.x > scrollMax) {
@@ -324,8 +319,6 @@ public class OpenFile implements SyntaxConstants {
 													break;
 												}
 											}
-										} else {
-											assert false : "Non-sensical ComponentOrientation / scroll direction";
 										}
 									}
 								}
@@ -427,10 +420,10 @@ public class OpenFile implements SyntaxConstants {
 					if (!linkText.equals(prevLinkText)) {
 						setLinkLabel(label, linkText);
 					}
-				} else if (isLinkLabel && !isLinkLabelPrev) {
+				} else if (isLinkLabel) {
 					setLinkLabel(label, linkText);
 
-				} else if (!isLinkLabel && isLinkLabelPrev) {
+				} else if (isLinkLabelPrev) {
 					setLinkLabel(label, null);
 				}
 				isLinkLabelPrev = isLinkLabel;
@@ -634,10 +627,7 @@ public class OpenFile implements SyntaxConstants {
 	private String getLinkDescriptionForOffset(int offset) {
 		String uniqueStr = getUniqueStrForOffset(offset);
 		if (uniqueStr != null) {
-			String description = this.getLinkDescription(uniqueStr);
-			if (description != null) {
-				return description;
-			}
+			return this.getLinkDescription(uniqueStr);
 		}
 		return null;
 	}
@@ -694,7 +684,7 @@ public class OpenFile implements SyntaxConstants {
 	}
 
 	private boolean isLocallyNavigable(String uniqueStr) {
-		return linkProvider.getDefinitionToSelectionMap().keySet().contains(uniqueStr);
+		return linkProvider.getDefinitionToSelectionMap().containsKey(uniqueStr);
 	}
 
 	private void onLocalNavigationRequest(String uniqueStr) {
@@ -834,11 +824,8 @@ public class OpenFile implements SyntaxConstants {
 			return false;
 		OpenFile other = (OpenFile) obj;
 		if (path == null) {
-			if (other.path != null)
-				return false;
-		} else if (!path.equals(other.path))
-			return false;
-		return true;
+			return other.path == null;
+		} else return path.equals(other.path);
 	}
 
 }

@@ -51,7 +51,7 @@ public class MainWindow extends JFrame {
 		windowPosition = configSaver.getMainWindowPosition();
 		luytenPrefs = configSaver.getLuytenPreferences();
 
-		jarModels = new HashMap<String, Model>();
+		jarModels = new HashMap<>();
 		mainMenuBar = new MainMenuBar(this);
 		this.setJMenuBar(mainMenuBar);
 
@@ -297,9 +297,9 @@ public class MainWindow extends JFrame {
 			bar.setVisible(true);
 			bar.setIndeterminate(true);
 			while (myCL != null) {
-				sb.append("ClassLoader: " + myCL + "\n");
+				sb.append("ClassLoader: ").append(myCL).append("\n");
 				for (Iterator<?> iter = list(myCL); iter.hasNext();) {
-					sb.append("\t" + iter.next() + "\n");
+					sb.append("\t").append(iter.next()).append("\n");
 				}
 				myCL = myCL.getParent();
 			}

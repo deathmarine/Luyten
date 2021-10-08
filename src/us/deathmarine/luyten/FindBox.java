@@ -32,9 +32,9 @@ public class FindBox extends JDialog {
 	JCheckBox wholew;
 	JCheckBox reverse;
 	JCheckBox wrap;
-	private JButton findButton;
+	private final JButton findButton;
 	JTextField textField;
-	private MainWindow mainWindow;
+	private final MainWindow mainWindow;
 
 	public void showFindBox() {
 		this.setVisible(true);

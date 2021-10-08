@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
@@ -44,8 +45,8 @@ import com.strobel.decompiler.languages.java.JavaFormattingOptions;
  */
 public class FileSaver {
 
-	private JProgressBar bar;
-	private JLabel label;
+	private final JProgressBar bar;
+	private final JLabel label;
 	private boolean cancel;
 	private boolean extracting;
 
@@ -77,9 +78,10 @@ public class FileSaver {
 				boolean isUnicodeEnabled = settings.isUnicodeOutputEnabled();
 				long time = System.currentTimeMillis();
 				try (FileOutputStream fos = new FileOutputStream(file);
-						OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
+						OutputStreamWriter writer = isUnicodeEnabled
+								? new OutputStreamWriter(fos, StandardCharsets.UTF_8)
 								: new OutputStreamWriter(fos);
-						BufferedWriter bw = new BufferedWriter(writer);) {
+						BufferedWriter bw = new BufferedWriter(writer)) {
 					label.setText("Extracting: " + file.getName());
 					bar.setVisible(true);
 					bw.write(text);
@@ -137,10 +139,10 @@ public class FileSaver {
 		try (JarFile jfile = new JarFile(inFile);
 				FileOutputStream dest = new FileOutputStream(outFile);
 				BufferedOutputStream buffDest = new BufferedOutputStream(dest);
-				ZipOutputStream out = new ZipOutputStream(buffDest);) {
+				ZipOutputStream out = new ZipOutputStream(buffDest)) {
 			bar.setMinimum(0);
 			bar.setMaximum(jfile.size());
-			byte data[] = new byte[1024];
+			byte[] data = new byte[1024];
 			DecompilerSettings settings = cloneSettings();
 			LuytenTypeLoader typeLoader = new LuytenTypeLoader();
 			MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
@@ -151,7 +153,7 @@ public class FileSaver {
 			decompilationOptions.setSettings(settings);
 			decompilationOptions.setFullDecompilation(true);
 
-			List<String> mass = null;
+			List<String> mass;
 			JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
 			LuytenPreferences luytenPrefs = ConfigSaver.getLoadedInstance().getLuytenPreferences();
 			if (luytenPrefs.isFilterOutInnerClassEntries()) {
@@ -161,7 +163,7 @@ public class FileSaver {
 			}
 
 			Enumeration<JarEntry> ent = jfile.entries();
-			Set<String> history = new HashSet<String>();
+			Set<String> history = new HashSet<>();
 			int tick = 0;
 			while (ent.hasMoreElements() && !cancel) {
 				bar.setValue(++tick);
@@ -181,11 +183,11 @@ public class FileSaver {
 							boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
 							String internalName = StringUtilities.removeRight(entry.getName(), ".class");
 							TypeReference type = metadataSystem.lookupType(internalName);
-							TypeDefinition resolvedType = null;
+							TypeDefinition resolvedType;
 							if ((type == null) || ((resolvedType = type.resolve()) == null)) {
 								throw new Exception("Unable to resolve type.");
 							}
-							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, "UTF-8")
+							Writer writer = isUnicodeEnabled ? new OutputStreamWriter(out, StandardCharsets.UTF_8)
 									: new OutputStreamWriter(out);
 							PlainTextOutput plainTextOutput = new PlainTextOutput(writer);
 							plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
@@ -242,7 +244,7 @@ public class FileSaver {
 		decompilationOptions.setFullDecompilation(true);
 
 		boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
-		TypeDefinition resolvedType = null;
+		TypeDefinition resolvedType;
 		if (type == null || ((resolvedType = type.resolve()) == null)) {
 			throw new Exception("Unable to resolve type.");
 		}
@@ -254,19 +256,19 @@ public class FileSaver {
 
 		System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 		try (FileOutputStream fos = new FileOutputStream(outFile);
-				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, "UTF-8")
+				OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, StandardCharsets.UTF_8)
 						: new OutputStreamWriter(fos);
-				BufferedWriter bw = new BufferedWriter(writer);) {
+				BufferedWriter bw = new BufferedWriter(writer)) {
 			bw.write(decompiledSource);
 			bw.flush();
 		}
 	}
 
 	private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
-		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile);) {
+		try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile)) {
 			System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
 
-			byte data[] = new byte[1024];
+			byte[] data = new byte[1024];
 			int count;
 			while ((count = in.read(data, 0, 1024)) != -1) {
 				out.write(data, 0, count);

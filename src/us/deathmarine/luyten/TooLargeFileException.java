@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 
 public class TooLargeFileException extends Exception {
 	private static final long serialVersionUID = 6091096838075139962L;
-	private long size;
+	private final long size;
 
 	public TooLargeFileException(long size) {
 		this.size = size;

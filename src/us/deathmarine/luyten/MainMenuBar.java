@@ -45,7 +45,7 @@ import com.strobel.decompiler.languages.Languages;
 public class MainMenuBar extends JMenuBar {
 	private static final long serialVersionUID = -7949855817172562075L;
 	private final MainWindow mainWindow;
-	private final Map<String, Language> languageLookup = new HashMap<String, Language>();
+	private final Map<String, Language> languageLookup = new HashMap<>();
 
 	private JMenu recentFiles;
 	private JMenuItem clearRecentFiles;
@@ -68,8 +68,8 @@ public class MainMenuBar extends JMenuBar {
 	private JCheckBoxMenuItem filterOutInnerClassEntries;
 	private JCheckBoxMenuItem singleClickOpenEnabled;
 	private JCheckBoxMenuItem exitByEscEnabled;
-	private DecompilerSettings settings;
-	private LuytenPreferences luytenPrefs;
+	private final DecompilerSettings settings;
+	private final LuytenPreferences luytenPrefs;
 
 	public MainMenuBar(MainWindow mainWnd) {
 		this.mainWindow = mainWnd;
@@ -113,7 +113,7 @@ public class MainMenuBar extends JMenuBar {
 					buildOperationMenu(operationMenu);
 					refreshMenuPopup(operationMenu);
 
-					buildSettingsMenu(settingsMenu, configSaver);
+					buildSettingsMenu(settingsMenu);
 					refreshMenuPopup(settingsMenu);
 
 					buildHelpMenu(helpMenu);
@@ -198,7 +198,7 @@ public class MainMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				JTabbedPane house = mainWindow.getSelectedModel().house;
 				
-				if (e.getModifiers() != 2 || house.getTabCount() == 0)
+				if (e.getModifiers() != InputEvent.CTRL_MASK || house.getTabCount() == 0)
 					mainWindow.onCloseFileMenu();
 				else {
 					mainWindow.getSelectedModel().closeOpenTab(house.getSelectedIndex());
@@ -251,7 +251,7 @@ public class MainMenuBar extends JMenuBar {
 		// automatically
 		if (!Boolean.getBoolean("apple.laf.useScreenMenuBar")) {
 			menuItem = new JMenuItem("Exit");
-			menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+			menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -421,7 +421,7 @@ public class MainMenuBar extends JMenuBar {
 		operationMenu.add(exitByEscEnabled);
 	}
 
-	private void buildSettingsMenu(JMenu settingsMenu, ConfigSaver configSaver) {
+	private void buildSettingsMenu(JMenu settingsMenu) {
 		settingsMenu.removeAll();
 		ActionListener settingsChanged = new ActionListener() {
 			@Override
@@ -573,14 +573,14 @@ public class MainMenuBar extends JMenuBar {
 				link.addMouseListener(new LinkListener(procyon, link));
 				pane.add(link);
 				pane.add(new JLabel("Version: " + Procyon.version()));
-				pane.add(new JLabel("(c) 2018 Mike Strobel"));
+				pane.add(new JLabel("(c) 2021 Mike Strobel"));
 				String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
 				link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
 				link.setCursor(new Cursor(Cursor.HAND_CURSOR));
 				link.addMouseListener(new LinkListener(rsyntax, link));
 				pane.add(link);
-				pane.add(new JLabel("Version: 3.0.2"));
-				pane.add(new JLabel("(c) 2019 Robert Futrell"));
+				pane.add(new JLabel("Version: 3.1.3"));
+				pane.add(new JLabel("(c) 2021 Robert Futrell"));
 				pane.add(new JLabel(" "));
 				JOptionPane.showMessageDialog(null, pane);
 			}
@@ -631,7 +631,7 @@ public class MainMenuBar extends JMenuBar {
 
 	private class ThemeAction extends AbstractAction {
 		private static final long serialVersionUID = -6618680171943723199L;
-		private String xml;
+		private final String xml;
 
 		public ThemeAction(String name, String xml) {
 			putValue(NAME, name);
@@ -645,7 +645,7 @@ public class MainMenuBar extends JMenuBar {
 		}
 	}
 
-	private class LinkListener extends MouseAdapter {
+	private static class LinkListener extends MouseAdapter {
 		String link;
 		JLabel label;
 

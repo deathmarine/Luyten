@@ -7,10 +7,6 @@ import com.strobel.decompiler.DecompilationOptions;
 import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 
-import us.deathmarine.luyten.ConfigSaver;
-import us.deathmarine.luyten.MainWindow;
-import us.deathmarine.luyten.Model;
-
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -21,7 +17,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Collections;
@@ -59,13 +54,13 @@ public class FindAllBox extends JDialog {
 	private JProgressBar progressBar;
 	boolean locked;
 
-	private JLabel statusLabel = new JLabel("");
+	private final JLabel statusLabel = new JLabel("");
 
-	private DefaultListModel<String> classesList = new DefaultListModel<String>();
+	private final DefaultListModel<String> classesList = new DefaultListModel<>();
 
 	private Thread tmp_thread;
 
-	private MainWindow mainWindow;
+	private final MainWindow mainWindow;
 
 	public FindAllBox(final MainWindow mainWindow) {
 		this.setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -86,7 +81,7 @@ public class FindAllBox extends JDialog {
 
 		this.getRootPane().setDefaultButton(findButton);
 
-		list = new JList<String>(classesList);
+		list = new JList<>(classesList);
 		list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		list.setLayoutOrientation(JList.VERTICAL_WRAP);
 		list.setVisibleRowCount(-1);
@@ -96,7 +91,7 @@ public class FindAllBox extends JDialog {
 				JList<String> list = (JList<String>) evt.getSource();
 				if (evt.getClickCount() == 2) {
 					int index = list.locationToIndex(evt.getPoint());
-					String entryName = (String) list.getModel().getElementAt(index);
+					String entryName = list.getModel().getElementAt(index);
 					String[] array = entryName.split("/");
 					if (entryName.toLowerCase().endsWith(".class")) {
 						String internalName = StringUtilities.removeRight(entryName, ".class");
@@ -115,8 +110,6 @@ public class FindAllBox extends JDialog {
 									jfile.getInputStream(jfile.getEntry(entryName)), array[array.length - 1],
 									entryName);
 							jfile.close();
-						} catch (IOException e) {
-							e.printStackTrace();
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -221,7 +214,7 @@ public class FindAllBox extends JDialog {
 									if (entry.getName().endsWith(".class")) {
 										synchronized (settings) {
 											String internalName = StringUtilities.removeRight(entry.getName(), ".class");
-											TypeReference type = null;
+											TypeReference type;
 											try {
 												type = Model.metadataSystem.lookupType(internalName);
 												TypeDefinition resolvedType = null;
@@ -240,7 +233,7 @@ public class FindAllBox extends JDialog {
 														addClassName(entry.getName());
 												}
 											} catch (IllegalStateException ise) {
-												if (ise.getMessage().toString().contains("Invalid BootstrapMethods attribute entry: 2 additional arguments required for method java/lang/invoke/StringConcatFactory.makeConcatWithConstants, but only 1 specified.")) {
+												if (ise.getMessage().contains("Invalid BootstrapMethods attribute entry: 2 additional arguments required for method java/lang/invoke/StringConcatFactory.makeConcatWithConstants, but only 1 specified.")) {
 													// Known issue of Procyon <= 0.5.35 and fix not yet released, refer to https://bitbucket.org/mstrobel/procyon/issues/336/
 													// Searching in a WAR or JAR file could pop-up a lot of error dialogs for a lot of class files, we simply say nothing here
 													addClassName(entry.getName() + "  (search failed due to known Exception in Procyon <= 0.5.35. Opening file will fail too)");
@@ -260,7 +253,7 @@ public class FindAllBox extends JDialog {
 										long nonprintableCharactersCount = 0;
 										try (InputStreamReader inputStreamReader = new InputStreamReader(
 												jfile.getInputStream(entry));
-												BufferedReader reader = new BufferedReader(inputStreamReader);) {
+												BufferedReader reader = new BufferedReader(inputStreamReader)) {
 											String line;
 											while ((line = reader.readLine()) != null) {
 												sb.append(line).append("\n");
@@ -310,9 +303,7 @@ public class FindAllBox extends JDialog {
 			a = a.toLowerCase();
 			b = b.toLowerCase();
 		}
-		if (b.contains(a))
-			return true;
-		return false;
+		return b.contains(a);
 	}
 
 	private void setHideOnEscapeButton() {

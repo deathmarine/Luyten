@@ -33,7 +33,7 @@ public class ConfigSaver {
 	private WindowPosition findWindowPosition;
 	private LuytenPreferences luytenPreferences;
 
-	private static ConfigSaver theLoadedInstance;
+	private static volatile ConfigSaver theLoadedInstance;
 
 	/**
 	 * Do not instantiate, get the loaded instance
@@ -121,7 +121,7 @@ public class ConfigSaver {
 				field.set(newLuytenPrefs, prefs.get(prefId, defaultStr));
 
 			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-				Boolean defaultBool = (Boolean) (defaultVal == null ? new Boolean(false) : defaultVal);
+				Boolean defaultBool = (Boolean) (defaultVal == null ? Boolean.FALSE : defaultVal);
 				field.setBoolean(newLuytenPrefs, prefs.getBoolean(prefId, defaultBool));
 
 			} else if (field.getType() == Integer.class || field.getType() == int.class) {
@@ -177,7 +177,7 @@ public class ConfigSaver {
 				prefs.put(prefId, (String) (value == null ? "" : value));
 
 			} else if (field.getType() == Boolean.class || field.getType() == boolean.class) {
-				prefs.putBoolean(prefId, (Boolean) (value == null ? new Boolean(false) : value));
+				prefs.putBoolean(prefId, (Boolean) (value == null ? Boolean.FALSE : value));
 
 			} else if (field.getType() == Integer.class || field.getType() == int.class) {
 				prefs.putInt(prefId, (Integer) (value == null ? new Integer(0) : value));

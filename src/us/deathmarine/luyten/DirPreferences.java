@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.io.File;
 
 class DirPreferences {
-    private LuytenPreferences luytenPrefs;
+    private final LuytenPreferences luytenPrefs;
 
     public DirPreferences(LuytenPreferences luytenPrefs) {
         this.luytenPrefs = luytenPrefs;

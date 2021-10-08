@@ -18,7 +18,7 @@ import java.util.List;
  * Drag-Drop (only MainWindow should be called from here)
  */
 public class DropListener implements DropTargetListener {
-	private MainWindow mainWindow;
+	private final MainWindow mainWindow;
 
 	public DropListener(MainWindow mainWindow) {
 		this.mainWindow = mainWindow;
@@ -51,16 +51,16 @@ public class DropListener implements DropTargetListener {
 		} else {
 			DataFlavor[] flavors = transferable.getTransferDataFlavors();
 			boolean handled = false;
-			for (int zz = 0; zz < flavors.length; zz++) {
-				if (flavors[zz].isRepresentationClassReader()) {
+			for (DataFlavor flavor : flavors) {
+				if (flavor.isRepresentationClassReader()) {
 					try {
-						Reader reader = flavors[zz].getReaderForText(transferable);
+						Reader reader = flavor.getReaderForText(transferable);
 						BufferedReader br = new BufferedReader(reader);
-						List<File> list = new ArrayList<File>();
-						String line = null;
+						List<File> list = new ArrayList<>();
+						String line;
 						while ((line = br.readLine()) != null) {
 							try {
-								if (new String("" + (char) 0).equals(line))
+								if (("" + (char) 0).equals(line))
 									continue;
 								File file = new File(new URI(line));
 								list.add(file);
