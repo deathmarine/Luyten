@@ -94,8 +94,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -165,7 +165,7 @@
 							</classPath>
 							<icon>luyten.ico</icon>
 							<jre>
-								<minVersion>1.7.0</minVersion>
+								<minVersion>1.8.0</minVersion>
 								<maxVersion>1.8.0</maxVersion>
 								<initialHeapSize>128</initialHeapSize>
 								<maxHeapSize>1024</maxHeapSize>
@@ -228,7 +228,7 @@
 											mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
 											version="${project.version}" copyright="2015"
 											icon="${project.build.sourceDirectory}/resources/luyten.icns"
-											jvmversion="1.7+" screenmenu="true" 
+											jvmversion="1.8+" screenmenu="true"
 											antialiasedgraphics="true" highresolutioncapable="true" >
 									<documenttype name="Class File" extensions="class" role="Viewer" />
 									<documenttype name="Java File" extensions="java" role="Viewer" />
