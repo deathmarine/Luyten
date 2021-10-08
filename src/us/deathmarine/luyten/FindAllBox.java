@@ -95,12 +95,17 @@ public class FindAllBox extends JDialog {
 					String[] array = entryName.split("/");
 					if (entryName.toLowerCase().endsWith(".class")) {
 						String internalName = StringUtilities.removeRight(entryName, ".class");
-						TypeReference type = Model.metadataSystem.lookupType(internalName);
+						TypeReference type = mainWindow.getSelectedModel().getMetadataSystem().lookupType(internalName);
 						try {
 							mainWindow.getSelectedModel().extractClassToTextPane(type, array[array.length - 1], entryName,
 									null);
-						} catch (Exception e) {
-							Luyten.showExceptionDialog("Exception!", e);
+						} catch (Exception ignored) {
+							for (Model m : mainWindow.getModels()) {
+								try {
+									m.extractClassToTextPane(type, array[array.length - 1], entryName, null);
+								} catch (Exception ignored1) {
+								}
+							}
 						}
 
 					} else {
@@ -216,8 +221,8 @@ public class FindAllBox extends JDialog {
 											String internalName = StringUtilities.removeRight(entry.getName(), ".class");
 											TypeReference type;
 											try {
-												type = Model.metadataSystem.lookupType(internalName);
-												TypeDefinition resolvedType = null;
+												type = mainWindow.getSelectedModel().getMetadataSystem().lookupType(internalName);
+												TypeDefinition resolvedType;
 												if (type != null && ((resolvedType = type.resolve()) != null)) {
 													StringWriter stringwriter = new StringWriter();
 													DecompilationOptions decompilationOptions;

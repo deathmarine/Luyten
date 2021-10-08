@@ -73,8 +73,8 @@ public class Model extends JSplitPane {
 	private static final long MAX_JAR_FILE_SIZE_BYTES = 10_000_000_000L;
 	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 10_000_000L;
 
-	private static LuytenTypeLoader typeLoader = new LuytenTypeLoader();
-	public static MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
+	private final LuytenTypeLoader typeLoader = new LuytenTypeLoader();
+	private MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
 
 	private final JTree tree;
 	public JTabbedPane house;
@@ -573,7 +573,7 @@ public class Model extends JSplitPane {
 		@Override
 		public void close() {
 			if (typeLoader != null) {
-				Model.typeLoader.getTypeLoaders().remove(typeLoader);
+				Model.this.typeLoader.getTypeLoaders().remove(typeLoader);
 			}
 			Closer.tryClose(jarFile);
 		}
@@ -1057,4 +1057,7 @@ public class Model extends JSplitPane {
 		this.theme = theme;
 	}
 
+	public MetadataSystem getMetadataSystem() {
+		return metadataSystem;
+	}
 }

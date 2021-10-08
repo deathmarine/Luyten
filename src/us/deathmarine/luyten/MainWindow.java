@@ -496,6 +496,10 @@ public class MainWindow extends JFrame {
 		return (Model) jarsTabbedPane.getSelectedComponent();
 	}
 
+	public Collection<Model> getModels() {
+		return jarModels.values();
+	}
+
 	public JProgressBar getBar() {
 		return bar;
 	}
