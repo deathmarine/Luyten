@@ -188,44 +188,38 @@ public class Model extends JSplitPane {
 	}
 
 	private void addOrSwitchToTab(final OpenFile open) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final String title = open.name;
-					RTextScrollPane rTextScrollPane = open.scrollPane;
-					int index = house.indexOfTab(title);
-					if (index > -1 && house.getTabComponentAt(index) != open.scrollPane) {
-						index = -1;
-						for (int i = 0; i < house.getTabCount(); i++) {
-							if (house.getComponentAt(i) == open.scrollPane) {
-								index = i;
-								break;
-							}
-						}
-					}
-					if (index < 0) {
-						house.addTab(title, rTextScrollPane);
-						index = house.indexOfComponent(rTextScrollPane);
-						house.setSelectedIndex(index);
-						Tab ct = new Tab(title, new Callable<Void>() {
-							@Override
-							public Void call() {
-								int index = house.indexOfTab(title);
-								closeOpenTab(index);
-								return null;
-							}
-						});
-						house.setTabComponentAt(index, ct);
-					} else {
-						house.setSelectedIndex(index);
-					}
-					open.onAddedToScreen();
-				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
-				}
-			}
-		});
+		SwingUtilities.invokeLater(() -> {
+            try {
+                final String title = open.name;
+                RTextScrollPane rTextScrollPane = open.scrollPane;
+                int index = house.indexOfTab(title);
+                if (index > -1 && house.getTabComponentAt(index) != open.scrollPane) {
+                    index = -1;
+                    for (int i = 0; i < house.getTabCount(); i++) {
+                        if (house.getComponentAt(i) == open.scrollPane) {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+                if (index < 0) {
+                    house.addTab(title, rTextScrollPane);
+                    index = house.indexOfComponent(rTextScrollPane);
+                    house.setSelectedIndex(index);
+                    Tab ct = new Tab(title, () -> {
+                        int index1 = house.indexOfTab(title);
+                        closeOpenTab(index1);
+                        return null;
+                    });
+                    house.setTabComponentAt(index, ct);
+                } else {
+                    house.setSelectedIndex(index);
+                }
+                open.onAddedToScreen();
+            } catch (Exception e) {
+                Luyten.showExceptionDialog("Exception!", e);
+            }
+        });
 	}
 
 	public void closeOpenTab(int index) {
@@ -273,11 +267,7 @@ public class Model extends JSplitPane {
 			if (!isLeaf)
 				return;
 
-			new Thread() {
-				public void run() {
-					openEntryByTreePath(trp);
-				}
-			}.start();
+			new Thread(() -> openEntryByTreePath(trp)).start();
 		}
 	}
 
@@ -533,22 +523,19 @@ public class Model extends JSplitPane {
 		if (open.getType() == null) {
 			return;
 		}
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					bar.setVisible(true);
-					getLabel().setText("Extracting: " + open.name);
-					open.invalidateContent();
-					open.decompile();
-					getLabel().setText("Complete");
-				} catch (Exception e) {
-					getLabel().setText("Error, cannot update: " + open.name);
-				} finally {
-					bar.setVisible(false);
-				}
-			}
-		}).start();
+		new Thread(() -> {
+            try {
+                bar.setVisible(true);
+                getLabel().setText("Extracting: " + open.name);
+                open.invalidateContent();
+                open.decompile();
+                getLabel().setText("Complete");
+            } catch (Exception e) {
+                getLabel().setText("Error, cannot update: " + open.name);
+            } finally {
+                bar.setVisible(false);
+            }
+        }).start();
 	}
 
 	private boolean isTabInForeground(OpenFile open) {
@@ -686,78 +673,72 @@ public class Model extends JSplitPane {
 	}
 
 	public void loadTree() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (file == null) {
-						return;
-					}
-					tree.setModel(new DefaultTreeModel(null));
+		new Thread(() -> {
+            try {
+                if (file == null) {
+                    return;
+                }
+                tree.setModel(new DefaultTreeModel(null));
 
-					if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
-						throw new TooLargeFileException(file.length());
-					}
-					if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
-						JarFile jfile = new JarFile(file);
-						getLabel().setText("Loading: " + jfile.getName());
-						bar.setVisible(true);
+                if (file.length() > MAX_JAR_FILE_SIZE_BYTES) {
+                    throw new TooLargeFileException(file.length());
+                }
+                if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
+                    JarFile jfile = new JarFile(file);
+                    getLabel().setText("Loading: " + jfile.getName());
+                    bar.setVisible(true);
 
-						JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
-						List<String> mass;
-						if (luytenPrefs.isFilterOutInnerClassEntries()) {
-							mass = jarEntryFilter.getEntriesWithoutInnerClasses();
-						} else {
-							mass = jarEntryFilter.getAllEntriesFromJar();
-						}
-						buildTreeFromMass(mass);
+                    JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
+                    List<String> mass;
+                    if (luytenPrefs.isFilterOutInnerClassEntries()) {
+                        mass = jarEntryFilter.getEntriesWithoutInnerClasses();
+                    } else {
+                        mass = jarEntryFilter.getAllEntriesFromJar();
+                    }
+                    buildTreeFromMass(mass);
 
-						if (state == null) {
-							ITypeLoader jarLoader = new JarTypeLoader(jfile);
-							typeLoader.getTypeLoaders().add(jarLoader);
-							state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
-						}
-						open = true;
-						getLabel().setText("Complete");
-					} else {
-						TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
-						final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
-						tree.setModel(new DefaultTreeModel(top));
-						settings.setTypeLoader(new InputTypeLoader());
-						open = true;
-						getLabel().setText("Complete");
+                    if (state == null) {
+                        ITypeLoader jarLoader = new JarTypeLoader(jfile);
+                        typeLoader.getTypeLoaders().add(jarLoader);
+                        state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                    }
+                    open = true;
+                    getLabel().setText("Complete");
+                } else {
+                    TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
+                    final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
+                    tree.setModel(new DefaultTreeModel(top));
+                    settings.setTypeLoader(new InputTypeLoader());
+                    open = true;
+                    getLabel().setText("Complete");
 
-						// open it automatically
-						new Thread() {
-							public void run() {
-								TreePath trp = new TreePath(top.getPath());
-								openEntryByTreePath(trp);
-							}
-						}.start();
-					}
+                    // open it automatically
+                    new Thread(() -> {
+                        TreePath trp = new TreePath(top.getPath());
+                        openEntryByTreePath(trp);
+                    }).start();
+                }
 
-					if (treeExpansionState != null) {
-						try {
-							TreeUtil treeUtil = new TreeUtil(tree);
-							treeUtil.restoreExpanstionState(treeExpansionState);
-						} catch (Exception e) {
-							Luyten.showExceptionDialog("Exception!", e);
-						}
-					}
-				} catch (TooLargeFileException e) {
-					getLabel().setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
-					closeFile();
-				} catch (Exception e1) {
-					Luyten.showExceptionDialog("Cannot open " + file.getName() + "!", e1);
-					getLabel().setText("Cannot open: " + file.getName());
-					closeFile();
-				} finally {
-					mainWindow.onFileLoadEnded(file, open);
-					bar.setVisible(false);
-				}
-			}
-
-		}).start();
+                if (treeExpansionState != null) {
+                    try {
+                        TreeUtil treeUtil = new TreeUtil(tree);
+                        treeUtil.restoreExpanstionState(treeExpansionState);
+                    } catch (Exception e) {
+                        Luyten.showExceptionDialog("Exception!", e);
+                    }
+                }
+            } catch (TooLargeFileException e) {
+                getLabel().setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
+                closeFile();
+            } catch (Exception e1) {
+                Luyten.showExceptionDialog("Cannot open " + file.getName() + "!", e1);
+                getLabel().setText("Cannot open: " + file.getName());
+                closeFile();
+            } finally {
+                mainWindow.onFileLoadEnded(file, open);
+                bar.setVisible(false);
+            }
+        }).start();
 	}
 
 	private void buildTreeFromMass(List<String> mass) {
@@ -784,11 +765,7 @@ public class Model extends JSplitPane {
 		}
 		List<String> packs = Arrays.asList(set.toArray(new String[] {}));
 		Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);
-		Collections.sort(packs, new Comparator<String>() {
-			public int compare(String o1, String o2) {
-				return o2.split("/").length - o1.split("/").length;
-			}
-		});
+		Collections.sort(packs, (o1, o2) -> o2.split("/").length - o1.split("/").length);
 		for (String pack : packs)
 			for (String m : mass)
 				if (!m.contains("META-INF") && m.contains(pack) && !m.replace(pack, "").contains("/"))
@@ -810,16 +787,13 @@ public class Model extends JSplitPane {
 		TreeMap<String, TreeSet<String>> packages = new TreeMap<>();
 		HashSet<String> classContainingPackageRoots = new HashSet<>();
 
-		Comparator<String> sortByFileExtensionsComparator = new Comparator<String>() {
-			// (assertion: mass does not contain null elements)
-			@Override
-			public int compare(String o1, String o2) {
-				int comp = o1.replaceAll("[^.]*\\.", "").compareTo(o2.replaceAll("[^.]*\\.", ""));
-				if (comp != 0)
-					return comp;
-				return o1.compareTo(o2);
-			}
-		};
+		// (assertion: mass does not contain null elements)
+		Comparator<String> sortByFileExtensionsComparator = (o1, o2) -> {
+            int comp = o1.replaceAll("[^.]*\\.", "").compareTo(o2.replaceAll("[^.]*\\.", ""));
+            if (comp != 0)
+                return comp;
+            return o1.compareTo(o2);
+        };
 
 		for (String entry : mass) {
 			String packagePath = "";
@@ -973,68 +947,63 @@ public class Model extends JSplitPane {
 	}
 
 	public void startWarmUpThread() {
-		new Thread() {
-			public void run() {
-				try {
-					Thread.sleep(500);
-					String internalName = FindBox.class.getName();
-					TypeReference type = metadataSystem.lookupType(internalName);
-					TypeDefinition resolvedType;
-					if ((type == null) || ((resolvedType = type.resolve()) == null)) {
-						return;
-					}
-					StringWriter stringwriter = new StringWriter();
-					PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
-					plainTextOutput
-							.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
-					settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
-					String decompiledSource = stringwriter.toString();
-					OpenFile open = new OpenFile(internalName, "*/" + internalName, getTheme(), mainWindow);
-					open.setContent(decompiledSource);
-					JTabbedPane pane = new JTabbedPane();
-					pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-					pane.addTab("title", open.scrollPane);
-					pane.setSelectedIndex(pane.indexOfTab("title"));
-				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
-				}
-			}
-		}.start();
+		new Thread(() -> {
+            try {
+                Thread.sleep(500);
+                String internalName = FindBox.class.getName();
+                TypeReference type = metadataSystem.lookupType(internalName);
+                TypeDefinition resolvedType;
+                if ((type == null) || ((resolvedType = type.resolve()) == null)) {
+                    return;
+                }
+                StringWriter stringwriter = new StringWriter();
+                PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
+                plainTextOutput
+                        .setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
+                settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
+                String decompiledSource = stringwriter.toString();
+                OpenFile open = new OpenFile(internalName, "*/" + internalName, getTheme(), mainWindow);
+                open.setContent(decompiledSource);
+                JTabbedPane pane = new JTabbedPane();
+                pane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+                pane.addTab("title", open.scrollPane);
+                pane.setSelectedIndex(pane.indexOfTab("title"));
+            } catch (Exception e) {
+                Luyten.showExceptionDialog("Exception!", e);
+            }
+        }).start();
 	}
 
 	public void navigateTo(final String uniqueStr) {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				if (uniqueStr == null)
-					return;
-				String[] linkParts = uniqueStr.split("\\|");
-				if (linkParts.length <= 1)
-					return;
-				String destinationTypeStr = linkParts[1];
-				try {
-					bar.setVisible(true);
-					getLabel().setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
+		new Thread(() -> {
+            if (uniqueStr == null)
+                return;
+            String[] linkParts = uniqueStr.split("\\|");
+            if (linkParts.length <= 1)
+                return;
+            String destinationTypeStr = linkParts[1];
+            try {
+                bar.setVisible(true);
+                getLabel().setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
 
-					TypeReference type = metadataSystem.lookupType(destinationTypeStr);
-					if (type == null)
-						throw new RuntimeException("Cannot lookup type: " + destinationTypeStr);
-					TypeDefinition typeDef = type.resolve();
-					if (typeDef == null)
-						throw new RuntimeException("Cannot resolve type: " + destinationTypeStr);
+                TypeReference type = metadataSystem.lookupType(destinationTypeStr);
+                if (type == null)
+                    throw new RuntimeException("Cannot lookup type: " + destinationTypeStr);
+                TypeDefinition typeDef = type.resolve();
+                if (typeDef == null)
+                    throw new RuntimeException("Cannot resolve type: " + destinationTypeStr);
 
-					String tabTitle = typeDef.getName() + ".class";
-					extractClassToTextPane(typeDef, tabTitle, destinationTypeStr, uniqueStr);
+                String tabTitle = typeDef.getName() + ".class";
+                extractClassToTextPane(typeDef, tabTitle, destinationTypeStr, uniqueStr);
 
-					getLabel().setText("Complete");
-				} catch (Exception e) {
-					getLabel().setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
-					Luyten.showExceptionDialog("Cannot Navigate!", e);
-				} finally {
-					bar.setVisible(false);
-				}
-			}
-		}).start();
+                getLabel().setText("Complete");
+            } catch (Exception e) {
+                getLabel().setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
+                Luyten.showExceptionDialog("Cannot Navigate!", e);
+            } finally {
+                bar.setVisible(false);
+            }
+        }).start();
 	}
 
 	public JLabel getLabel() {

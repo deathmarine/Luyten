@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -33,17 +32,17 @@ public class MainWindow extends JFrame {
 	private static final String TITLE = "Luyten";
 	private static final String DEFAULT_TAB = "#DEFAULT";
 
-	private JProgressBar bar;
-	private JLabel label;
+	private final JProgressBar bar;
+	private final JLabel label;
 	FindBox findBox;
 	private FindAllBox findAllBox;
-	private ConfigSaver configSaver;
-	private WindowPosition windowPosition;
-	private LuytenPreferences luytenPrefs;
-	private FileDialog fileDialog;
-	private FileSaver fileSaver;
-	private JTabbedPane jarsTabbedPane;
-	private Map<String, Model> jarModels;
+	private final ConfigSaver configSaver;
+	private final WindowPosition windowPosition;
+	private final LuytenPreferences luytenPrefs;
+	private final FileDialog fileDialog;
+	private final FileSaver fileSaver;
+	private final JTabbedPane jarsTabbedPane;
+	private final Map<String, Model> jarModels;
 	public MainMenuBar mainMenuBar;
 
 	public MainWindow(File fileFromCommandLine) {
@@ -174,18 +173,15 @@ public class MainWindow extends JFrame {
 
 		final String tabName = file.getName();
 		int index = jarsTabbedPane.indexOfTab(tabName);
-		Model.Tab tabUI = new Model.Tab(tabName, new Callable<Void>() {
-			@Override
-			public Void call() {
-				int index = jarsTabbedPane.indexOfTab(tabName);
-				jarModels.remove(file.getAbsolutePath());
-				jarsTabbedPane.remove(index);
-				if (jarsTabbedPane.getTabCount() == 0) {
-					createDefaultTab();
-				}
-				return null;
-			}
-		});
+		Model.Tab tabUI = new Model.Tab(tabName, () -> {
+            int index1 = jarsTabbedPane.indexOfTab(tabName);
+            jarModels.remove(file.getAbsolutePath());
+            jarsTabbedPane.remove(index1);
+            if (jarsTabbedPane.getTabCount() == 0) {
+                createDefaultTab();
+            }
+            return null;
+        });
 		jarsTabbedPane.setTabComponentAt(index, tabUI);
 		if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) != -1 && jarsTabbedPane.getTabCount() > 1) {
 			removeDefaultTab();
@@ -275,19 +271,17 @@ public class MainWindow extends JFrame {
 	}
 
 	public void onLegalMenu() {
-		new Thread() {
-			public void run() {
-				try {
-					bar.setVisible(true);
-					bar.setIndeterminate(true);
-					String legalStr = getLegalStr();
-					getSelectedModel().showLegal(legalStr);
-				} finally {
-					bar.setIndeterminate(false);
-					bar.setVisible(false);
-				}
+		new Thread(() -> {
+			try {
+				bar.setVisible(true);
+				bar.setIndeterminate(true);
+				String legalStr = getLegalStr();
+				getSelectedModel().showLegal(legalStr);
+			} finally {
+				bar.setIndeterminate(false);
+				bar.setVisible(false);
 			}
-		}.start();
+		}).start();
 	}
 
 	public void onListLoadedClasses() {

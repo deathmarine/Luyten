@@ -22,19 +22,17 @@ public class FileDialog {
         LuytenPreferences luytenPrefs = configSaver.getLuytenPreferences();
         dirPreferences = new DirPreferences(luytenPrefs);
 
-        new Thread() {
-			public void run() {
-				try {
-					initOpenDialog();
-					Thread.sleep(500);
-					initSaveAllDialog();
-					Thread.sleep(500);
-					initSaveDialog();
-				} catch (Exception e) {
-					Luyten.showExceptionDialog("Exception!", e);
-				}
-			}
-		}.start();
+        new Thread(() -> {
+            try {
+                initOpenDialog();
+                Thread.sleep(500);
+                initSaveAllDialog();
+                Thread.sleep(500);
+                initSaveDialog();
+            } catch (Exception e) {
+                Luyten.showExceptionDialog("Exception!", e);
+            }
+        }).start();
 	}
 
 	public File doOpenDialog() {

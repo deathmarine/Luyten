@@ -3,8 +3,6 @@ package us.deathmarine.luyten;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
@@ -40,15 +38,12 @@ public class Luyten {
 	private static ServerSocket lockSocket = null;
 
 	public static void main(final String[] args) {
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (lockSocket != null) {
-						lockSocket.close();
-					}
-				} catch (IOException ignored) {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				if (lockSocket != null) {
+					lockSocket.close();
 				}
+			} catch (IOException ignored) {
 			}
 		}));
 
@@ -84,25 +79,17 @@ public class Luyten {
 	private static void launchMainInstance(final File fileFromCommandLine) throws IOException {
 		lockSocket = new ServerSocket(3456);
 		launchSession(fileFromCommandLine);
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				launchServer();
-			}
-		}).start();
+		new Thread(Luyten::launchServer).start();
 	}
 
 	private static void launchSession(final File fileFromCommandLine) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
-					// Already set - so add the files to open
-					addToPendingFiles(fileFromCommandLine);
-				}
-				processPendingFiles();
-				mainWindowRef.get().setVisible(true);
+		SwingUtilities.invokeLater(() -> {
+			if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
+				// Already set - so add the files to open
+				addToPendingFiles(fileFromCommandLine);
 			}
+			processPendingFiles();
+			mainWindowRef.get().setVisible(true);
 		});
 	}
 
@@ -224,12 +211,9 @@ public class Luyten {
 					new JPopupMenu() {
 						{
 							JMenuItem menuitem = new JMenuItem("Select All");
-							menuitem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									exception.requestFocus();
-									exception.selectAll();
-								}
+							menuitem.addActionListener(e12 -> {
+								exception.requestFocus();
+								exception.selectAll();
 							});
 							this.add(menuitem);
 							menuitem = new JMenuItem("Copy");
