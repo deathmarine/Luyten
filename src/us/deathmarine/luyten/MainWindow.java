@@ -165,7 +165,7 @@ public class MainWindow extends JFrame {
 			jarsTabbedPane.remove(index);
 		}
 
-		Model jarModel = new Model(this);
+		final Model jarModel = new Model(this);
 		jarModel.loadFile(file);
 		jarModels.put(file.getAbsolutePath(), jarModel);
 		jarsTabbedPane.addTab(file.getName(), jarModel);
@@ -177,6 +177,7 @@ public class MainWindow extends JFrame {
             int index1 = jarsTabbedPane.indexOfTab(tabName);
             jarModels.remove(file.getAbsolutePath());
             jarsTabbedPane.remove(index1);
+			jarModel.closeFile();
             if (jarsTabbedPane.getTabCount() == 0) {
                 createDefaultTab();
             }
@@ -372,10 +373,11 @@ public class MainWindow extends JFrame {
 		}
 	}
 
-	public void onFileLoadEnded(File file, boolean isSuccess) {
+	public void onFileLoadEnded() {
 		try {
-			if (file != null && isSuccess) {
-				this.setTitle(TITLE + " - " + file.getName());
+			Model model = getSelectedModel();
+			if (model != null && model.getFileName() != null) {
+				this.setTitle(TITLE + " - " + model.getFileName());
 			} else {
 				this.setTitle(TITLE);
 			}

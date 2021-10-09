@@ -72,7 +72,7 @@ public class Model extends JSplitPane {
 	private static final long MAX_UNPACKED_FILE_SIZE_BYTES = 10_000_000L;
 
 	private final LuytenTypeLoader typeLoader = new LuytenTypeLoader();
-	private MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
+	private final MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
 
 	private final JTree tree;
 	public JTabbedPane house;
@@ -733,7 +733,7 @@ public class Model extends JSplitPane {
                 getLabel().setText("Cannot open: " + file.getName());
                 closeFile();
             } finally {
-                mainWindow.onFileLoadEnded(file, open);
+                mainWindow.onFileLoadEnded();
                 bar.setVisible(false);
             }
         }).start();
@@ -866,19 +866,17 @@ public class Model extends JSplitPane {
 			co.close();
 		}
 
-		final State oldState = state;
-		Model.this.state = null;
-		if (oldState != null) {
-			Closer.tryClose(oldState);
+		if (state != null) {
+			Closer.tryClose(state);
 		}
+		state = null;
 
 		hmap.clear();
 		tree.setModel(new DefaultTreeModel(null));
-		metadataSystem = new MetadataSystem(typeLoader);
 		file = null;
 		treeExpansionState = null;
 		open = false;
-		mainWindow.onFileLoadEnded(file, open);
+		mainWindow.onFileLoadEnded();
 	}
 
 	public void changeTheme(String xml) {
@@ -1022,5 +1020,9 @@ public class Model extends JSplitPane {
 
 	public MetadataSystem getMetadataSystem() {
 		return metadataSystem;
+	}
+
+	public String getFileName() {
+		return file == null ? null : getName(file.getName());
 	}
 }
