@@ -582,7 +582,8 @@ public class Model extends JSplitPane {
 			this.tabTitle = new JLabel(title);
 			this.createTab();
 
-			addMouseListener(new MouseAdapter() {
+			// TODO: Disables tab switching... Is there a workaround?
+			/*addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if (onCloseTabAction != null && SwingUtilities.isMiddleMouseButton(e)) {
@@ -593,7 +594,7 @@ public class Model extends JSplitPane {
 						}
 					}
 				}
-			});
+			});*/
 
 			closeButton.addMouseListener(new MouseAdapter() {
 				@Override
