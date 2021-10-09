@@ -15,7 +15,7 @@ public class WindowPosition {
 	private int windowY;
 
 	public void readPositionFromWindow(JFrame window) {
-		isFullScreen = (window.getExtendedState() == JFrame.MAXIMIZED_BOTH);
+		isFullScreen = (window.getExtendedState() & JFrame.MAXIMIZED_BOTH) == JFrame.MAXIMIZED_BOTH;
 		if (!isFullScreen) {
 			this.readPositionFromComponent(window);
 		}
