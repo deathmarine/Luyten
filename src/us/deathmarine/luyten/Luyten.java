@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.List;
@@ -103,6 +104,8 @@ public class Luyten {
 				dis.close();
 				socket.close();
 			}
+		} catch (SocketException ignored) {
+			// Ignore exception on shutdown
 		} catch (IOException e) { // Client
 			showExceptionDialog("Exception", e);
 		}
