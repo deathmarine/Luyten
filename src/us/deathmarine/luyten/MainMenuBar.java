@@ -478,7 +478,7 @@ public class MainMenuBar extends JMenuBar {
             pane.add(new JLabel("FisheyLP, and Syquel"));
             pane.add(new JLabel(" "));
             pane.add(new JLabel("Powered By:"));
-            String procyon = "https://bitbucket.org/mstrobel/procyon";
+            String procyon = "https://github.com/mstrobel/procyon";
             link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
             link.addMouseListener(new LinkListener(procyon, link));
