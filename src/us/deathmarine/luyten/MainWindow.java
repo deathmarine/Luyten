@@ -180,7 +180,6 @@ public class MainWindow extends JFrame {
             if (jarsTabbedPane.getTabCount() == 0) {
                 createDefaultTab();
             }
-            return null;
         });
 		jarsTabbedPane.setTabComponentAt(index, tabUI);
 		if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) != -1 && jarsTabbedPane.getTabCount() > 1) {

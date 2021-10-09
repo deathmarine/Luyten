@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -209,7 +207,6 @@ public class Model extends JSplitPane {
                     Tab ct = new Tab(title, () -> {
                         int index1 = house.indexOfTab(title);
                         closeOpenTab(index1);
-                        return null;
                     });
                     house.setTabComponentAt(index, ct);
                 } else {
@@ -579,20 +576,34 @@ public class Model extends JSplitPane {
 		private final JLabel closeButton = new JLabel(new ImageIcon(
 				Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/resources/icon_close.png"))));
 
-		public Tab(String title, final Callable<Void> onCloseTabAction) {
+		public Tab(String title, final Runnable onCloseTabAction) {
 			super(new GridBagLayout());
 			this.setOpaque(false);
 			this.tabTitle = new JLabel(title);
 			this.createTab();
+
+			addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					if (onCloseTabAction != null && SwingUtilities.isMiddleMouseButton(e)) {
+						try {
+							onCloseTabAction.run();
+						} catch (Exception ex) {
+							Luyten.showExceptionDialog("Exception!", ex);
+						}
+					}
+				}
+			});
+
 			closeButton.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					try {
-						if (onCloseTabAction != null) {
-							onCloseTabAction.call();
+					if (onCloseTabAction != null) {
+						try {
+							onCloseTabAction.run();
+						} catch (Exception ex) {
+							Luyten.showExceptionDialog("Exception!", ex);
 						}
-					} catch (Exception ex) {
-						Luyten.showExceptionDialog("Exception!", ex);
 					}
 				}
 			});
@@ -608,20 +619,6 @@ public class Model extends JSplitPane {
 			gbc.insets = new Insets(0, 5, 0, 0);
 			gbc.anchor = GridBagConstraints.EAST;
 			this.add(closeButton, gbc);
-		}
-	}
-
-	private class CloseTab extends MouseAdapter {
-		String title;
-
-		public CloseTab(String title) {
-			this.title = title;
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			int index = house.indexOfTab(title);
-			closeOpenTab(index);
 		}
 	}
 
@@ -753,7 +750,7 @@ public class Model extends JSplitPane {
 		TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
 		List<String> sort = new ArrayList<>();
-		Collections.sort(mass, String.CASE_INSENSITIVE_ORDER);
+		mass.sort(String.CASE_INSENSITIVE_ORDER);
 		for (String m : mass)
 			if (m.contains("META-INF") && !sort.contains(m))
 				sort.add(m);
@@ -764,8 +761,8 @@ public class Model extends JSplitPane {
 			}
 		}
 		List<String> packs = Arrays.asList(set.toArray(new String[] {}));
-		Collections.sort(packs, String.CASE_INSENSITIVE_ORDER);
-		Collections.sort(packs, (o1, o2) -> o2.split("/").length - o1.split("/").length);
+		packs.sort(String.CASE_INSENSITIVE_ORDER);
+		packs.sort((o1, o2) -> o2.split("/").length - o1.split("/").length);
 		for (String pack : packs)
 			for (String m : mass)
 				if (!m.contains("META-INF") && m.contains(pack) && !m.replace(pack, "").contains("/"))
@@ -788,12 +785,8 @@ public class Model extends JSplitPane {
 		HashSet<String> classContainingPackageRoots = new HashSet<>();
 
 		// (assertion: mass does not contain null elements)
-		Comparator<String> sortByFileExtensionsComparator = (o1, o2) -> {
-            int comp = o1.replaceAll("[^.]*\\.", "").compareTo(o2.replaceAll("[^.]*\\.", ""));
-            if (comp != 0)
-                return comp;
-            return o1.compareTo(o2);
-        };
+		Comparator<String> sortByFileExtensionsComparator = Comparator.comparing(
+				(String o) -> o.replaceAll("[^.]*\\.", "")).thenComparing(o -> o);
 
 		for (String entry : mass) {
 			String packagePath = "";
