@@ -362,8 +362,10 @@ public class DecompilerLinkProvider implements LinkProvider {
 	}
 
 	private String erasePackageInfoFromDesc(String desc) {
-		String limiters = "\\(\\)<>\\[]\\?\\s,";
-		desc = desc.replaceAll("(?<=[^" + limiters + "]*)([^" + limiters + "]*)\\.", "");
+		// Use {0,1024} instead of * as it can't be used together with a lookbehind.
+		// If errors occur, increase this limit.
+		String limiters = "()<>\\[\\]?\\s,";
+		desc = desc.replaceAll("(?<=[^" + limiters + "]{0,1024})([^" + limiters + "]*)\\.", "");
 		return desc;
 	}
 
