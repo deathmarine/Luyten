@@ -220,6 +220,9 @@ public class Model extends JSplitPane {
 	}
 
 	public void closeOpenTab(int index) {
+		if (index < 0 || index >= house.getComponentCount())
+			return;
+
 		RTextScrollPane co = (RTextScrollPane) house.getComponentAt(index);
 		RSyntaxTextArea pane = (RSyntaxTextArea) co.getViewport().getView();
 		OpenFile open = null;
