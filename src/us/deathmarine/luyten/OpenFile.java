@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.HyperlinkEvent;
+import org.fife.ui.rsyntaxtextarea.FileTypeUtil;
 import org.fife.ui.rsyntaxtextarea.LinkGeneratorResult;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
@@ -39,12 +41,14 @@ import com.strobel.decompiler.DecompilerSettings;
 import com.strobel.decompiler.PlainTextOutput;
 import com.strobel.decompiler.languages.Languages;
 
-public class OpenFile implements SyntaxConstants {
+public class OpenFile {
 
 	public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(
 			Arrays.asList(".java", ".xml", ".rss", ".project", ".classpath", ".h", ".c", ".cpp", ".yaml", ".yml", ".ini", ".sql", ".js", ".php", ".php5",
 					".phtml", ".html", ".htm", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".css", ".json", ".txt",
 					".rb", ".make", ".mak", ".py", ".properties", ".prop"));
+
+	private static final FileTypeUtil FILE_TYPE_UTIL = FileTypeUtil.get();
 
 	// navigation links
 	private TreeMap<Selection, String> selectionToUniqueStrTreeMap = new TreeMap<>();
@@ -91,50 +95,8 @@ public class OpenFile implements SyntaxConstants {
 		textArea.setEditable(false);
 		textArea.setAntiAliasingEnabled(true);
 		textArea.setCodeFoldingEnabled(true);
-		
-		if (name.toLowerCase().endsWith(".class") || name.toLowerCase().endsWith(".java"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVA);
-		else if (name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".rss")
-				|| name.toLowerCase().endsWith(".project") || name.toLowerCase().endsWith(".classpath"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_XML);
-		else if (name.toLowerCase().endsWith(".h") || name.toLowerCase().endsWith(".c"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_C);
-		else if (name.toLowerCase().endsWith(".cpp"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_CPLUSPLUS);
-		else if (name.toLowerCase().endsWith(".sql"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_SQL);
-		else if (name.toLowerCase().endsWith(".js"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVASCRIPT);
-		else if (name.toLowerCase().endsWith(".php") || name.toLowerCase().endsWith(".php5")
-				|| name.toLowerCase().endsWith(".phtml"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PHP);
-		else if (name.toLowerCase().endsWith(".html") || name.toLowerCase().endsWith(".htm")
-				|| name.toLowerCase().endsWith(".xhtm") || name.toLowerCase().endsWith(".xhtml"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_HTML);
-		else if (name.toLowerCase().endsWith(".lua"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_LUA);
-		else if (name.toLowerCase().endsWith(".bat"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_WINDOWS_BATCH);
-		else if (name.toLowerCase().endsWith(".pl"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PERL);
-		else if (name.toLowerCase().endsWith(".sh"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_UNIX_SHELL);
-		else if (name.toLowerCase().endsWith(".css"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_CSS);
-		else if (name.toLowerCase().endsWith(".json"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JSON);
-		else if (name.toLowerCase().endsWith(".ini"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_INI);
-		else if (name.toLowerCase().endsWith(".yaml") || name.toLowerCase().endsWith(".yml"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_YAML);
-		else if (name.toLowerCase().endsWith(".rb"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_RUBY);
-		else if (name.toLowerCase().endsWith(".make") || name.toLowerCase().endsWith(".mak"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_MAKEFILE);
-		else if (name.toLowerCase().endsWith(".py"))
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_PYTHON);
-		else
-			textArea.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
+
+		setLanguage(textArea, name);
 		scrollPane = new RTextScrollPane(textArea, true);
 
 		scrollPane.setIconRowHeaderEnabled(true);
@@ -431,8 +393,23 @@ public class OpenFile implements SyntaxConstants {
 		});
 	}
 
+	public static void setLanguage(RSyntaxTextArea area, String fileName) {
+		// Hard code class -> Java mapping
+		if (fileName.toLowerCase().endsWith(".class")) {
+			area.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+			return;
+		}
+
+		String type = FILE_TYPE_UTIL.guessContentType(new File(fileName));
+		if (type == null || type.equals(SyntaxConstants.SYNTAX_STYLE_NONE)) {
+			type = FILE_TYPE_UTIL.guessContentType(area);
+		}
+		area.setSyntaxEditingStyle(type);
+	}
+
 	public void setContent(String content) {
 		textArea.setText(content);
+		setLanguage(textArea, name);
 	}
 
 	public void decompile() {

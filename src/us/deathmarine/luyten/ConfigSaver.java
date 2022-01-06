@@ -125,7 +125,7 @@ public class ConfigSaver {
 				field.setBoolean(newLuytenPrefs, prefs.getBoolean(prefId, defaultBool));
 
 			} else if (field.getType() == Integer.class || field.getType() == int.class) {
-				Integer defaultInt = (Integer) (defaultVal == null ? new Integer(0) : defaultVal);
+				Integer defaultInt = (Integer) (defaultVal == null ? Integer.valueOf(0) : defaultVal);
 				field.setInt(newLuytenPrefs, prefs.getInt(prefId, defaultInt));
 			}
 		}
@@ -180,7 +180,7 @@ public class ConfigSaver {
 				prefs.putBoolean(prefId, (Boolean) (value == null ? Boolean.FALSE : value));
 
 			} else if (field.getType() == Integer.class || field.getType() == int.class) {
-				prefs.putInt(prefId, (Integer) (value == null ? new Integer(0) : value));
+				prefs.putInt(prefId, (Integer) (value == null ? Integer.valueOf(0) : value));
 			}
 		}
 	}
