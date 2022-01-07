@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -328,7 +327,7 @@ public class MainWindow extends JFrame {
         try {
             ClassLoader_classes_field = CL_class.getDeclaredField("classes");
             ClassLoader_classes_field.setAccessible(true);
-            Vector<?> classes = (Vector<?>) ClassLoader_classes_field.get(CL);
+            Iterable<?> classes = (Iterable<?>) ClassLoader_classes_field.get(CL);
             return classes.iterator();
         } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
             Luyten.showExceptionDialog("Exception!", e);
