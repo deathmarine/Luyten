@@ -483,14 +483,14 @@ public class MainMenuBar extends JMenuBar {
             link.addMouseListener(new LinkListener(procyon, link));
             pane.add(link);
             pane.add(new JLabel("Version: " + Procyon.version()));
-            pane.add(new JLabel("(c) 2021 Mike Strobel"));
+            pane.add(new JLabel("(c) 2022 Mike Strobel"));
             String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
             link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
             link.addMouseListener(new LinkListener(rsyntax, link));
             pane.add(link);
             pane.add(new JLabel("Version: 3.1.5"));
-            pane.add(new JLabel("(c) 2021 Robert Futrell"));
+            pane.add(new JLabel("(c) 2022 Robert Futrell"));
             pane.add(new JLabel(" "));
             JOptionPane.showMessageDialog(null, pane);
         });

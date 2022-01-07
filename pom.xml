@@ -133,7 +133,7 @@
                                 <fileVersion>0.${project.version}</fileVersion>
                                 <txtFileVersion>0.${project.version}</txtFileVersion>
                                 <fileDescription>Java Decompiler</fileDescription>
-                                <copyright>2021</copyright>
+                                <copyright>2022</copyright>
                                 <productVersion>0.${project.version}</productVersion>
                                 <txtProductVersion>0.${project.version}</txtProductVersion>
                                 <productName>${project.artifactId}</productName>
@@ -189,7 +189,7 @@
                                             useJavaXKey="true" workingdirectory="$JAVAROOT"
                                             bundleid="${project.groupId}.${project.artifactId}"
                                             mainclass="${project.groupId}.${project.artifactId}.LuytenOsx"
-                                            version="${project.version}" copyright="2021"
+                                            version="${project.version}" copyright="2022"
                                             icon="${project.basedir}/src/main/resources/luyten.icns"
                                             jvmversion="1.8+" screenmenu="true"
                                             antialiasedgraphics="true" highresolutioncapable="true">

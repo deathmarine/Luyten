@@ -33,12 +33,12 @@ We use maven to handle our dependencies.
 
 ### Procyon
 
-&copy; 2021 Mike Strobel  
+&copy; 2022 Mike Strobel  
 [https://github.com/mstrobel/procyon](https://github.com/mstrobel/procyon)  
 [Apache License](https://github.com/deathmarine/Luyten/blob/fixes/src/main/resources/distfiles/Procyon.License.txt)
 
 ### RSyntaxTextArea
 
-&copy; 2021 Robert Futrell  
+&copy; 2022 Robert Futrell  
 [https://bobbylight.github.io/RSyntaxTextArea/](https://bobbylight.github.io/RSyntaxTextArea/)
 [All Rights Reserved](https://github.com/deathmarine/Luyten/blob/fixes/src/main/resources/distfiles/RSyntaxTextArea.License.txt)
