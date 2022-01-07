@@ -255,7 +255,8 @@ public class FindAllBox extends JDialog {
                                                     + "2 additional arguments required for method "
                                                     + "java/lang/invoke/StringConcatFactory.makeConcatWithConstants, "
                                                     + "but only 1 specified.")) {
-                                                // Known issue of Procyon <= 0.5.35 and fix not yet released, refer to https://bitbucket.org/mstrobel/procyon/issues/336/
+                                                // Known issue of Procyon <= 0.5.35 and fix not yet released, refer to
+                                                // https://web.archive.org/web/20200722211732/https://bitbucket.org/mstrobel/procyon/issues/336/
                                                 // Searching in a WAR or JAR file could pop-up a lot of error dialogs
                                                 // for a lot of class files, we simply say nothing here
                                                 addClassName(entry.getName() + "  (search failed due to known "
