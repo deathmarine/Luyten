@@ -172,6 +172,8 @@ public class MainWindow extends JFrame {
     }
 
     public Model loadNewFile(final File file) {
+        if (!file.isFile()) return null;
+
         // In case we open the same file again
         // we remove the old entry to force a refresh
         if (jarModels.containsKey(file.getAbsolutePath())) {
