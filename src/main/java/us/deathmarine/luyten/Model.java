@@ -106,14 +106,14 @@ public class Model extends JSplitPane {
         try {
             String themeXml = luytenPrefs.getThemeXml();
             setTheme(Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml)));
-        } catch (Exception e1) {
+        } catch (Exception e) {
             try {
-                Luyten.showExceptionDialog("Exception!", e1);
+                Luyten.showExceptionDialog("Exception!", e);
                 String themeXml = LuytenPreferences.DEFAULT_THEME_XML;
                 luytenPrefs.setThemeXml(themeXml);
                 setTheme(Theme.load(getClass().getResourceAsStream(LuytenPreferences.THEME_XML_PATH + themeXml)));
-            } catch (Exception e2) {
-                Luyten.showExceptionDialog("Exception!", e2);
+            } catch (Exception e1) {
+                Luyten.showExceptionDialog("Exception!", e1);
             }
         }
 
@@ -467,22 +467,15 @@ public class Model extends JSplitPane {
         }
 
         // open tab
-        if (sameTitledOpen != null) {
-            sameTitledOpen.path = path;
-            sameTitledOpen.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
-            sameTitledOpen.resetScrollPosition();
-            sameTitledOpen.setContent(sb.toString());
-            addOrSwitchToTab(sameTitledOpen);
-        } else {
-            OpenFile open = new OpenFile(tabTitle, path, getTheme(), mainWindow);
-            open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
-            open.setContent(sb.toString());
-            hmap.add(open);
-            addOrSwitchToTab(open);
-        }
+        OpenFile open = new OpenFile(tabTitle, path, getTheme(), mainWindow);
+        open.setDecompilerReferences(metadataSystem, settings, decompilationOptions);
+        open.setContent(sb.toString());
+        hmap.add(open);
+        addOrSwitchToTab(open);
     }
 
     private class TabChangeListener implements ChangeListener {
+
         @Override
         public void stateChanged(ChangeEvent e) {
             int selectedIndex = house.getSelectedIndex();
@@ -490,16 +483,13 @@ public class Model extends JSplitPane {
                 return;
             }
             for (OpenFile open : hmap) {
-                if (house.indexOfTab(open.name) == selectedIndex) {
-
-                    if (open.getType() != null && !open.isContentValid()) {
-                        updateOpenClass(open);
-                        break;
-                    }
-
+                if (house.indexOfTab(open.name) == selectedIndex && open.getType() != null && !open.isContentValid()) {
+                    updateOpenClass(open);
+                    break;
                 }
             }
         }
+
     }
 
     public void updateOpenClasses() {
@@ -544,6 +534,7 @@ public class Model extends JSplitPane {
     }
 
     final class State implements AutoCloseable {
+
         private final String key;
         private final File file;
         final JarFile jarFile;
@@ -564,13 +555,14 @@ public class Model extends JSplitPane {
             Closer.tryClose(jarFile);
         }
 
+        public String getKey() {
+            return key;
+        }
+
         public File getFile() {
             return file;
         }
 
-        public String getKey() {
-            return key;
-        }
     }
 
     public static class Tab extends JPanel {
@@ -684,11 +676,11 @@ public class Model extends JSplitPane {
                     throw new TooLargeFileException(file.length());
                 }
                 if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
-                    JarFile jfile = new JarFile(file);
-                    getLabel().setText("Loading: " + jfile.getName());
+                    JarFile jarFile = new JarFile(file);
+                    getLabel().setText("Loading: " + jarFile.getName());
                     bar.setVisible(true);
 
-                    JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
+                    JarEntryFilter jarEntryFilter = new JarEntryFilter(jarFile);
                     List<String> mass;
                     if (luytenPrefs.isFilterOutInnerClassEntries()) {
                         mass = jarEntryFilter.getEntriesWithoutInnerClasses();
@@ -698,9 +690,9 @@ public class Model extends JSplitPane {
                     buildTreeFromMass(mass);
 
                     if (state == null) {
-                        ITypeLoader jarLoader = new JarTypeLoader(jfile);
+                        ITypeLoader jarLoader = new JarTypeLoader(jarFile);
                         typeLoader.getTypeLoaders().add(jarLoader);
-                        state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
+                        state = new State(file.getCanonicalPath(), file, jarFile, jarLoader);
                     }
                     open = true;
                     getLabel().setText("Complete");
@@ -712,7 +704,7 @@ public class Model extends JSplitPane {
                     open = true;
                     getLabel().setText("Complete");
 
-                    // open it automatically
+                    // Open it automatically
                     new Thread(() -> {
                         TreePath trp = new TreePath(top.getPath());
                         openEntryByTreePath(trp);
@@ -730,8 +722,8 @@ public class Model extends JSplitPane {
             } catch (TooLargeFileException e) {
                 getLabel().setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
                 closeFile();
-            } catch (Exception e1) {
-                Luyten.showExceptionDialog("Cannot open " + file.getName() + "!", e1);
+            } catch (Exception e) {
+                Luyten.showExceptionDialog("Cannot open " + file.getName() + "!", e);
                 getLabel().setText("Cannot open: " + file.getName());
                 closeFile();
             } finally {
@@ -890,8 +882,8 @@ public class Model extends JSplitPane {
                     getTheme().apply(f.textArea);
                 }
             }
-        } catch (Exception e1) {
-            Luyten.showExceptionDialog("Exception!", e1);
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
         }
     }
 
@@ -913,8 +905,8 @@ public class Model extends JSplitPane {
             if (pos >= 0) {
                 tabTitle = house.getTitleAt(pos);
             }
-        } catch (Exception e1) {
-            Luyten.showExceptionDialog("Exception!", e1);
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
         }
         if (tabTitle == null) {
             getLabel().setText("No open tab");
@@ -931,8 +923,8 @@ public class Model extends JSplitPane {
                 RTextScrollPane co = (RTextScrollPane) house.getComponentAt(pos);
                 currentTextArea = (RSyntaxTextArea) co.getViewport().getView();
             }
-        } catch (Exception e1) {
-            Luyten.showExceptionDialog("Exception!", e1);
+        } catch (Exception e) {
+            Luyten.showExceptionDialog("Exception!", e);
         }
         if (currentTextArea == null) {
             getLabel().setText("No open tab");

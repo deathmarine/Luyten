@@ -380,7 +380,7 @@ public class JFontChooser extends JComponent {
     }
 
     public String getVersionString() {
-        return ("Version");
+        return "Version";
     }
 
     /**

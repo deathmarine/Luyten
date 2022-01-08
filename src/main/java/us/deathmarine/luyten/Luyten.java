@@ -5,12 +5,10 @@ import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ServerSocket;
@@ -34,17 +32,44 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.text.DefaultEditorKit;
+import picocli.CommandLine;
 
 /**
  * Starter, the main class
  */
-public class Luyten {
+@CommandLine.Command(mixinStandardHelpOptions = true, versionProvider = Luyten.LuytenVersionProvider.class)
+public class Luyten implements Runnable {
 
     private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
     private static final List<File> pendingFiles = new ArrayList<>();
     private static ServerSocket lockSocket = null;
 
+    public static final String VERSION;
+
+    static {
+        String version = Luyten.class.getPackage().getImplementationVersion();
+        VERSION = "Luyten " + (version == null ? "DEV" : version);
+    }
+
+    @CommandLine.Parameters(hidden = true)
+    private String[] files = new String[0];
+
+    @CommandLine.Option(names = {"-i", "--input"}, description = "File to decompile")
+    private File input;
+
+    @CommandLine.Option(names = {"-o", "--output"}, description = "Output file")
+    private File output;
+
     public static void main(final String[] args) {
+        new CommandLine(new Luyten()).execute(args);
+    }
+
+    @Override
+    public void run() {
+        if (LuytenCLI.execute(input, output)) {
+            return;
+        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 if (lockSocket != null) {
@@ -60,20 +85,21 @@ public class Luyten {
             e.printStackTrace();
         }
 
-        // for TotalCommander External Viewer setting:
-        // javaw -jar "c:\Program Files\Luyten\luyten.jar"
-        // (TC will not complain about temporary file when opening .class from
-        // .zip or .jar)
-        final File fileFromCommandLine = getFileFromCommandLine(args);
-
         try {
+            // for TotalCommander External Viewer setting:
+            // java -jar "c:\Program Files\Luyten\luyten.jar"
+            // (TC will not complain about temporary file when opening .class from
+            // .zip or .jar)
+            final File fileFromCommandLine = getFileFromCommandLine(files);
+
             launchMainInstance(fileFromCommandLine);
         } catch (Exception e) {
             // Instance already exists. Open new file in running instance
+            if (files.length < 1) return; // No file is being loaded; ignore
             try {
                 Socket socket = new Socket("localhost", 3456);
                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF(args[0]);
+                dos.writeUTF(files[0]);
                 dos.flush();
                 dos.close();
                 socket.close();
@@ -83,13 +109,13 @@ public class Luyten {
         }
     }
 
-    private static void launchMainInstance(final File fileFromCommandLine) throws IOException {
+    private static void launchMainInstance(File fileFromCommandLine) throws IOException {
         lockSocket = new ServerSocket(3456);
         launchSession(fileFromCommandLine);
         new Thread(Luyten::launchServer).start();
     }
 
-    private static void launchSession(final File fileFromCommandLine) {
+    private static void launchSession(File fileFromCommandLine) {
         SwingUtilities.invokeLater(() -> {
             if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
                 // Already set - so add the files to open
@@ -150,34 +176,14 @@ public class Luyten {
     }
 
     public static File getFileFromCommandLine(String... args) {
-        File fileFromCommandLine = null;
         try {
             if (args.length > 0) {
-                String realFileName = new File(args[0]).getCanonicalPath();
-                fileFromCommandLine = new File(realFileName);
+                return new File(args[0]).getCanonicalFile();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return fileFromCommandLine;
-    }
-
-    public static String getVersion() {
-        String result = "";
-        try {
-            String line;
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    ClassLoader.getSystemResourceAsStream("META-INF/maven/us.deathmarine/luyten/pom.properties")));
-            while ((line = br.readLine()) != null) {
-                if (line.contains("version"))
-                    result = line.split("=")[1];
-            }
-            br.close();
-        } catch (Exception e) {
-            return result;
-        }
-        return result;
-
+        return null;
     }
 
     /**
@@ -220,7 +226,7 @@ public class Luyten {
                     new JPopupMenu() {
                         {
                             JMenuItem menuitem = new JMenuItem("Select All");
-                            menuitem.addActionListener(e12 -> {
+                            menuitem.addActionListener(event -> {
                                 exception.requestFocus();
                                 exception.selectAll();
                             });
@@ -244,11 +250,11 @@ public class Luyten {
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
         link.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent event) {
                 try {
                     Desktop.getDesktop().browse(new URI(issue));
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -264,6 +270,15 @@ public class Luyten {
         });
         pane.add(link);
         JOptionPane.showMessageDialog(null, pane, "Error!", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static class LuytenVersionProvider implements CommandLine.IVersionProvider {
+
+        @Override
+        public String[] getVersion() {
+            return new String[]{Luyten.VERSION};
+        }
+
     }
 
 }

@@ -15,20 +15,21 @@
 
         <!-- Dependency versions -->
         <applejavaext.version>1.4</applejavaext.version>
+        <picocli.version>4.6.2</picocli.version>
         <procyon.version>0.5.36</procyon.version>
         <rsyntaxtextarea.version>3.1.5</rsyntaxtextarea.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.fifesoft</groupId>
-            <artifactId>rsyntaxtextarea</artifactId>
-            <version>${rsyntaxtextarea.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.apple</groupId>
             <artifactId>AppleJavaExtensions</artifactId>
             <version>${applejavaext.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${picocli.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bitbucket.mstrobel</groupId>
@@ -49,6 +50,11 @@
             <groupId>org.bitbucket.mstrobel</groupId>
             <artifactId>procyon-compilertools</artifactId>
             <version>${procyon.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>${rsyntaxtextarea.version}</version>
         </dependency>
     </dependencies>
 
