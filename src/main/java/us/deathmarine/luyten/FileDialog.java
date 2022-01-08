@@ -26,9 +26,7 @@ public class FileDialog {
         new Thread(() -> {
             try {
                 initOpenDialog();
-                Thread.sleep(500);
                 initSaveAllDialog();
-                Thread.sleep(500);
                 initSaveDialog();
             } catch (Exception e) {
                 Luyten.showExceptionDialog("Exception!", e);
