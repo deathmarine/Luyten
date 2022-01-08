@@ -15,8 +15,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -41,7 +41,7 @@ import picocli.CommandLine;
 public class Luyten implements Runnable {
 
     private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
-    private static final List<File> pendingFiles = new ArrayList<>();
+    private static final Queue<File> pendingFiles = new ConcurrentLinkedQueue<>();
     private static ServerSocket lockSocket = null;
 
     public static final String VERSION;
@@ -148,22 +148,18 @@ public class Luyten implements Runnable {
     public static void processPendingFiles() {
         final MainWindow mainWindow = mainWindowRef.get();
         if (mainWindow != null) {
-            synchronized (pendingFiles) {
-                for (File f : pendingFiles) {
-                    mainWindow.loadNewFile(f);
-                }
-                pendingFiles.clear();
+            for (File f : pendingFiles) {
+                mainWindow.loadNewFile(f);
             }
+            pendingFiles.clear();
         }
     }
 
     // Function which opens the given file in the instance, if it's running -
     // and if not, it processes the files
     public static void addToPendingFiles(File fileToOpen) {
-        synchronized (pendingFiles) {
-            if (fileToOpen != null) {
-                pendingFiles.add(fileToOpen);
-            }
+        if (fileToOpen != null) {
+            pendingFiles.offer(fileToOpen);
         }
     }
 

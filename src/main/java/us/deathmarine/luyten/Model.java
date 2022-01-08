@@ -698,7 +698,7 @@ public class Model extends JSplitPane {
                     getLabel().setText("Complete");
                 } else {
                     TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
-                    final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
+                    DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
                     tree.setModel(new DefaultTreeModel(top));
                     settings.setTypeLoader(new InputTypeLoader());
                     open = true;
