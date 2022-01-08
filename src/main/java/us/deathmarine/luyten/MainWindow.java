@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +44,7 @@ public class MainWindow extends JFrame {
 
     private static final long serialVersionUID = 5265556630724988013L;
 
-    private static final String TITLE = "Luyten";
+    private static final String TITLE = Luyten.VERSION;
     private static final String DEFAULT_TAB = "#DEFAULT";
 
     private final JProgressBar bar;
@@ -306,7 +307,8 @@ public class MainWindow extends JFrame {
             bar.setIndeterminate(true);
             while (myCL != null) {
                 sb.append("ClassLoader: ").append(myCL).append("\n");
-                for (Iterator<?> iter = list(myCL); iter.hasNext(); ) {
+                Iterator<?> iter = list(myCL);
+                while (iter != null && iter.hasNext()) {
                     sb.append("\t").append(iter.next()).append("\n");
                 }
                 myCL = myCL.getParent();
@@ -320,10 +322,10 @@ public class MainWindow extends JFrame {
 
     private static Iterator<?> list(ClassLoader CL) {
         Class<?> CL_class = CL.getClass();
-        while (CL_class != java.lang.ClassLoader.class) {
+        while (CL_class != ClassLoader.class) {
             CL_class = CL_class.getSuperclass();
         }
-        java.lang.reflect.Field ClassLoader_classes_field;
+        Field ClassLoader_classes_field;
         try {
             ClassLoader_classes_field = CL_class.getDeclaredField("classes");
             ClassLoader_classes_field.setAccessible(true);
@@ -339,13 +341,22 @@ public class MainWindow extends JFrame {
         StringBuilder sb = new StringBuilder();
         try {
             BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getClass().getResourceAsStream("/distfiles/Procyon.License.txt")));
+                    new InputStreamReader(getClass().getResourceAsStream("/licenses/Procyon.License.txt")));
             String line;
             while ((line = reader.readLine()) != null)
                 sb.append(line).append("\n");
+
             sb.append("\n\n\n\n\n");
+
             reader = new BufferedReader(
-                    new InputStreamReader(getClass().getResourceAsStream("/distfiles/RSyntaxTextArea.License.txt")));
+                    new InputStreamReader(getClass().getResourceAsStream("/licenses/RSyntaxTextArea.License.txt")));
+            while ((line = reader.readLine()) != null)
+                sb.append(line).append("\n");
+
+            sb.append("\n\n\n\n\n");
+
+            reader = new BufferedReader(
+                    new InputStreamReader(getClass().getResourceAsStream("/licenses/PicoCLI.License.txt")));
             while ((line = reader.readLine()) != null)
                 sb.append(line).append("\n");
         } catch (IOException e) {

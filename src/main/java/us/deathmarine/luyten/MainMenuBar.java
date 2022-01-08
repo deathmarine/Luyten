@@ -36,6 +36,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
+import picocli.CommandLine;
 
 /**
  * Main menu (only MainWindow should be called from here)
@@ -461,15 +462,16 @@ public class MainMenuBar extends JMenuBar {
         menuItem.addActionListener(event -> {
             JPanel pane = new JPanel();
             pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
-            JLabel title = new JLabel("Luyten " + Luyten.getVersion());
+            JLabel title = new JLabel(Luyten.VERSION);
             title.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 18));
             pane.add(title);
             pane.add(new JLabel("by Deathmarine"));
-            String project = "https://github.com/deathmarine/Luyten/";
+            String project = "https://github.com/deathmarine/Luyten";
             JLabel link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + project + "</U></FONT></HTML>");
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
             link.addMouseListener(new LinkListener(project, link));
             pane.add(link);
+
             pane.add(new JLabel("Contributions By:"));
             pane.add(new JLabel("zerdei, toonetown, dstmath"));
             pane.add(new JLabel("virustotalop, xtrafrancyz,"));
@@ -477,6 +479,7 @@ public class MainMenuBar extends JMenuBar {
             pane.add(new JLabel("FisheyLP, Syquel, and ThexXTURBOXx"));
             pane.add(new JLabel(" "));
             pane.add(new JLabel("Powered By:"));
+
             String procyon = "https://github.com/mstrobel/procyon";
             link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + procyon + "</U></FONT></HTML>");
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -484,6 +487,7 @@ public class MainMenuBar extends JMenuBar {
             pane.add(link);
             pane.add(new JLabel("Version: " + Procyon.version()));
             pane.add(new JLabel("(c) 2022 Mike Strobel"));
+
             String rsyntax = "https://github.com/bobbylight/RSyntaxTextArea";
             link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + rsyntax + "</U></FONT></HTML>");
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -491,7 +495,16 @@ public class MainMenuBar extends JMenuBar {
             pane.add(link);
             pane.add(new JLabel("Version: 3.1.5"));
             pane.add(new JLabel("(c) 2022 Robert Futrell"));
+
+            String picocli = "https://github.com/remkop/picocli";
+            link = new JLabel("<HTML><FONT color=\"#000099\"><U>" + picocli + "</U></FONT></HTML>");
+            link.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            link.addMouseListener(new LinkListener(picocli, link));
+            pane.add(link);
+            pane.add(new JLabel("Version: " + CommandLine.VERSION));
+            pane.add(new JLabel("(c) 2022 Remko Popma"));
             pane.add(new JLabel(" "));
+
             JOptionPane.showMessageDialog(null, pane);
         });
         helpMenu.add(menuItem);
@@ -564,11 +577,11 @@ public class MainMenuBar extends JMenuBar {
         }
 
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(MouseEvent event) {
             try {
                 Desktop.getDesktop().browse(new URI(link));
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
