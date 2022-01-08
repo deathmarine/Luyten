@@ -122,7 +122,7 @@
                             <goal>launch4j</goal>
                         </goals>
                         <configuration>
-                            <headerType>gui</headerType>
+                            <headerType>console</headerType>
                             <outfile>target/${project.artifactId}-${project.version}.exe</outfile>
                             <jar>target/${project.artifactId}-${project.version}.jar</jar>
                             <errTitle>App Err</errTitle>
