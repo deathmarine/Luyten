@@ -19,7 +19,7 @@
         <!-- TODO: Change back when 0.6 stable is released -->
         <!--<procyon.version>0.5.36</procyon.version>-->
         <procyon.version>10b32a4</procyon.version>
-        <rsyntaxtextarea.version>3.1.5</rsyntaxtextarea.version>
+        <rsyntaxtextarea.version>3.1.6</rsyntaxtextarea.version>
     </properties>
 
     <!-- TODO: Remove when 0.6 stable is released -->
