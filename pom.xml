@@ -15,8 +15,8 @@
 
         <!-- Dependency versions -->
         <applejavaext.version>1.4</applejavaext.version>
-        <picocli.version>4.6.2</picocli.version>
-        <procyon.version>0.5.36</procyon.version>
+        <picocli.version>4.6.3</picocli.version>
+        <procyon.version>0.6.0</procyon.version>
         <rsyntaxtextarea.version>3.1.6</rsyntaxtextarea.version>
     </properties>
 
@@ -63,7 +63,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.9.0</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
