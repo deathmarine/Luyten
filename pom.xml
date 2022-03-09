@@ -4,7 +4,7 @@
 
     <groupId>us.deathmarine</groupId>
     <artifactId>luyten</artifactId>
-    <version>0.7.0</version>
+    <version>0.8.0</version>
 
     <properties>
         <!-- Project settings -->
