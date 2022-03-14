@@ -493,7 +493,7 @@ public class MainMenuBar extends JMenuBar {
             link.setCursor(new Cursor(Cursor.HAND_CURSOR));
             link.addMouseListener(new LinkListener(rsyntax, link));
             pane.add(link);
-            pane.add(new JLabel("Version: 3.1.6"));
+            pane.add(new JLabel("Version: 3.2.0"));
             pane.add(new JLabel("(c) 2022 Robert Futrell"));
 
             String picocli = "https://github.com/remkop/picocli";

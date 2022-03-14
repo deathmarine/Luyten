@@ -17,7 +17,7 @@
         <applejavaext.version>1.4</applejavaext.version>
         <picocli.version>4.6.3</picocli.version>
         <procyon.version>0.6.0</procyon.version>
-        <rsyntaxtextarea.version>3.1.6</rsyntaxtextarea.version>
+        <rsyntaxtextarea.version>3.2.0</rsyntaxtextarea.version>
     </properties>
 
     <dependencies>
