@@ -63,7 +63,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.10.1</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -72,7 +72,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.3.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -154,7 +154,7 @@
                 <!-- Download universalJavaApplicationStub for use in the OS X app -->
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
-                <version>1.6.7</version>
+                <version>1.6.8</version>
                 <executions>
                     <execution>
                         <phase>process-resources</phase>
@@ -175,7 +175,7 @@
             <plugin>
                 <!-- Package the jar as an OS X application -->
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>jarbundler-gui</id>
@@ -241,7 +241,7 @@
                                     <pluginExecutionFilter>
                                         <groupId>org.apache.maven.plugins</groupId>
                                         <artifactId>maven-install-plugin</artifactId>
-                                        <versionRange>[2.5.2,)</versionRange>
+                                        <versionRange>[3.0.1,)</versionRange>
                                         <goals>
                                             <goal>install-file</goal>
                                         </goals>
@@ -254,7 +254,7 @@
                                     <pluginExecutionFilter>
                                         <groupId>com.googlecode.maven-download-plugin</groupId>
                                         <artifactId>download-maven-plugin</artifactId>
-                                        <versionRange>[1.6.7,)</versionRange>
+                                        <versionRange>[1.6.8,)</versionRange>
                                         <goals>
                                             <goal>wget</goal>
                                         </goals>
