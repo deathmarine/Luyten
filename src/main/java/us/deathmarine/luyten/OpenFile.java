@@ -127,9 +127,6 @@ public class OpenFile {
 
         textArea.setHyperlinksEnabled(true);
         textArea.setLinkScanningMask(Keymap.ctrlDownModifier());
-        textArea.addHyperlinkListener(e -> {
-            // Empty Hyperlink listener as a workaround
-        });
 
         textArea.setLinkGenerator((textArea, offs) -> {
             final String uniqueStr = getUniqueStrForOffset(offs);

@@ -4,7 +4,7 @@
 
     <groupId>us.deathmarine</groupId>
     <artifactId>luyten</artifactId>
-    <version>0.8.1</version>
+    <version>0.8.2</version>
 
     <properties>
         <!-- Project settings -->
@@ -17,7 +17,7 @@
         <applejavaext.version>1.4</applejavaext.version>
         <picocli.version>4.6.3</picocli.version>
         <procyon.version>0.6.0</procyon.version>
-        <rsyntaxtextarea.version>3.2.0</rsyntaxtextarea.version>
+        <rsyntaxtextarea.version>3.3.0</rsyntaxtextarea.version>
     </properties>
 
     <dependencies>
