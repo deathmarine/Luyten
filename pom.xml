@@ -21,9 +21,9 @@
 
         <!-- Dependency versions -->
         <applejavaext.version>1.4</applejavaext.version>
-        <picocli.version>4.6.3</picocli.version>
+        <picocli.version>4.7.0</picocli.version>
         <procyon.version>0.6.0</procyon.version>
-        <rsyntaxtextarea.version>3.3.0</rsyntaxtextarea.version>
+        <rsyntaxtextarea.version>3.3.2</rsyntaxtextarea.version>
     </properties>
 
     <dependencies>
@@ -78,7 +78,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -245,7 +245,7 @@
                                     <pluginExecutionFilter>
                                         <groupId>org.apache.maven.plugins</groupId>
                                         <artifactId>maven-install-plugin</artifactId>
-                                        <versionRange>[3.0.1,)</versionRange>
+                                        <versionRange>[3.1.0,)</versionRange>
                                         <goals>
                                             <goal>install-file</goal>
                                         </goals>
