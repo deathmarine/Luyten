@@ -1,5 +1,5 @@
 PicoCLI
-Copyright (c) 2022, Remko Popma
+Copyright (c) 2023, Remko Popma
 
 Apache License
 Version 2.0, January 2004
