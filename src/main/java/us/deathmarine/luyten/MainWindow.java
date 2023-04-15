@@ -97,13 +97,13 @@ public class MainWindow extends JFrame {
         jarsTabbedPane.setUI(new BasicTabbedPaneUI() {
             @Override
             protected int calculateTabAreaHeight(int tab_placement, int run_count, int max_tab_height) {
-                if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) == -1)
+                if (!isDefaultTabLoaded())
                     return super.calculateTabAreaHeight(tab_placement, run_count, max_tab_height);
                 else
                     return 0;
             }
         });
-        jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
+        createDefaultTab();
         this.getContentPane().add(jarsTabbedPane);
 
         JSplitPane spt = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel1, panel2) {
@@ -163,6 +163,10 @@ public class MainWindow extends JFrame {
         jarsTabbedPane.remove(jarsTabbedPane.indexOfTab(DEFAULT_TAB));
     }
 
+    private boolean isDefaultTabLoaded() {
+        return jarsTabbedPane.indexOfTab(DEFAULT_TAB) >= 0;
+    }
+
     public void onOpenFileMenu() {
         File selectedFile = fileDialog.doOpenDialog();
         if (selectedFile != null) {
@@ -176,23 +180,24 @@ public class MainWindow extends JFrame {
 
         // In case we open the same file again
         // we remove the old entry to force a refresh
-        if (jarModels.containsKey(file.getAbsolutePath())) {
-            jarModels.remove(file.getAbsolutePath());
-            int index = jarsTabbedPane.indexOfTab(file.getName());
+        String absPath = file.getAbsolutePath();
+        if (jarModels.containsKey(absPath)) {
+            Model m = jarModels.remove(absPath);
+            int index = jarsTabbedPane.indexOfComponent(m);
             jarsTabbedPane.remove(index);
         }
 
         final Model jarModel = new Model(this);
         jarModel.loadFile(file);
-        jarModels.put(file.getAbsolutePath(), jarModel);
+        jarModels.put(absPath, jarModel);
         jarsTabbedPane.addTab(file.getName(), jarModel);
         jarsTabbedPane.setSelectedComponent(jarModel);
 
         final String tabName = file.getName();
-        int index = jarsTabbedPane.indexOfTab(tabName);
+        int index = jarsTabbedPane.indexOfComponent(jarModel);
         Model.Tab tabUI = new Model.Tab(tabName, () -> {
-            int index1 = jarsTabbedPane.indexOfTab(tabName);
-            jarModels.remove(file.getAbsolutePath());
+            int index1 = jarsTabbedPane.indexOfComponent(jarModel);
+            jarModels.remove(absPath);
             jarsTabbedPane.remove(index1);
             jarModel.closeFile();
             if (jarsTabbedPane.getTabCount() == 0) {
@@ -200,7 +205,7 @@ public class MainWindow extends JFrame {
             }
         });
         jarsTabbedPane.setTabComponentAt(index, tabUI);
-        if (jarsTabbedPane.indexOfTab(DEFAULT_TAB) != -1 && jarsTabbedPane.getTabCount() > 1) {
+        if (isDefaultTabLoaded() && jarsTabbedPane.getTabCount() > 1) {
             removeDefaultTab();
         }
         return jarModel;
