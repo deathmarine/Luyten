@@ -137,7 +137,7 @@
                             </classPath>
                             <icon>luyten.ico</icon>
                             <jre>
-                                <path>java</path>
+                                <path>%JAVA_HOME%;%PATH%</path>
                             </jre>
                             <versionInfo>
                                 <fileVersion>0.${project.version}</fileVersion>
