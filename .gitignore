@@ -5,3 +5,10 @@
 /target
 /lib
 /resources
+
+# IntelliJ
+.idea/
+*.iml
+
+# Maven
+dependency-reduced-pom.xml
